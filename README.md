@@ -105,6 +105,7 @@
     <p>Moderators are responsible for maintaining the quality and safety of the platform's content and user interactions. They review and manage posts across various sections, including rental listings, roommate requests, and forum discussions. Moderators handle user reports, enforce community guidelines, and ensure the accuracy of rental data. They also support the AI model training process and mediate user conflicts when necessary.</p>
 
   <ul>
+        <li>As a moderator, I want to check if the registered are humans or bots by collecting and checking their ID for verification, to ensure user's confidence in the application</li>
         <li>As a moderator, I want to review and manage forum posts, rental listings, and user-generated content to ensure compliance with platform guidelines.</li>
         <li>As a moderator, I want to investigate and respond to user reports of inappropriate content or behavior to maintain a safe environment.</li>
         <li>As a moderator, I want to enforce posting guidelines for rental prices, roommate requests, and other forum activities to maintain consistency and quality.</li>
