@@ -6,8 +6,8 @@
 <H1>User Personas</H1>
 
 
-  <h2>Epics</h2>
-  <p> There are 2 epics in the project</p>
+  <h2>Personas</h2>
+  <p> There are 2 personas in the project</p>
   <li> Users</li>
   <li> Moderators</li>
   <h3> Users</h3>
