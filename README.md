@@ -1,4 +1,4 @@
-# fall24-monday-team3 Sreeharsh 
+# fall24-monday-team3
 
 <H1> High Level Context Diagram <H1>
 <img width="506" alt="Screenshot 2024-09-30 at 11 32 22 AM" src="https://github.com/user-attachments/assets/e8d9f9e7-ad0b-48ce-804e-28b1d39c0274">
