@@ -1,0 +1,22 @@
+<!-- rentals/templates/rentals/create_apartment_post.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Apartment Post</title>
+</head>
+<body>
+    <h1>Create Apartment Post</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ post_form.as_p }}
+        {{ image_form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!-- rentals/templates/rentals/apartment_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apartment Listings</title>
+</head>
+<body>
+    <h1>Apartment Listings</h1>
+    {% if apartments %}
+        <ul>
+            {% for apartment in apartments %}
+                <li>
+                    <h2><a href="{% url 'apartment_detail' apartment.pk %}">{{ apartment.title }}</a></h2>
+                    <p>{{ apartment.description|truncatewords:20 }}</p>
+                    <p>Price: ${{ apartment.price }}</p>
+                    <p>Bedrooms: {{ apartment.bedrooms }}</p>
+                    <p>Square Feet: {{ apartment.square_feet }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No apartments available.</p>
+    {% endif %}
+    <a href="{% url 'create_apartment_post' %}">Create a New Apartment Post</a>
+</body>
+</html>

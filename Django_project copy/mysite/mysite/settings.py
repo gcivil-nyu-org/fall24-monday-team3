@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,12 +25,15 @@ SECRET_KEY = 'django-insecure-p=owv8y(&-%z!5_$88kl7ezp+zh$r1w@a#wsfyg4q!9_=oscgh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django-env.eba-gvvxnxg6.us-east-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'django-env.eba-gvvxnxg6.us-east-2.elasticbeanstalk.com']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rentals.apps.RentalsConfig',
     'polls.apps.PollsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -122,3 +125,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
