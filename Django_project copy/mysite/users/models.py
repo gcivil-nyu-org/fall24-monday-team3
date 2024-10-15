@@ -5,3 +5,5 @@ class User(AbstractUser):
     # You can add custom fields if needed, like:
     bio = models.TextField(null=True, blank=True)
     # Other custom fields here
+
+

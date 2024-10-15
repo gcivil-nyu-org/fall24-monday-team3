@@ -1,15 +1,9 @@
 from django.urls import path
-
 from . import views
-app_name = 'polls'
-
+from .views import login_view,register_view
 urlpatterns = [
-    # ex: /polls/
-    path('', views.index, name='index'),
-    # ex: /polls/5/
-    path('<int:question_id>/', views.detail, name='detail'),
-    # ex: /polls/5/results/
-    path('<int:question_id>/results/', views.results, name='results'),
-    # ex: /polls/5/vote/
-    path('<int:question_id>/vote/', views.vote, name='vote'),
+    path('', views.home_view, name='home'),
+    path('signup/', views.signup, name='signup'),
+    path('login/', login_view, name='login'),
+    path('register/', register_view, name='register'),
 ]
