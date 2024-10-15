@@ -25,7 +25,6 @@ urlpatterns = [
     # Other URLs for the project
     path('', views.home_view, name='home'),
     path('admin/', admin.site.urls),
-    path('polls/', include('polls.urls')),
     path('rentals/', include('rentals.urls')),
 ]
 
