@@ -1,45 +1,31 @@
-from django.http import HttpResponse
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.db.models import Avg
+from .models import Post, Rating
 
-from .models import Question
-
-
-from django.http import HttpResponse
-from django.template import loader
-from django.shortcuts import render,get_object_or_404
-from .models import Choice, Question
-from django.http import Http404,HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-def index(request):
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    context = {'latest_question_list': latest_question_list}
-    return render(request, 'polls/index.html', context)
-
-
-# Leave the rest of the views (detail, results, vote) unchanged
-def detail(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/detail.html', {'question': question})
-
-    
-def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'polls/results.html', {'question': question})
-
-
-def vote(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
+def post_detail(request, post_id):
     try:
-        selected_choice = question.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'polls/detail.html', {
-            'question': question,
-            'error_message': "You didn't select a choice.",
-        })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+        post = Post.objects.get(id=post_id)
+        return render(request, 'polls/post_detail.html', {'post': post})
+    except Post.DoesNotExist:
+        return render(request, 'post_not_found.html', {'post_id': post_id}, status=404)
+
+def rate_post(request, post_id):
+    if request.method == 'POST':
+        try:
+            post = Post.objects.get(id=post_id)
+            rating_value = int(request.POST.get('rating'))
+            
+            Rating.objects.create(post=post, value=rating_value)
+            
+            # Recalculate average rating
+            avg_rating = post.ratings.aggregate(Avg('value'))['value__avg']
+            post.average_rating = round(avg_rating, 2) if avg_rating else 0
+            post.save()
+            
+            return JsonResponse({'success': True, 'average_rating': post.average_rating})
+        except Post.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Post not found'}, status=404)
+        except ValueError:
+            return JsonResponse({'success': False, 'error': 'Invalid rating value'}, status=400)
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)

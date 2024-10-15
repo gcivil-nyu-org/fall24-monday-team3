@@ -1,20 +1,23 @@
 from django.contrib import admin
+from .models import Post, Rating
 
-from .models import Choice, Question
+class RatingInline(admin.TabularInline):
+    model = Rating
+    extra = 1
 
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('id', 'content_preview', 'average_rating')
+    list_filter = ('average_rating',)
+    search_fields = ('content',)
+    inlines = [RatingInline]
 
-class ChoiceInline(admin.StackedInline):
-    model = Choice
-    extra = 3
+    def content_preview(self, obj):
+        return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+    content_preview.short_description = 'Content Preview'
 
-
-class QuestionAdmin(admin.ModelAdmin):
-    fieldsets = [
-        (None,               {'fields': ['question_text']}),
-        ('Date information', {'fields': ['pub_date'], 'classes': ['collapse']}),
-    ]
-    list_display = ('question_text', 'pub_date', 'was_published_recently')
-
-    inlines = [ChoiceInline]
-
-admin.site.register(Question, QuestionAdmin)
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'post', 'value')
+    list_filter = ('value',)
+    search_fields = ('post__content',)
