@@ -1,0 +1,27 @@
+
+<h1>Update Rental</h1>
+<form method="POST">
+    {% csrf_token %}
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" value="{{ rental.title }}"><br>
+
+    <label for="description">Description:</label>
+    <textarea id="description" name="description">{{ rental.description }}</textarea><br>
+
+    <label for="price">Price:</label>
+    <input type="text" id="price" name="price" value="{{ rental.price }}"><br>
+
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" value="{{ rental.location }}"><br>
+
+    <label for="apartment_type">Apartment Type:</label>
+    <input type="text" id="apartment_type" name="apartment_type" value="{{ rental.apartment_type }}"><br>
+
+    <label for="sqft">SqFt:</label>
+    <input type="text" id="sqft" name="sqft" value="{{ rental.sqft }}"><br>
+
+    <label for="amenities">Amenities:</label>
+    <textarea id="amenities" name="amenities">{{ rental.amenities }}</textarea><br>
+
+    <button type="submit">Update</button>
+</form>

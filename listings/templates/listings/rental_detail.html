@@ -1,0 +1,10 @@
+<h1>{{ rental.title }}</h1>
+<p>Description: {{ rental.description }}</p>
+<p>Price: ${{ rental.price }}</p>
+<p>Location: {{ rental.location }}</p>
+<p>Apartment Type: {{ rental.apartment_type }}</p>
+<p>Square Feet: {{ rental.sqft }}</p>
+<p>Amenities: {{ rental.amenities }}</p>
+
+<a href="{% url 'update_rental' rental.id %}">Update</a>
+<a href="{% url 'delete_rental' rental.id %}">Delete</a>

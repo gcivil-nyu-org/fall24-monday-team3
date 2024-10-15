@@ -1,0 +1,7 @@
+<h1>Delete Rental</h1>
+<p>Are you sure you want to delete the rental: "{{ rental.title }}"?</p>
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">Yes, delete</button>
+    <a href="{% url 'rental_list' %}">Cancel</a>
+</form>

@@ -1,0 +1,6 @@
+<h1>Rental Listings</h1>
+<ul>
+    {% for rental in rentals %}
+        <li>{{ rental.title }} - <a href="{% url 'rental_detail' rental.id %}">View Details</a></li>
+    {% endfor %}
+</ul>
