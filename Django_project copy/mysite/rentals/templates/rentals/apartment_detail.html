@@ -30,4 +30,67 @@
         </div>
     </div>
 </div>
+<div id="rating-section">
+    <p>Average Rating: <span id="average-rating">
+        {% if apartment.average_rating > 0 %}
+            {{ apartment.average_rating|floatformat:2 }}
+        {% else %}
+            No ratings yet
+        {% endif %}
+    </span></p>
+    <div id="rating-stars">
+        {% for i in "12345" %}
+            <span class="star" data-value="{{ i }}">&#9734;</span>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    console.log("Document ready");
+
+    $('.star').on('click', function() {
+        console.log("Star clicked");
+
+        var rating = $(this).data('value');
+        $.ajax({
+            url: '{% url "rate_post" apartment.id %}',
+            type: 'POST',
+            data: {
+                'rating': rating,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log("AJAX success", response);
+                if (response.success) {
+                    $('#average-rating').text(response.average_rating.toFixed(2));
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX error", status, error);
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.star {
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none;
+}
+.star:hover,
+.star.active {
+    color: #ffcc00;
+}
+#debug-info {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+}
+</style>
 {% endblock %}

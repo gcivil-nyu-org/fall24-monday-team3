@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Amenity(models.Model):
     name = models.CharField(max_length=100)
@@ -14,6 +15,7 @@ class ApartmentPost(models.Model):
     bedrooms = models.PositiveIntegerField()
     square_feet = models.PositiveIntegerField()
     amenities = models.ManyToManyField(Amenity, blank=True)
+    average_rating = models.FloatField(default=0)
 
     def __str__(self):
         return self.title
@@ -24,3 +26,7 @@ class ApartmentImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.apartment.title}"
+    
+class Rating(models.Model):
+    post = models.ForeignKey(ApartmentPost, on_delete=models.CASCADE, related_name='ratings')
+    value = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])

@@ -12,10 +12,12 @@ class ApartmentPostForm(forms.ModelForm):
         ]
 
 class ApartmentImageForm(forms.ModelForm):
-    image = forms.ImageField(
-        label='Select Images',
-        widget=forms.ClearableFileInput(attrs={'multiple': True})
-    )
+    class Meta:
+        model = ApartmentImage
+        fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={'accept': 'image/*'}),
+        }
 
     class Meta:
         model = ApartmentImage
