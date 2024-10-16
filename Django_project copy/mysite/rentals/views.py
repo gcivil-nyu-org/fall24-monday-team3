@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ApartmentPostForm, ApartmentImageForm
 from .models import ApartmentImage, ApartmentPost
 from django.contrib import messages
-
+import PIL
 def apartment_list(request):
     apartments = ApartmentPost.objects.all()
     context = {

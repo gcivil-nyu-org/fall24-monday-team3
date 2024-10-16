@@ -1,6 +1,6 @@
 branch-defaults:
   default:
-    environment: rentals-dev
+    environment: null
     group_suffix: null
 environment-defaults:
   rentals-dev:
