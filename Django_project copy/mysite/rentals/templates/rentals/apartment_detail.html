@@ -1,0 +1,33 @@
+<!-- rentals/templates/rentals/apartment_detail.html -->
+
+
+{% block title %}{{ apartment.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ apartment.title }}</h1>
+    <div class="card">
+        {% if images %}
+            {% for image in images %}
+                <img src="{{ image.image.url }}" alt="Image of {{ apartment.title }}">
+            {% endfor %}
+        {% else %}
+            <p>No images available.</p>
+        {% endif %}
+        <div class="card-body">
+            <p>{{ apartment.description }}</p>
+            <p><strong>Price:</strong> ${{ apartment.price }}</p>
+            <p><strong>Address:</strong> {{ apartment.address }}</p>
+            <p><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</p>
+            <p><strong>Square Feet:</strong> {{ apartment.square_feet }}</p>
+            <p><strong>Amenities:</strong></p>
+            <ul>
+                {% for amenity in apartment.amenities.all %}
+                    <li>{{ amenity.name }}</li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'apartment_list' %}" class="btn-primary">Back to Listings</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

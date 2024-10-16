@@ -10,12 +10,13 @@ SECRET_KEY = 'django-insecure-p=owv8y(&-%z!5_$88kl7ezp+zh$r1w@a#wsfyg4q!9_=oscgh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # Set to False in production
 
-ALLOWED_HOSTS = ['django-env.eba-gvvxnxg6.us-east-2.elasticbeanstalk.com']  # Add your domain or server IP in production
+ALLOWED_HOSTS = ['rentals-dev3.us-east-1.elasticbeanstalk.com']  # Add your domain or server IP in production
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rentals.apps.RentalsConfig',
     'django.contrib.admin',          # Django admin interface
     'django.contrib.auth',           # Authentication framework
     'django.contrib.contenttypes',   # Content types framework

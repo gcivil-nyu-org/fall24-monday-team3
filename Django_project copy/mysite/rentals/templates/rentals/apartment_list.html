@@ -1,0 +1,30 @@
+<!-- rentals/templates/rentals/apartment_list.html -->
+
+
+{% block title %}Apartment Listings{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Apartment Listings</h1>
+</header>
+<div class="container">
+    {% if apartments %}
+        <div class="row">
+            {% for apartment in apartments %}
+                <div class="card">
+                    {% if apartment.images.first %}
+                        <img src="{{ apartment.images.first.image.url }}" alt="{{ apartment.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h2 class="card-title">{{ apartment.title }}</h2>
+                        <p class="card-text">{{ apartment.description|truncatewords:15 }}</p>
+                        <a href="{% url 'apartment_detail' apartment.pk %}" class="btn-primary">View Details</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No apartments available.</p>
+    {% endif %}
+</div>
+{% endblock %}
