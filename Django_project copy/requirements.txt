@@ -1,6 +1,7 @@
 DateTime==5.5
 Django==2.2
 pathlib==1.0.1
+pillow==11.0.0
 pytz==2024.2
 setuptools==75.1.0
 sqlparse==0.5.1
