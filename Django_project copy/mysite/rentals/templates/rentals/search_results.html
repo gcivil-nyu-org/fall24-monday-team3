@@ -14,11 +14,14 @@
     <h2>Search Results</h2>
     <ul>
         {% for apartment in results %}
-            <li>{{ apartment.title }} - {{ apartment.address }}</li>
+            <li>
+                <a href="{% url 'apartment_detail' apartment.pk %}">
+                    {{ apartment.title }} - {{ apartment.address }}
+                </a>
+            </li>
         {% empty %}
             <li>No results found.</li>
         {% endfor %}
     </ul>
 </body>
 </html>
-

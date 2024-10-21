@@ -17,12 +17,7 @@ def apartment_list(request):
 
 def apartment_detail(request, pk):
     apartment = get_object_or_404(ApartmentPost, pk=pk)
-    images = apartment.images.all()
-    context = {
-        'apartment': apartment,
-        'image': images
-    }
-    return render(request, 'rentals/apartment_detail.html', context)
+    return render(request, 'rentals/apartment_detail.html', {'apartment': apartment})
 
 def create_apartment_post(request):
     if request.method == 'POST':
