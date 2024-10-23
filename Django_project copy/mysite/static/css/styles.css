@@ -1,0 +1,21 @@
+/* static/css/styles.css */
+
+.star {
+    font-size: 2rem;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none;
+}
+
+.star.text-warning {
+    color: #ffc107;
+}
+
+#rating-stars {
+    display: inline-block;
+}
+
+.carousel-item img {
+    height: 400px;
+    object-fit: cover;
+}

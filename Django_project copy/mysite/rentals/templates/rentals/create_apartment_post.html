@@ -1,21 +1,29 @@
 <!-- rentals/templates/rentals/create_apartment_post.html -->
 
+{% extends 'rentals/base.html' %}
 
 {% block title %}Create Apartment Post{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Create Apartment Post</h1>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ post_form.as_p }}
-        {{ image_form.as_p }}
-        <button type="submit" class="btn-primary">Submit</button>
-    </form>
+<div class="card">
+    <div class="card-header">
+        <h2>Create Apartment Post</h2>
+    </div>
+    <div class="card-body">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-info">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ post_form.as_p }}
+            <div class="mb-3">
+                <label for="id_image" class="form-label">Upload Images</label>
+                <input type="file" name="image" id="id_image" class="form-control" accept="image/*" multiple>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
