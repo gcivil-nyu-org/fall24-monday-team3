@@ -1,4 +1,5 @@
 from django.db import models
+from PIL import Image
 
 class Rental(models.Model):
     title = models.CharField(max_length=100)
@@ -7,12 +8,7 @@ class Rental(models.Model):
     image = models.ImageField(upload_to='rental_images/', null=True, blank=True)
     location = models.CharField(max_length=255)
     zip_code = models.CharField(max_length=10)
-    apartment_type = models.CharField(max_length=50, choices=[
-        ('studio', 'Studio'),
-        ('1_bed', '1 Bed'),
-        ('2_bed', '2 Bed'),
-        ('3_bed', '3 Bed')
-    ])
+    apartment_type = models.CharField(max_length=50, blank=True, null=True)
     sqft = models.IntegerField()
     amenities = models.TextField()
 
