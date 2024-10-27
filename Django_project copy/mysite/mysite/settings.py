@@ -10,7 +10,7 @@ SECRET_KEY = 'django-insecure-p=owv8y(&-%z!5_$88kl7ezp+zh$r1w@a#wsfyg4q!9_=oscgh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # Set to False in production
 
-ALLOWED_HOSTS = ['new-rental.eba-h7y2cacw.us-east-2.elasticbeanstalk.com', '127.0.0.1', 'localhost']  # Add your domain or server IP in production
+ALLOWED_HOSTS = ['rentsense.eba-edswgxfj.us-east-1.elasticbeanstalk.com', '127.0.0.1', 'localhost']  # Add your domain or server IP in production
 
 
 # Application definition

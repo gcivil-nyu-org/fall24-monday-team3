@@ -1,16 +1,16 @@
 branch-defaults:
   default:
-    environment: null
+    environment: rentsense
     group_suffix: null
 environment-defaults:
   rentals-dev:
     branch: null
     repository: null
 global:
-  application_name: rentals
+  application_name: rentsense
   branch: null
   default_ec2_keyname: aws-eb
-  default_platform: Python 3.11 running on 64bit Amazon Linux 2023
+  default_platform: Python 3.9
   default_region: us-east-1
   include_git_submodules: true
   instance_profile: null
