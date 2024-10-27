@@ -1,30 +1,35 @@
 <!-- rentals/templates/rentals/apartment_list.html -->
 
-
+{% extends 'rentals/base.html' %}
+{% load static %}
 {% block title %}Apartment Listings{% endblock %}
 
 {% block content %}
-<header>
-    <h1>Apartment Listings</h1>
+<header class="mb-4">
+    <h1 class="text-center">Apartment Listings</h1>
 </header>
-<div class="container">
-    {% if apartments %}
-        <div class="row">
-            {% for apartment in apartments %}
-                <div class="card">
+{% if apartments %}
+    <div class="row">
+        {% for apartment in apartments %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
                     {% if apartment.images.first %}
-                        <img src="{{ apartment.images.first.image.url }}" alt="{{ apartment.title }}">
+                        <img src="{{ apartment.images.first.image.url }}" class="card-img-top" alt="{{ apartment.title }}">
+                    {% else %}
+                        <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="No Image Available">
                     {% endif %}
                     <div class="card-body">
-                        <h2 class="card-title">{{ apartment.title }}</h2>
+                        <h5 class="card-title">{{ apartment.title }}</h5>
                         <p class="card-text">{{ apartment.description|truncatewords:15 }}</p>
-                        <a href="{% url 'apartment_detail' apartment.pk %}" class="btn-primary">View Details</a>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'apartment_detail' apartment.pk %}" class="btn btn-primary">View Details</a>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No apartments available.</p>
-    {% endif %}
-</div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-center">No apartments available.</p>
+{% endif %}
 {% endblock %}

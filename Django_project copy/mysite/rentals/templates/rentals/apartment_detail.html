@@ -1,58 +1,79 @@
 <!-- rentals/templates/rentals/apartment_detail.html -->
 
-
+{% extends 'rentals/base.html' %}
+{% load static %}
 {% block title %}{{ apartment.title }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>{{ apartment.title }}</h1>
-    <div class="card">
+<div class="card mb-4">
+    <div id="apartmentCarousel" class="carousel slide" data-bs-ride="carousel">
         {% if images %}
-            {% for image in images %}
-                <img src="{{ image.image.url }}" alt="Image of {{ apartment.title }}">
-            {% endfor %}
-        {% else %}
-            <p>No images available.</p>
-        {% endif %}
-        <div class="card-body">
-            <p>{{ apartment.description }}</p>
-            <p><strong>Price:</strong> ${{ apartment.price }}</p>
-            <p><strong>Address:</strong> {{ apartment.address }}</p>
-            <p><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</p>
-            <p><strong>Square Feet:</strong> {{ apartment.square_feet }}</p>
-            <p><strong>Amenities:</strong></p>
-            <ul>
-                {% for amenity in apartment.amenities.all %}
-                    <li>{{ amenity.name }}</li>
+            <div class="carousel-inner">
+                {% for image in images %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="Image of {{ apartment.title }}">
+                    </div>
                 {% endfor %}
-            </ul>
-            <a href="{% url 'apartment_list' %}" class="btn-primary">Back to Listings</a>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#apartmentCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#apartmentCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        {% else %}
+            <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="No images available.">
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h2 class="card-title">{{ apartment.title }}</h2>
+        <p class="card-text">{{ apartment.description }}</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Price:</strong> ${{ apartment.price }}</li>
+            <li class="list-group-item"><strong>Address:</strong> {{ apartment.address }}</li>
+            <li class="list-group-item"><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</li>
+            <li class="list-group-item"><strong>Square Feet:</strong> {{ apartment.square_feet }}</li>
+            <li class="list-group-item"><strong>Amenities:</strong>
+                {% if apartment.amenities.all %}
+                    <ul>
+                        {% for amenity in apartment.amenities.all %}
+                            <li>{{ amenity.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    None
+                {% endif %}
+            </li>
+            <li class="list-group-item"><strong>Average Rating:</strong> <span id="average-rating">
+                {% if apartment.average_rating > 0 %}
+                    {{ apartment.average_rating|floatformat:2 }}
+                {% else %}
+                    No ratings yet
+                {% endif %}
+            </span></li>
+        </ul>
+        <div class="mt-3">
+            <h5>Rate this Apartment:</h5>
+            <div id="rating-stars">
+                {% for i in "12345" %}
+                    <span class="star" data-value="{{ i }}">&#9733;</span>
+                {% endfor %}
+            </div>
         </div>
     </div>
-</div>
-<div id="rating-section">
-    <p>Average Rating: <span id="average-rating">
-        {% if apartment.average_rating > 0 %}
-            {{ apartment.average_rating|floatformat:2 }}
-        {% else %}
-            No ratings yet
-        {% endif %}
-    </span></p>
-    <div id="rating-stars">
-        {% for i in "12345" %}
-            <span class="star" data-value="{{ i }}">&#9734;</span>
-        {% endfor %}
+    <div class="card-footer text-center">
+        <a href="{% url 'apartment_list' %}" class="btn btn-secondary">Back to Listings</a>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% block extra_js %}
 <script>
 $(document).ready(function() {
-    console.log("Document ready");
-
+    let rated = false;
     $('.star').on('click', function() {
-        console.log("Star clicked");
-
+        if (rated) return;
+        rated = true;
         var rating = $(this).data('value');
         $.ajax({
             url: '{% url "rate_post" apartment.id %}',
@@ -62,9 +83,9 @@ $(document).ready(function() {
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function(response) {
-                console.log("AJAX success", response);
                 if (response.success) {
                     $('#average-rating').text(response.average_rating.toFixed(2));
+                    highlightStars(rating);
                 }
             },
             error: function(xhr, status, error) {
@@ -72,25 +93,16 @@ $(document).ready(function() {
             }
         });
     });
+
+    function highlightStars(rating) {
+        $('.star').each(function() {
+            if ($(this).data('value') <= rating) {
+                $(this).addClass('text-warning');
+            } else {
+                $(this).removeClass('text-warning');
+            }
+        });
+    }
 });
 </script>
-
-<style>
-.star {
-    font-size: 24px;
-    color: #ccc;
-    cursor: pointer;
-    user-select: none;
-}
-.star:hover,
-.star.active {
-    color: #ffcc00;
-}
-#debug-info {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-}
-</style>
 {% endblock %}
