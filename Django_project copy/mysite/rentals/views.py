@@ -17,12 +17,7 @@ def apartment_list(request):
 
 def apartment_detail(request, pk):
     apartment = get_object_or_404(ApartmentPost, pk=pk)
-    images = apartment.images.all()
-    context = {
-        'apartment': apartment,
-        'image': images
-    }
-    return render(request, 'rentals/apartment_detail.html', context)
+    return render(request, 'rentals/apartment_detail.html', {'apartment': apartment})
 
 def create_apartment_post(request):
     if request.method == 'POST':
@@ -67,3 +62,12 @@ def rate_post(request, post_id):
         except ValueError:
             return JsonResponse({'success': False, 'error': 'Invalid rating value'}, status=400)
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+def search_apartments(request):
+    query = request.GET.get('q')
+    if query:
+        results = ApartmentPost.objects.filter(title__icontains=query)
+    else:
+        results = ApartmentPost.objects.all()
+    
+    return render(request, 'rentals/search_results.html', {'results': results, 'query': query})
