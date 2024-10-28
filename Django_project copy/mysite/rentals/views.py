@@ -33,7 +33,26 @@ def apartment_detail(request, pk):
     }
     return render(request, 'rentals/apartment_detail.html', context)
 
+
 @login_required(login_url='/users/login/')
+def update_apartment_post(request, pk):
+    apartment_post = get_object_or_404(ApartmentPost, pk=pk)
+    if request.method == 'POST':
+        form = ApartmentPostForm(request.POST, request.FILES, instance=apartment_post)
+        if form.is_valid():
+            form.save()
+            return redirect('apartment_detail', pk=apartment_post.pk)
+    else:
+        form = ApartmentPostForm(instance=apartment_post)
+    return render(request, 'rentals/update_apartment_post.html', {'form': form, 'post': apartment_post})
+# Delete view for ApartmentPost
+def delete_apartment_post(request, pk):
+    apartment_post = get_object_or_404(ApartmentPost, pk=pk)
+    if request.method == "POST":
+        apartment_post.delete()
+        return redirect('apartment_list')
+    return render(request, 'rentals/delete_apartment_post.html', {'apartment_post': apartment_post})
+
 def rate_post(request, post_id):
     if request.method == 'POST':
         try:
