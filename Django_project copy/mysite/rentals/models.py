@@ -30,3 +30,5 @@ class ApartmentImage(models.Model):
 class Rating(models.Model):
     post = models.ForeignKey(ApartmentPost, on_delete=models.CASCADE, related_name='ratings')
     value = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
+
