@@ -17,7 +17,7 @@ ALLOWED_HOSTS = ['rentsense.eba-edswgxfj.us-east-1.elasticbeanstalk.com', '127.0
 
 INSTALLED_APPS = [
     'rentals.apps.RentalsConfig',
-    'django.contrib.admin',          # Django admin interface
+    #'django.contrib.admin',          # Django admin interface
     'django.contrib.auth',           # Authentication framework
     'django.contrib.contenttypes',   # Content types framework
     'django.contrib.sessions',       # Session framework
