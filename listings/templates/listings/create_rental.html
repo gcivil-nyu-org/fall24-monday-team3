@@ -1,0 +1,6 @@
+<h1>Create New Rental</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Rental</button>
+</form>

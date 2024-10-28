@@ -32,6 +32,7 @@ class Rating(models.Model):
     post = models.ForeignKey(ApartmentPost, on_delete=models.CASCADE, related_name='ratings')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratings')
     value = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -40,3 +41,4 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s rating for {self.post.title}"
+

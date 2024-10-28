@@ -69,6 +69,9 @@
                           data-value="{{ forloop.counter }}">★</span>
                 {% endfor %}
             </div>
+            </ul>
+            <a href="{% url 'update_apartment_post' pk=apartment.pk %}" class="btn btn-secondary">Edit Listing</a>
+            <a href="{% url 'delete_apartment_post' pk=apartment.pk %}" class="btn btn-danger">Delete Listing</a>
         </div>
     </div>
     <div class="card-footer text-center">
