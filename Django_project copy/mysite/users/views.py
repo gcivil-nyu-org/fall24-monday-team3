@@ -3,17 +3,17 @@ from django.contrib.auth import login, authenticate
 from .forms import SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # Automatically log in the user after registration
-            return redirect('home')  # Redirect to home page or wherever you want
+            login(request, user)
+            return redirect('home')
     else:
         form = SignUpForm()
     return render(request, 'users/signup.html', {'form': form})
-
 
 def login_view(request):
     if request.method == 'POST':
@@ -25,7 +25,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
-                return redirect('home')  # Redirect to home page or wherever you want after login
+                return redirect('home')  
             else:
                 messages.error(request, 'Invalid username or password')
         else:
@@ -35,11 +35,8 @@ def login_view(request):
     
     return render(request, 'users/login.html', {'form': form})
 
-
 def register_view(request):
-    # Logic for handling registration
     return render(request, 'users/register.html')
-
 
 def home_view(request):
     return render(request, 'users/home.html')

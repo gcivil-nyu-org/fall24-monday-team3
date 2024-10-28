@@ -159,28 +159,161 @@
                 font-size: 2rem;
             }
         }
+
+        .welcome-text {
+            color: white;
+            margin-right: 1rem;
+        }
+
+        nav button.login {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        nav button.login:hover {
+            background: #fff;
+            color: #2c3e50;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .welcome-text {
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .welcome-text:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: fixed;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            z-index: 9999;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-content form {
+            width: 100%;
+        }
+
+        .dropdown-content .logout-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            color: #2c3e50;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-content .logout-btn:hover {
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
     </style>
+    <script>
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('dropdownMenu');
+            const button = event.currentTarget;
+            const buttonRect = button.getBoundingClientRect();
+            
+            dropdown.classList.toggle('show');
+            
+            if (dropdown.classList.contains('show')) {
+                // Position the dropdown relative to the button
+                dropdown.style.position = 'fixed';
+                dropdown.style.top = (buttonRect.bottom + window.scrollY + 5) + 'px';
+                dropdown.style.left = (buttonRect.right - dropdown.offsetWidth) + 'px';
+            }
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.welcome-text')) {
+                const dropdown = document.getElementById('dropdownMenu');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        // Update dropdown position on scroll
+        window.addEventListener('scroll', function() {
+            const dropdown = document.getElementById('dropdownMenu');
+            if (dropdown.classList.contains('show')) {
+                const button = document.querySelector('.welcome-text');
+                const buttonRect = button.getBoundingClientRect();
+                dropdown.style.top = (buttonRect.bottom + window.scrollY + 5) + 'px';
+            }
+        });
+    </script>
 </head>
 <body>
+    <div id="dropdownMenu" class="dropdown-content">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+    
     <header>
         <div class="container">
             <div class="header-content">
                 <div class="logo">Rent Sense</div>
                 <nav>
-                    <a href="{% url 'login' %}" class="login">Login</a>
-                    <a href="{% url 'signup' %}" class="register">Register</a>
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="welcome-text" onclick="toggleDropdown(event)">
+                                Welcome, {{ user.username }} &#9662;
+                            </button>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="login">Login</a>
+                        <a href="{% url 'signup' %}" class="register">Register</a>
+                    {% endif %}
                 </nav>
             </div>
         </div>
     </header>
-
+    
     <div class="container">
         <section class="hero">
             <h2>Welcome to Rent Sense</h2>
             <p>Your AI-powered rental companion for smarter property decisions</p>
-            <a href="{% url 'signup' %}" class="cta-button">Get Started</a>
+            {% if user.is_authenticated %}
+                <a href="/rentals/" class="cta-button">View Rentals</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="cta-button">Get Started</a>
+            {% endif %}
         </section>
-
+    
         <section class="features">
             <div class="feature-card">
                 <h3>AI-Powered Pricing</h3>
@@ -200,11 +333,12 @@
             </div>
         </section>
     </div>
-
+    
     <footer>
         <div class="container">
             <p>&copy; 2024 Rent Sense. All rights reserved.</p>
         </div>
     </footer>
 </body>
+
 </html>
