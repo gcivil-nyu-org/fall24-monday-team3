@@ -11,27 +11,27 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('rentals', '0001_initial'),
+        ("rentals", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rating',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ratings', to=settings.AUTH_USER_MODEL),
+            model_name="rating",
+            name="user",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="ratings", to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
-            model_name='apartmentpost',
-            name='amenities',
-            field=models.ManyToManyField(blank=True, to='rentals.Amenity'),
+            model_name="apartmentpost",
+            name="amenities",
+            field=models.ManyToManyField(blank=True, to="rentals.Amenity"),
         ),
         migrations.AddField(
-            model_name='apartmentimage',
-            name='apartment',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='rentals.ApartmentPost'),
+            model_name="apartmentimage",
+            name="apartment",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="images", to="rentals.ApartmentPost"),
         ),
         migrations.AlterUniqueTogether(
-            name='rating',
-            unique_together={('post', 'user')},
+            name="rating",
+            unique_together={("post", "user")},
         ),
     ]

@@ -1,0 +1,29 @@
+language: python
+python:
+- '3.9'
+install:
+- pip install -r requirements.txt
+  
+script:
+- black --check .
+- flake8 --max-line-length=150 .
+#- coverage run manage.py test
+
+after_script:
+#- coveralls
+- echo "Build finished"
+
+# deploy:
+# - skip_cleanup: 'true'
+#   provider: elasticbeanstalk
+#   access_key_id: $AWS_ID
+#   secret_access_key: $AWS_KEY
+#   region: us-east-2
+#   app: polls-app
+#   env: polls-app
+#   bucket_name: elasticbeanstalk-us-east-2-682033502272
+#   on:
+#     repo: nsh2207/software-homework-1-django-polls
+#     branch: main
+  
+
