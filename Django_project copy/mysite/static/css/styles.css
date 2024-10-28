@@ -1,16 +1,5 @@
 /* static/css/styles.css */
 
-.star {
-    font-size: 2rem;
-    color: #ccc;
-    cursor: pointer;
-    user-select: none;
-}
-
-.star.text-warning {
-    color: #ffc107;
-}
-
 #rating-stars {
     display: inline-block;
 }
@@ -18,4 +7,32 @@
 .carousel-item img {
     height: 400px;
     object-fit: cover;
+}
+
+.star-rating {
+    direction: ltr;
+    display: inline-block;
+}
+
+.star {
+    cursor: pointer;
+    font-size: 24px;
+    color: #ddd;
+}
+.star.filled {
+    color: #ffd700;
+}
+.star.hover {
+    color: #ffe44a;
+}
+#clear-rating {
+    font-size: 0.8em;
+    padding: 2px 8px;
+    vertical-align: middle;
+}
+
+#user-rating-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }

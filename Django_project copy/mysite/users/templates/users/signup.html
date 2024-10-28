@@ -191,11 +191,13 @@
 
         {% if messages %}
             <div class="messages">
+                {% if messages %}
                 {% for message in messages %}
-                    <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                    {% if message.tags == 'error' %}
                         {{ message }}
-                    </div>
+                    {% endif %}
                 {% endfor %}
+            {% endif %}
             </div>
         {% endif %}
         

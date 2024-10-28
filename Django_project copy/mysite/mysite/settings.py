@@ -38,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'rentals.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'  # The main URL configuration file
