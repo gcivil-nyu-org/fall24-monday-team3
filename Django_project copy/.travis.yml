@@ -12,6 +12,7 @@ script:
 after_script:
 #- coveralls
 - echo "Build finished"
+- echo "Tring again"
 
 # deploy:
 # - skip_cleanup: 'true'
