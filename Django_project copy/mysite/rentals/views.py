@@ -38,12 +38,12 @@ def apartment_detail(request, pk):
 @login_required(login_url="/users/login/")
 def update_apartment_post(request, pk):
     apartment_post = get_object_or_404(ApartmentPost, pk=pk)
-    
+
     # Check if the user is the owner
     if apartment_post.user != request.user:
         messages.error(request, "You don't have permission to edit this listing.")
         return redirect("apartment_detail", pk=apartment_post.pk)
-        
+
     if request.method == "POST":
         form = ApartmentPostForm(request.POST, request.FILES, instance=apartment_post)
         if form.is_valid():
@@ -61,12 +61,12 @@ def update_apartment_post(request, pk):
 @login_required(login_url="/users/login/")
 def delete_apartment_post(request, pk):
     apartment_post = get_object_or_404(ApartmentPost, pk=pk)
-    
+
     # Check if the user is the owner
     if apartment_post.user != request.user:
         messages.error(request, "You don't have permission to delete this listing.")
         return redirect("apartment_detail", pk=apartment_post.pk)
-        
+
     if request.method == "POST":
         apartment_post.delete()
         messages.success(request, "Apartment listing deleted successfully.")
@@ -76,6 +76,7 @@ def delete_apartment_post(request, pk):
         "rentals/delete_apartment_post.html",
         {"apartment_post": apartment_post},
     )
+
 
 def rate_post(request, post_id):
     if request.method == "POST":

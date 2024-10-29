@@ -12,9 +12,7 @@ class Amenity(models.Model):
 
 class ApartmentPost(models.Model):
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='apartments'
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="apartments"
     )
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -27,6 +25,7 @@ class ApartmentPost(models.Model):
 
     def __str__(self):
         return self.title
+
 
 class ApartmentImage(models.Model):
     apartment = models.ForeignKey(
