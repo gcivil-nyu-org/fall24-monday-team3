@@ -16,6 +16,10 @@ after_script:
 
 before_deploy:
 - cd "Django_project copy/mysite"
+- find users/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
+- find users/migrations/__pycache__ -type d -exec rm -rf {} +
+- find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
+- find rentals/migrations/__pycache__ -type d -exec rm -rf {} +
 - python manage.py makemigrations users
 - python manage.py migrate
 
