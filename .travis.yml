@@ -14,6 +14,9 @@ after_script:
 - echo "Build finished"
 - echo "Tring again"
 
+before_deploy:
+- cd "Django_project copy/mysite"
+
 deploy:
 - skip_cleanup: 'true'
   provider: elasticbeanstalk
