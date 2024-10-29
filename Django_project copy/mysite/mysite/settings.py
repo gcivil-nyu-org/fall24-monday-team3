@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",  # Messaging framework
     "django.contrib.staticfiles",  # Static files handling
     # Your custom apps
-    "users",  # App for user registration/authentication
+    "users.apps.PollsConfig",  # App for user registration/authentication
     # 'groups',                        # App for posting messages in groups (if applicable)
 ]
 
