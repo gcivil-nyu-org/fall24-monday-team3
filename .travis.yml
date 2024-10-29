@@ -14,17 +14,17 @@ after_script:
 - echo "Build finished"
 - echo "Tring again"
 
-# deploy:
-# - skip_cleanup: 'true'
-#   provider: elasticbeanstalk
-#   access_key_id: $AWS_ID
-#   secret_access_key: $AWS_KEY
-#   region: us-east-2
-#   app: polls-app
-#   env: polls-app
-#   bucket_name: elasticbeanstalk-us-east-2-682033502272
-#   on:
-#     repo: nsh2207/software-homework-1-django-polls
-#     branch: main
+deploy:
+- skip_cleanup: 'true'
+  provider: elasticbeanstalk
+  access_key_id: $AWS_ID
+  secret_access_key: $AWS_KEY
+  region: us-east-1
+  app: rentsense
+  env: rentsense
+  bucket_name: elasticbeanstalk-us-east-1-682033502272
+  on:
+    repo: gcivil-nyu-org/fall24-monday-team3
+    branch: test3-branch
   
 
