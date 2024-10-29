@@ -16,7 +16,7 @@ after_script:
 
 before_deploy:
 - cd "Django_project copy/mysite"
-- python manage.py makemigrations
+- python manage.py makemigrations user
 - python manage.py migrate
 
 deploy:
