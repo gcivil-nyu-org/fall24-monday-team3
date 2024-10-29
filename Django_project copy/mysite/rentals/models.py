@@ -25,7 +25,9 @@ class ApartmentPost(models.Model):
 
 
 class ApartmentImage(models.Model):
-    apartment = models.ForeignKey(ApartmentPost, related_name="images", on_delete=models.CASCADE)
+    apartment = models.ForeignKey(
+        ApartmentPost, related_name="images", on_delete=models.CASCADE
+    )
     image = models.ImageField(upload_to="apartment_images/")
 
     def __str__(self):
@@ -33,8 +35,12 @@ class ApartmentImage(models.Model):
 
 
 class Rating(models.Model):
-    post = models.ForeignKey(ApartmentPost, on_delete=models.CASCADE, related_name="ratings")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="ratings")
+    post = models.ForeignKey(
+        ApartmentPost, on_delete=models.CASCADE, related_name="ratings"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="ratings"
+    )
     value = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
 
     created_at = models.DateTimeField(auto_now_add=True)

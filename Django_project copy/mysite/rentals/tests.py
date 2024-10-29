@@ -33,7 +33,13 @@ class ApartmentPostFormTests(TestCase):
 
 class ApartmentRatingTests(TestCase):
     def setUp(self):
-        self.apartment = ApartmentPost.objects.create(title="Test Apartment", price=1000, average_rating=0, bedrooms=2, square_feet=850)
+        self.apartment = ApartmentPost.objects.create(
+            title="Test Apartment",
+            price=1000,
+            average_rating=0,
+            bedrooms=2,
+            square_feet=850,
+        )
 
     def test_rating_submission(self):
         # Simulate a rating submission

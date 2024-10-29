@@ -27,7 +27,11 @@ def apartment_detail(request, pk):
         except Rating.DoesNotExist:
             pass
 
-    context = {"apartment": apartment, "user_rating": user_rating, "images": apartment.images.all()}
+    context = {
+        "apartment": apartment,
+        "user_rating": user_rating,
+        "images": apartment.images.all(),
+    }
     return render(request, "rentals/apartment_detail.html", context)
 
 
@@ -41,7 +45,11 @@ def update_apartment_post(request, pk):
             return redirect("apartment_detail", pk=apartment_post.pk)
     else:
         form = ApartmentPostForm(instance=apartment_post)
-    return render(request, "rentals/update_apartment_post.html", {"form": form, "post": apartment_post})
+    return render(
+        request,
+        "rentals/update_apartment_post.html",
+        {"form": form, "post": apartment_post},
+    )
 
 
 # Delete view for ApartmentPost
@@ -50,7 +58,11 @@ def delete_apartment_post(request, pk):
     if request.method == "POST":
         apartment_post.delete()
         return redirect("apartment_list")
-    return render(request, "rentals/delete_apartment_post.html", {"apartment_post": apartment_post})
+    return render(
+        request,
+        "rentals/delete_apartment_post.html",
+        {"apartment_post": apartment_post},
+    )
 
 
 def rate_post(request, post_id):
@@ -60,18 +72,30 @@ def rate_post(request, post_id):
             rating_value = int(request.POST.get("rating"))
 
             # Update or create rating
-            rating, created = Rating.objects.update_or_create(post=post, user=request.user, defaults={"value": rating_value})
+            rating, created = Rating.objects.update_or_create(
+                post=post, user=request.user, defaults={"value": rating_value}
+            )
 
             # Recalculate average rating
             avg_rating = post.ratings.aggregate(Avg("value"))["value__avg"]
             post.average_rating = round(avg_rating, 2) if avg_rating else 0
             post.save()
 
-            return JsonResponse({"success": True, "average_rating": post.average_rating, "user_rating": rating_value})
+            return JsonResponse(
+                {
+                    "success": True,
+                    "average_rating": post.average_rating,
+                    "user_rating": rating_value,
+                }
+            )
         except ApartmentPost.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Post not found"}, status=404)
+            return JsonResponse(
+                {"success": False, "error": "Post not found"}, status=404
+            )
         except ValueError:
-            return JsonResponse({"success": False, "error": "Invalid rating value"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Invalid rating value"}, status=400
+            )
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
 
@@ -89,7 +113,9 @@ def clear_rating(request, post_id):
             post.average_rating = round(avg_rating, 2) if avg_rating else 0
             post.save()
 
-            return JsonResponse({"success": True, "average_rating": post.average_rating})
+            return JsonResponse(
+                {"success": True, "average_rating": post.average_rating}
+            )
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=400)
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
@@ -126,4 +152,6 @@ def search_apartments(request):
     else:
         results = ApartmentPost.objects.all()
 
-    return render(request, "rentals/search_results.html", {"results": results, "query": query})
+    return render(
+        request, "rentals/search_results.html", {"results": results, "query": query}
+    )

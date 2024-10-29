@@ -15,21 +15,45 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Amenity",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
             name="ApartmentImage",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("image", models.ImageField(upload_to="apartment_images/")),
             ],
         ),
         migrations.CreateModel(
             name="ApartmentPost",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("title", models.CharField(max_length=255)),
                 ("description", models.TextField()),
                 ("price", models.DecimalField(decimal_places=2, max_digits=10)),
@@ -42,10 +66,33 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Rating",
             fields=[
-                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("value", models.IntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(5)])),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "value",
+                    models.IntegerField(
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(5),
+                        ]
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("post", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="ratings", to="rentals.ApartmentPost")),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ratings",
+                        to="rentals.ApartmentPost",
+                    ),
+                ),
             ],
             options={
                 "ordering": ["-created_at"],
