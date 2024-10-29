@@ -11,9 +11,15 @@
     </div>
     <div class="card-body">
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-info">{{ message }}</div>
-            {% endfor %}
+            <div class="messages">
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        {{ message }}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            </div>
         {% endif %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}

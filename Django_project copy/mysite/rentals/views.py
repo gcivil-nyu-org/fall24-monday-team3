@@ -38,6 +38,12 @@ def apartment_detail(request, pk):
 @login_required(login_url="/users/login/")
 def update_apartment_post(request, pk):
     apartment_post = get_object_or_404(ApartmentPost, pk=pk)
+    
+    # Check if the user is the owner
+    if apartment_post.user != request.user:
+        messages.error(request, "You don't have permission to edit this listing.")
+        return redirect("apartment_detail", pk=apartment_post.pk)
+        
     if request.method == "POST":
         form = ApartmentPostForm(request.POST, request.FILES, instance=apartment_post)
         if form.is_valid():
@@ -52,18 +58,24 @@ def update_apartment_post(request, pk):
     )
 
 
-# Delete view for ApartmentPost
+@login_required(login_url="/users/login/")
 def delete_apartment_post(request, pk):
     apartment_post = get_object_or_404(ApartmentPost, pk=pk)
+    
+    # Check if the user is the owner
+    if apartment_post.user != request.user:
+        messages.error(request, "You don't have permission to delete this listing.")
+        return redirect("apartment_detail", pk=apartment_post.pk)
+        
     if request.method == "POST":
         apartment_post.delete()
+        messages.success(request, "Apartment listing deleted successfully.")
         return redirect("apartment_list")
     return render(
         request,
         "rentals/delete_apartment_post.html",
         {"apartment_post": apartment_post},
     )
-
 
 def rate_post(request, post_id):
     if request.method == "POST":
@@ -128,9 +140,16 @@ def create_apartment_post(request):
         image_form = ApartmentImageForm(request.POST, request.FILES)
 
         if post_form.is_valid() and image_form.is_valid():
-            apartment_post = post_form.save()
-            images = request.FILES.getlist("image")
+            # Create apartment post but don't save to DB yet
+            apartment_post = post_form.save(commit=False)
+            # Set the user
+            apartment_post.user = request.user
+            # Now save to DB
+            apartment_post.save()
+            # Save many-to-many relationships
+            post_form.save_m2m()
 
+            images = request.FILES.getlist("image")
             for image in images:
                 ApartmentImage.objects.create(apartment=apartment_post, image=image)
 
