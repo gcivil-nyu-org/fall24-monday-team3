@@ -20,15 +20,15 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    "rentals.apps.RentalsConfig",
-    # 'django.contrib.admin',          # Django admin interface
+    "rentals",
+    'django.contrib.admin',          # Django admin interface
     "django.contrib.auth",  # Authentication framework
     "django.contrib.contenttypes",  # Content types framework
     "django.contrib.sessions",  # Session framework
     "django.contrib.messages",  # Messaging framework
     "django.contrib.staticfiles",  # Static files handling
     # Your custom apps
-    "users.apps.PollsConfig",  # App for user registration/authentication
+    "users",  # App for user registration/authentication
     # 'groups',                        # App for posting messages in groups (if applicable)
 ]
 
@@ -123,7 +123,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Authentication settings
-AUTH_USER_MODEL = "users.User"  # Custom user model (if you're using one)
+AUTH_USER_MODEL = "users.RentUser"  # Custom user model (if you're using one)
 LOGIN_REDIRECT_URL = "home"  # Redirect to home after login
 LOGOUT_REDIRECT_URL = "home"  # Redirect to home after logout
 

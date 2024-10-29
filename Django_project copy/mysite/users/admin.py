@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User  # Import your models
+from .models import RentUser  # Import your models
 
 
 # Optionally create a custom admin class for the User model
@@ -14,7 +14,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 # Register the User model with the custom UserAdmin class
-admin.site.register(User, UserAdmin)
+admin.site.register(RentUser, UserAdmin)
 
 # # Register the Group model with the default ModelAdmin (no customizations)
 # admin.site.register(Group)
