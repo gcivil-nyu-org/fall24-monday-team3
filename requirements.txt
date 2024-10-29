@@ -4,5 +4,7 @@ pathlib==1.0.1
 pillow==11.0.0
 pytz==2024.2
 setuptools==75.1.0
+black
+flake8
 sqlparse==0.5.1
 zope.interface==7.0.3
