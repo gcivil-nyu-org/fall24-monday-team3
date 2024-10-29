@@ -8,6 +8,14 @@
 <header class="mb-4">
     <h1 class="text-center">Apartment Listings</h1>
 </header>
+
+<form method="get" action="{% url 'apartment_list' %}" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Search for apartments..." value="{{ search_query|default:''}}">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </div>
+</form>
+
 {% if apartments %}
     <div class="row">
         {% for apartment in apartments %}

@@ -18,7 +18,6 @@ urlpatterns = [
         name="delete_apartment_post",
     ),  # Delete view
     path("<int:post_id>/rate/", views.rate_post, name="rate_post"),
-    path("search/", views.search_apartments, name="search_apartments"),
     path("<int:post_id>/rate/clear/", views.clear_rating, name="clear_rating"),
     # You can add more URL patterns here, such as detail views
 ]
