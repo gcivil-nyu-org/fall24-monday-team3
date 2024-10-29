@@ -13,7 +13,14 @@ class Command(BaseCommand):
 
         # Transform & Load
         with open("apartments.csv", "w", newline="") as csvfile:
-            fieldnames = ["title", "description", "price", "address", "bedrooms", "square_feet"]
+            fieldnames = [
+                "title",
+                "description",
+                "price",
+                "address",
+                "bedrooms",
+                "square_feet",
+            ]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
@@ -29,4 +36,6 @@ class Command(BaseCommand):
                     }
                 )
 
-        self.stdout.write(self.style.SUCCESS("Data successfully exported to apartments.csv"))
+        self.stdout.write(
+            self.style.SUCCESS("Data successfully exported to apartments.csv")
+        )

@@ -18,7 +18,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="rating",
             name="user",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="ratings", to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ratings",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
             model_name="apartmentpost",
@@ -28,7 +32,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="apartmentimage",
             name="apartment",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="images", to="rentals.ApartmentPost"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="rentals.ApartmentPost",
+            ),
         ),
         migrations.AlterUniqueTogether(
             name="rating",

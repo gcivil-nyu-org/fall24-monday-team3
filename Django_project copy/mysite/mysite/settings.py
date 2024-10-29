@@ -10,7 +10,11 @@ SECRET_KEY = "django-insecure-p=owv8y(&-%z!5_$88kl7ezp+zh$r1w@a#wsfyg4q!9_=oscgh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True  # Set to False in production
 
-ALLOWED_HOSTS = ["rentsense.eba-edswgxfj.us-east-1.elasticbeanstalk.com", "127.0.0.1", "localhost"]  # Add your domain or server IP in production
+ALLOWED_HOSTS = [
+    "rentsense.eba-edswgxfj.us-east-1.elasticbeanstalk.com",
+    "127.0.0.1",
+    "localhost",
+]  # Add your domain or server IP in production
 
 
 # Application definition
@@ -125,5 +129,7 @@ LOGOUT_REDIRECT_URL = "home"  # Redirect to home after logout
 
 # Email backend for sending email (e.g., verification)
 # For development, you can use the console backend:
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # Logs emails to console
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"  # Logs emails to console
+)
 # In production, you’d configure a real email backend here (SMTP, etc.)
