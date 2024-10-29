@@ -20,8 +20,9 @@ before_deploy:
 - rm -rf users/migrations/__pycache__
 - find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
 - rm -rf rentals/migrations/__pycache__
-- python manage.py makemigrations users
+- python manage.py makemigrations
 - python manage.py migrate
+- python manage.py sql research
 
 deploy:
 - skip_cleanup: 'true'
