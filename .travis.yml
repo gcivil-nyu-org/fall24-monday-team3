@@ -1,0 +1,40 @@
+language: python
+python:
+- '3.9'
+install:
+- pip install -r requirements.txt
+  
+script:
+#- black --check .
+- flake8 --max-line-length=500 .
+#- coverage run manage.py test
+
+after_script:
+#- coveralls
+- echo "Build finished"
+- echo "Tring again"
+
+# before_deploy:
+# - cd "Django_project copy/mysite"
+# - find users/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
+# - rm -rf users/migrations/__pycache__
+# - find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
+# - rm -rf rentals/migrations/__pycache__
+# - python manage.py makemigrations
+# - python manage.py migrate --run-syncdb
+# - python manage.py sqlmigrate users 0001_initial
+
+deploy:
+- skip_cleanup: 'true'
+  provider: elasticbeanstalk
+  access_key_id: $AWS_ID
+  secret_access_key: $AWS_KEY
+  region: us-west-2
+  app: django-tutorial
+  env: django-env
+  bucket_name: elasticbeanstalk-us-east-1-682033502272
+  on:
+    repo: gcivil-nyu-org/fall24-monday-team3
+    branch: deploy
+  
+

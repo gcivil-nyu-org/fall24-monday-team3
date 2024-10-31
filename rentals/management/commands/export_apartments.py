@@ -3,6 +3,7 @@ import csv
 from django.core.management.base import BaseCommand
 from rentals.models import ApartmentPost
 
+
 class Command(BaseCommand):
     help = 'Export apartment data to CSV'
 
@@ -27,4 +28,3 @@ class Command(BaseCommand):
                 })
 
         self.stdout.write(self.style.SUCCESS('Data successfully exported to apartments.csv'))
-

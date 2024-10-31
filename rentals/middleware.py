@@ -1,6 +1,6 @@
 # rentals/middleware.py
-from django.shortcuts import redirect
 from django.contrib import messages
+
 
 class LoginRequiredMiddleware:
     def __init__(self, get_response):

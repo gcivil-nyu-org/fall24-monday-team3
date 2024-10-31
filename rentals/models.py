@@ -2,11 +2,13 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 
+
 class Amenity(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+
 
 class ApartmentPost(models.Model):
     title = models.CharField(max_length=255)
@@ -21,13 +23,15 @@ class ApartmentPost(models.Model):
     def __str__(self):
         return self.title
 
+
 class ApartmentImage(models.Model):
     apartment = models.ForeignKey(ApartmentPost, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='apartment_images/')
 
     def __str__(self):
         return f"Image for {self.apartment.title}"
-    
+
+
 class Rating(models.Model):
     post = models.ForeignKey(ApartmentPost, on_delete=models.CASCADE, related_name='ratings')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ratings')
@@ -41,4 +45,3 @@ class Rating(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s rating for {self.post.title}"
-

@@ -3,6 +3,7 @@
 from django.contrib import admin
 from .models import ApartmentPost, ApartmentImage, Amenity, Rating
 
+
 class ApartmentPostAdmin(admin.ModelAdmin):
     filter_horizontal = ('amenities',)  # Provides a horizontal filter for selecting multiple amenities
 
