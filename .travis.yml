@@ -32,7 +32,7 @@ deploy:
   region: us-west-2
   app: django-tutorial
   env: django-env
-  bucket_name: elasticbeanstalk-us-east-1-682033502272
+  bucket_name: elasticbeanstalk-us-west-2-682033502272
   on:
     repo: gcivil-nyu-org/fall24-monday-team3
     branch: deploy
