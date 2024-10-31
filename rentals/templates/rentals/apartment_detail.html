@@ -1,0 +1,205 @@
+<!-- rentals/templates/rentals/apartment_detail.html -->
+
+{% extends 'rentals/base.html' %}
+{% load static %}
+{% block title %}{{ apartment.title }}{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div id="apartmentCarousel" class="carousel slide" data-bs-ride="carousel">
+        {% if images %}
+            <div class="carousel-inner">
+                {% for image in images %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="Image of {{ apartment.title }}">
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#apartmentCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#apartmentCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        {% else %}
+            <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="No images available.">
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h2 class="card-title">{{ apartment.title }}</h2>
+        <p class="card-text">{{ apartment.description }}</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Price:</strong> ${{ apartment.price }}</li>
+            <li class="list-group-item"><strong>Address:</strong> {{ apartment.address }}</li>
+            <li class="list-group-item"><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</li>
+            <li class="list-group-item"><strong>Square Feet:</strong> {{ apartment.square_feet }}</li>
+            <li class="list-group-item"><strong>Amenities:</strong>
+                {% if apartment.amenities.all %}
+                    <ul>
+                        {% for amenity in apartment.amenities.all %}
+                            <li>{{ amenity.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    None
+                {% endif %}
+            </li>
+            <li class="list-group-item"><strong>Average Rating:</strong> <span id="average-rating">
+                {% if apartment.average_rating > 0 %}
+                    {{ apartment.average_rating|floatformat:2 }}
+                {% else %}
+                    No ratings yet
+                {% endif %}
+            </span></li>
+        </ul>
+        <div class="mt-3">
+            <div id="rating-stars" class="mt-2">
+                <h6>                    
+                    {% if user_rating %}
+                        <span id="user-rating-text">You rated {{ user_rating.value }} for this post</span>
+                        <button id="clear-rating" class="btn btn-sm btn-outline-danger ms-2">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    {% else %}
+                        <span id="user-rating-text">Rate this Post: </span>
+                    {% endif %}
+                </h6>
+                {% for i in "12345" %}
+                    <span class="star {% if user_rating and user_rating.value >= forloop.counter %}filled{% endif %}" 
+                          data-value="{{ forloop.counter }}">★</span>
+                {% endfor %}
+            </div>
+            </ul>
+            <a href="{% url 'update_apartment_post' pk=apartment.pk %}" class="btn btn-secondary">Edit Listing</a>
+            <a href="{% url 'delete_apartment_post' pk=apartment.pk %}" class="btn btn-danger">Delete Listing</a>
+        </div>
+    </div>
+    <div class="card-footer text-center">
+        <a href="{% url 'apartment_list' %}" class="btn btn-secondary">Back to Listings</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    const stars = $('.star');
+    const postId = "{{ apartment.id }}";
+
+    // Define the clear rating function
+    function handleClearRating() {
+        $.ajax({
+            url: "{% url 'clear_rating' post_id=apartment.id %}",
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update average rating display
+                    if (response.average_rating) {
+                        $('#average-rating').text(response.average_rating.toFixed(2));
+                    } else {
+                        $('#average-rating').text('No ratings yet');
+                    }
+                    $('#user-rating-text').text("Rate this post:");
+
+                    // Remove user rating text and clear button
+                    $('#clear-rating').remove();
+
+                    // Clear stars
+                    stars.removeClass('filled original-filled hover');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while clearing your rating. Please try again.');
+            }
+        });
+    }
+
+    // Attach clear rating handler
+    $('#clear-rating').on('click', handleClearRating);
+
+    // Star click handler
+    stars.on('click', function() {
+        const rating = $(this).data('value');
+        
+        $.ajax({
+            url: "{% url 'rate_post' post_id=apartment.id %}",
+            type: 'POST',
+            data: {
+                'rating': rating,
+                'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update average rating display
+                    $('#average-rating').text(response.average_rating.toFixed(2));
+                    $('#rating-text-empty').text("");
+
+                    // Update or create user rating text and clear button
+                    if ($('#user-rating-text').length) {
+                        $('#user-rating-text').text(`You rated ${response.user_rating} for this post`);
+                        if (!$('#clear-rating').length) {
+                            const clearButton = '<button id="clear-rating" class="btn btn-sm btn-outline-danger ms-2"><i class="fas fa-times"></i> Clear</button>';
+                            $('#user-rating-text').after(clearButton);
+                            $('#clear-rating').on('click', handleClearRating);
+                        }
+                    } else {
+                        const clearButton = '<button id="clear-rating" class="btn btn-sm btn-outline-danger ms-2"><i class="fas fa-times"></i> Clear</button>';
+                        $('#rating-stars h6').append(`<span id="user-rating-text">You rated ${response.user_rating} for this post</span>${clearButton}`);
+                        $('#clear-rating').on('click', handleClearRating);
+                    }
+
+                    // Update star display
+                    stars.removeClass('filled original-filled');
+                    stars.each(function() {
+                        if (parseInt($(this).data('value')) <= response.user_rating) {
+                            $(this).addClass('filled original-filled');
+                        }
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('An error occurred while submitting your rating. Please try again.');
+            }
+        });
+    });
+
+    // Hover handlers
+    stars.hover(
+        function() {
+            stars.removeClass('hover');
+            
+            const currentValue = parseInt($(this).data('value'));
+            stars.each(function() {
+                const starValue = parseInt($(this).data('value'));
+                if (starValue <= currentValue) {
+                    $(this).addClass('hover');
+                }
+                $(this).removeClass('filled');
+            });
+        },
+        function() {
+            stars.removeClass('hover');
+            stars.each(function() {
+                if ($(this).hasClass('original-filled')) {
+                    $(this).addClass('filled');
+                }
+            });
+        }
+    );
+
+    // Store original filled state
+    stars.each(function() {
+        if ($(this).hasClass('filled')) {
+            $(this).addClass('original-filled');
+        }
+    });
+});
+</script>
+{% endblock %}

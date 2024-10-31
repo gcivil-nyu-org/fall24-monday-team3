@@ -1,0 +1,28 @@
+<!-- rentals/templates/rentals/update_apartment_post.html -->
+
+{% extends 'rentals/base.html' %}
+
+{% block title %}Edit Apartment Post{% endblock %}
+
+{% block content %}
+<div class="card mt-5">
+    <div class="card-header">
+        <h2>Edit Apartment Post</h2>
+    </div>
+    <div class="card-body">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-info">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'delete_apartment_post' post.id %}" class="btn btn-danger">Delete Post</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
