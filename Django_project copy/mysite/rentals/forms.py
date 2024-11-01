@@ -2,6 +2,7 @@
 
 from django import forms
 from .models import ApartmentPost, ApartmentImage
+from django.forms.widgets import CheckboxSelectMultiple
 
 
 class ApartmentPostForm(forms.ModelForm):
@@ -16,6 +17,15 @@ class ApartmentPostForm(forms.ModelForm):
             "square_feet",
             "amenities",
         ]
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'address': forms.TextInput(attrs={'class': 'form-control'}),
+            'bedrooms': forms.NumberInput(attrs={'class': 'form-control'}),
+            'square_feet': forms.NumberInput(attrs={'class': 'form-control'}),
+            'amenities': CheckboxSelectMultiple(),
+        }
 
 
 class ApartmentImageForm(forms.ModelForm):

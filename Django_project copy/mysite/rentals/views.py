@@ -139,7 +139,12 @@ def create_apartment_post(request):
         image_form = ApartmentImageForm(request.POST, request.FILES)
 
         if post_form.is_valid() and image_form.is_valid():
-            apartment_post = post_form.save()
+            # Save the form but don't commit to the database yet
+            apartment_post = post_form.save(commit=False)
+            apartment_post.save()
+            # Save many-to-many relationships
+            post_form.save_m2m()
+
             images = request.FILES.getlist("image")
 
             for image in images:
@@ -153,4 +158,5 @@ def create_apartment_post(request):
 
     context = {"post_form": post_form, "image_form": image_form}
     return render(request, "rentals/create_apartment_post.html", context)
+
 

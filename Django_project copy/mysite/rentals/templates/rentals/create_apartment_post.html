@@ -17,7 +17,54 @@
         {% endif %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ post_form.as_p }}
+            <!-- Title Field -->
+            <div class="mb-3">
+                {{ post_form.title.label_tag }}
+                {{ post_form.title }}
+                {{ post_form.title.errors }}
+            </div>
+            <!-- Description Field -->
+            <div class="mb-3">
+                {{ post_form.description.label_tag }}
+                {{ post_form.description }}
+                {{ post_form.description.errors }}
+            </div>
+            <!-- Price Field -->
+            <div class="mb-3">
+                {{ post_form.price.label_tag }}
+                {{ post_form.price }}
+                {{ post_form.price.errors }}
+            </div>
+            <!-- Address Field -->
+            <div class="mb-3">
+                {{ post_form.address.label_tag }}
+                {{ post_form.address }}
+                {{ post_form.address.errors }}
+            </div>
+            <!-- Bedrooms Field -->
+            <div class="mb-3">
+                {{ post_form.bedrooms.label_tag }}
+                {{ post_form.bedrooms }}
+                {{ post_form.bedrooms.errors }}
+            </div>
+            <!-- Square Feet Field -->
+            <div class="mb-3">
+                {{ post_form.square_feet.label_tag }}
+                {{ post_form.square_feet }}
+                {{ post_form.square_feet.errors }}
+            </div>
+            <!-- Amenities Field -->
+            <div class="mb-3">
+                <label>{{ post_form.amenities.label }}</label><br>
+                {% for checkbox in post_form.amenities %}
+                    <div class="form-check form-check-inline">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label">{{ checkbox.choice_label }}</label>
+                    </div>
+                {% endfor %}
+                {{ post_form.amenities.errors }}
+            </div>
+            <!-- Image Upload Field -->
             <div class="mb-3">
                 <label for="id_image" class="form-label">Upload Images</label>
                 <input type="file" name="image" id="id_image" class="form-control" accept="image/*" multiple>
