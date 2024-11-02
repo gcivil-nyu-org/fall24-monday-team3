@@ -2,6 +2,7 @@
 
 from django import forms
 from .models import ApartmentPost, ApartmentImage
+from .models import Comment
 
 
 class ApartmentPostForm(forms.ModelForm):
@@ -20,3 +21,9 @@ class ApartmentImageForm(forms.ModelForm):
         widgets = {
             'image': forms.FileInput(attrs={'accept': 'image/*'}),
         }
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']

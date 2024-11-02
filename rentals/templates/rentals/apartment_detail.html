@@ -73,6 +73,37 @@
             <a href="{% url 'update_apartment_post' pk=apartment.pk %}" class="btn btn-secondary">Edit Listing</a>
             <a href="{% url 'delete_apartment_post' pk=apartment.pk %}" class="btn btn-danger">Delete Listing</a>
         </div>
+        <hr>
+        <div class="comments-section p-3 mb-4" style="border: 1px solid #ddd; background-color: #f9f9f9; border-radius: 5px;">
+            <h3>Comments</h3>
+
+                         <!-- Display Existing Comments -->
+                         {% if comments %}
+                         <!-- Display Top-Level Comments Only -->
+                         {% for comment in comments %}
+                             {% if not comment.parent %}  <!-- Only display comments with no parent -->
+                                 {% include "rentals/comment.html" with comment=comment %}
+                             {% endif %}
+                         {% endfor %}
+                     {% else %}
+                         <p>No comments yet. Be the first to comment!</p>
+                     {% endif %}
+                 
+
+                          <!-- Add New Comment Form -->
+                          <h4>Add a Comment</h4>
+                          {% if request.user.is_authenticated %}
+                              <form method="POST" action="{% url 'create_comment' pk=apartment.pk %}">
+                                  {% csrf_token %}
+                                  <textarea name="content" class="form-control" rows="2" maxlength="2000" 
+                                            placeholder="Write your comment..." 
+                                            style="resize: vertical; min-height: 50px; max-height: 100px; overflow-y: auto;"></textarea>
+                                  <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+                              </form>
+                          {% else %}
+                              <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+                          {% endif %}
+        </div> 
     </div>
     <div class="card-footer text-center">
         <a href="{% url 'apartment_list' %}" class="btn btn-secondary">Back to Listings</a>
