@@ -18,13 +18,13 @@ class ApartmentPostForm(forms.ModelForm):
             "amenities",
         ]
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'address': forms.TextInput(attrs={'class': 'form-control'}),
-            'bedrooms': forms.NumberInput(attrs={'class': 'form-control'}),
-            'square_feet': forms.NumberInput(attrs={'class': 'form-control'}),
-            'amenities': CheckboxSelectMultiple(),
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control"}),
+            "price": forms.NumberInput(attrs={"class": "form-control"}),
+            "address": forms.TextInput(attrs={"class": "form-control"}),
+            "bedrooms": forms.NumberInput(attrs={"class": "form-control"}),
+            "square_feet": forms.NumberInput(attrs={"class": "form-control"}),
+            "amenities": CheckboxSelectMultiple(),
         }
 
 

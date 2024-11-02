@@ -11,19 +11,16 @@ from django.db.models import Avg, Q
 
 @login_required(login_url="/users/login/")
 def apartment_list(request):
-    query = request.GET.get('q')
+    query = request.GET.get("q")
     if query:
         apartments = ApartmentPost.objects.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(address__icontains=query)
+            Q(title__icontains=query)
+            | Q(description__icontains=query)
+            | Q(address__icontains=query)
         )
     else:
         apartments = ApartmentPost.objects.all()
-    context = {
-        "apartments": apartments,
-        "search_query": query
-    }
+    context = {"apartments": apartments, "search_query": query}
     return render(request, "rentals/apartment_list.html", context)
 
 
@@ -173,5 +170,3 @@ def create_apartment_post(request):
 
     context = {"post_form": post_form, "image_form": image_form}
     return render(request, "rentals/create_apartment_post.html", context)
-
-
