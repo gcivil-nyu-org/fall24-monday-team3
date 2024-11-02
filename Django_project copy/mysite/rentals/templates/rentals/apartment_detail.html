@@ -70,8 +70,13 @@
                 {% endfor %}
             </div>
             </ul>
-            <a href="{% url 'update_apartment_post' pk=apartment.pk %}" class="btn btn-secondary">Edit Listing</a>
-            <a href="{% url 'delete_apartment_post' pk=apartment.pk %}" class="btn btn-danger">Delete Listing</a>
+        </div>
+        <div class="mt-3">
+            <!-- Only show edit/delete buttons to the owner -->
+            {% if user == apartment.user %}
+                <a href="{% url 'update_apartment_post' pk=apartment.pk %}" class="btn btn-secondary">Edit Listing</a>
+                <a href="{% url 'delete_apartment_post' pk=apartment.pk %}" class="btn btn-danger">Delete Listing</a>
+            {% endif %}
         </div>
     </div>
     <div class="card-footer text-center">
