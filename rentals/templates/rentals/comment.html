@@ -12,7 +12,7 @@
     {% endif %}
     
     <!-- Reply form, hidden by default, shown when clicking Reply -->
-    <div class="reply-form" id="reply-form-{{ comment.id }}" style="display: none; margin-top: 10px;">
+    <div class="reply-form" id="reply-form-{{ comment.id }}" style="margin-top: 10px;">
         <form method="POST" action="{% url 'create_comment' pk=comment.post.pk %}">
             {% csrf_token %}
             <textarea name="content" class="form-control" rows="2" style="resize: vertical; min-height: 20px; max-height: 50px; overflow-y: auto;" placeholder="Write your comment..."></textarea>
