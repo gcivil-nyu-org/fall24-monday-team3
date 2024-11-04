@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ApartmentPostForm, ApartmentImageForm, CommentForm
-from .models import ApartmentImage, ApartmentPost, Rating , Comment
+from .models import ApartmentImage, ApartmentPost, Rating, Comment
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Avg, Q
-from django.urls import reverse
+
 # import PIL
 
 
@@ -34,16 +34,16 @@ def apartment_detail(request, pk):
             user_rating = Rating.objects.get(post=apartment, user=request.user)
         except Rating.DoesNotExist:
             pass
-    
+
     comments = apartment.comments.all()  # Load comments for display
     form = CommentForm()  # Empty form for the template
 
     context = {
-        'apartment': apartment,
-        'user_rating': user_rating,
-        'images': apartment.images.all(),
-        'comments': comments,
-        'form': form,
+        "apartment": apartment,
+        "user_rating": user_rating,
+        "images": apartment.images.all(),
+        "comments": comments,
+        "form": form,
     }
     return render(request, "rentals/apartment_detail.html", context)
 
@@ -173,29 +173,27 @@ def create_apartment_post(request):
         post_form = ApartmentPostForm()
         image_form = ApartmentImageForm()
 
-
-    context = {
-        'post_form': post_form,
-        'image_form': image_form
-    }
-    return render(request, 'rentals/create_apartment_post.html', context)
+    context = {"post_form": post_form, "image_form": image_form}
+    return render(request, "rentals/create_apartment_post.html", context)
 
 
-@login_required(login_url='/users/login/')
+@login_required(login_url="/users/login/")
 def search_apartments(request):
-    query = request.GET.get('q')
+    query = request.GET.get("q")
     if query:
         results = ApartmentPost.objects.filter(title__icontains=query)
     else:
         results = ApartmentPost.objects.all()
 
-    return render(request, 'rentals/search_results.html', {'results': results, 'query': query})
+    return render(
+        request, "rentals/search_results.html", {"results": results, "query": query}
+    )
 
 
-@login_required(login_url='/users/login/')
+@login_required(login_url="/users/login/")
 def create_comment(request, pk):
     post = get_object_or_404(ApartmentPost, pk=pk)
-    parent_id = request.POST.get('parent_id')
+    parent_id = request.POST.get("parent_id")
     parent_comment = None
 
     # Check if this comment is a reply to another comment
@@ -210,15 +208,14 @@ def create_comment(request, pk):
             comment.user = request.user
             comment.parent = parent_comment  # Set parent if it's a reply
             comment.save()
-            return redirect('apartment_detail', pk=post.pk)
+            return redirect("apartment_detail", pk=post.pk)
 
-    return redirect('apartment_detail', pk=pk)
+    return redirect("apartment_detail", pk=pk)
 
 
-@login_required(login_url='/users/login/')
+@login_required(login_url="/users/login/")
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user == comment.user:  # Ensure only the comment author can delete
         comment.delete()
-    return redirect('apartment_detail', pk=comment.post.pk)
-
+    return redirect("apartment_detail", pk=comment.post.pk)

@@ -5,6 +5,7 @@ from .models import ApartmentPost, ApartmentImage
 from django.forms.widgets import CheckboxSelectMultiple
 from .models import Comment
 
+
 class ApartmentPostForm(forms.ModelForm):
     class Meta:
         model = ApartmentPost
@@ -40,4 +41,4 @@ class ApartmentImageForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['content']
+        fields = ["content"]

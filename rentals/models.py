@@ -55,13 +55,17 @@ class Rating(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(ApartmentPost, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(
+        ApartmentPost, on_delete=models.CASCADE, related_name="comments"
+    )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     # New field to allow nested comments
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
+    parent = models.ForeignKey(
+        "self", null=True, blank=True, related_name="replies", on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return f"Comment by {self.user} on {self.post.title}"
