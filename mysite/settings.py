@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-p=owv8y(&-%z!5_$88kl7ezp+zh$r1w@a#wsfyg4q!9_=oscgh"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Set to False in production
+DEBUG = False  # Set to False in production
 
 ALLOWED_HOSTS = [
     "django-tutorial-test-before-deploy.eba-uh8yfpf2.us-west-2.elasticbeanstalk.com",
@@ -112,7 +112,7 @@ USE_TZ = True  # Enable timezone support
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"  # Base URL for serving static files
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  # Where static files are located
+STATIC_ROOT = os.path.join(BASE_DIR, "static")  # Where static files are located
 
 # Media files (user-uploaded content like profile pics)
 MEDIA_URL = "/media/"
