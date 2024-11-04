@@ -5,6 +5,7 @@ from .models import RoommatePost, Comment
 
 # Create your tests here.
 
+
 class RoommatePostOwnershipTest(TestCase):
     def setUp(self):
         self.User = get_user_model()
