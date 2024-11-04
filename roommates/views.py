@@ -3,10 +3,10 @@ from .forms import RoommatePostForm, RoommateImageForm, CommentForm
 from .models import RoommateImage, RoommatePost, Comment
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 from django.db.models import Q
 
 @login_required(login_url="/users/login/")
+
 def roommate_list(request):
     query = request.GET.get("q")
     if query:
@@ -21,6 +21,7 @@ def roommate_list(request):
     return render(request, "roommates/roommate_list.html", context)
 
 @login_required(login_url="/users/login/")
+
 def roommate_detail(request, pk):
     roommate = get_object_or_404(RoommatePost, pk=pk)
     comments = roommate.comments.all()  # Load comments for display
@@ -35,6 +36,7 @@ def roommate_detail(request, pk):
     return render(request, "roommates/roommate_detail.html", context)
 
 @login_required(login_url="/users/login/")
+
 def update_roommate_post(request, pk):
     roommate_post = get_object_or_404(RoommatePost, pk=pk)
 
@@ -57,6 +59,7 @@ def update_roommate_post(request, pk):
     )
 
 @login_required(login_url="/users/login/")
+
 def delete_roommate_post(request, pk):
     roommate_post = get_object_or_404(RoommatePost, pk=pk)
 
@@ -76,6 +79,7 @@ def delete_roommate_post(request, pk):
     )
 
 @login_required(login_url="/users/login/")
+
 def create_roommate_post(request):
     if request.method == "POST":
         post_form = RoommatePostForm(request.POST)
@@ -105,6 +109,7 @@ def create_roommate_post(request):
     return render(request, "roommates/create_roommate_post.html", context)
 
 @login_required(login_url="/users/login/")
+
 def create_roommate_comment(request, pk):
     post = get_object_or_404(RoommatePost, pk=pk)
     parent_id = request.POST.get("parent_id")
@@ -127,6 +132,7 @@ def create_roommate_comment(request, pk):
     return redirect("roommate_detail", pk=pk)
 
 @login_required(login_url="/users/login/")
+
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user == comment.user:  # Ensure only the comment author can delete
@@ -134,6 +140,7 @@ def delete_comment(request, comment_id):
     return redirect("roommate_detail", pk=comment.post.pk)
 
 @login_required(login_url="/users/login/")
+
 def search_roommates(request):
     query = request.GET.get("q")
     if query:
