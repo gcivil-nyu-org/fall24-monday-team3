@@ -15,6 +15,7 @@ after_script:
 - echo "Tring again"
 
 before_deploy:
+- rm db.sqlite3
 - find users/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
 - rm -rf users/migrations/__pycache__
 - find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
