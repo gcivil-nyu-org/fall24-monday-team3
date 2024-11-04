@@ -14,14 +14,14 @@ after_script:
 - echo "Build finished"
 - echo "Tring again"
 
-# before_deploy:
-# - rm db.sqlite3
-# - find users/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
-# - rm -rf users/migrations/__pycache__
-# - find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
-# - rm -rf rentals/migrations/__pycache__
-# - python manage.py makemigrations
-# - python manage.py migrate --run-syncdb
+before_deploy:
+- rm db.sqlite3
+- find users/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
+- rm -rf users/migrations/__pycache__
+- find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
+- rm -rf rentals/migrations/__pycache__
+- python manage.py makemigrations
+- python manage.py migrate --run-syncdb
 # - python manage.py sqlmigrate users 0001_initial
 
 deploy:
