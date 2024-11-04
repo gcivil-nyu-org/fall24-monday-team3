@@ -11,9 +11,10 @@ SECRET_KEY = "django-insecure-p=owv8y(&-%z!5_$88kl7ezp+zh$r1w@a#wsfyg4q!9_=oscgh
 DEBUG = True  # Set to False in production
 
 ALLOWED_HOSTS = [
-    "rentsense.eba-edswgxfj.us-east-1.elasticbeanstalk.com",
+    "django-tutorial-test-before-deploy.eba-uh8yfpf2.us-west-2.elasticbeanstalk.com",
     "127.0.0.1",
     "localhost",
+    "*"
 ]  # Add your domain or server IP in production
 
 

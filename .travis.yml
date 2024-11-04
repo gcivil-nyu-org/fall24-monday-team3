@@ -30,11 +30,11 @@ deploy:
   access_key_id: $AWS_ID
   secret_access_key: $AWS_KEY
   region: us-west-2
-  app: django-tutorial
-  env: django-env
+  app: django-tutorial-test-before-deploy
+  env: django-tutorial-test-before-deploy
   bucket_name: elasticbeanstalk-us-west-2-682033502272
   on:
     repo: gcivil-nyu-org/fall24-monday-team3
-    branch: deploy
+    branch: test-before-deploy
   
 
