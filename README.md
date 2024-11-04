@@ -1,3 +1,3 @@
-Testing branch test coverage [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/fall24-monday-team3/badge.svg?branch=test-before-deploy)](https://coveralls.io/github/gcivil-nyu-org/fall24-monday-team3?branch=test-before-deploy)
+Deploy branch test coverage [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/fall24-monday-team3/badge.svg?branch=deploy)](https://coveralls.io/github/gcivil-nyu-org/fall24-monday-team3?branch=deploy)
 
-Testing branch Travis build status [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3.svg?token=KJ9Rp2huhLqhYhPz7oyk&branch=test-before-deploy)](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3)
+Deploy branch Travis build status [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3.svg?token=KJ9Rp2huhLqhYhPz7oyk&branch=deploy)](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3)
