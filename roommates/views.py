@@ -19,6 +19,7 @@ def roommate_list(request):
     context = {"roommates": roommates, "search_query": query}
     return render(request, "roommates/roommate_list.html", context)
 
+
 @login_required(login_url="/users/login/")
 def roommate_detail(request, pk):
     roommate = get_object_or_404(RoommatePost, pk=pk)
@@ -32,6 +33,7 @@ def roommate_detail(request, pk):
         "form": form,
     }
     return render(request, "roommates/roommate_detail.html", context)
+
 
 @login_required(login_url="/users/login/")
 def update_roommate_post(request, pk):
@@ -55,6 +57,7 @@ def update_roommate_post(request, pk):
         {"form": form, "post": roommate_post},
     )
 
+
 @login_required(login_url="/users/login/")
 def delete_roommate_post(request, pk):
     roommate_post = get_object_or_404(RoommatePost, pk=pk)
@@ -73,6 +76,7 @@ def delete_roommate_post(request, pk):
         "roommates/delete_roommate_post.html",
         {"roommate_post": roommate_post},
     )
+
 
 @login_required(login_url="/users/login/")
 def create_roommate_post(request):
@@ -103,6 +107,7 @@ def create_roommate_post(request):
     context = {"post_form": post_form, "image_form": image_form}
     return render(request, "roommates/create_roommate_post.html", context)
 
+
 @login_required(login_url="/users/login/")
 def create_roommate_comment(request, pk):
     post = get_object_or_404(RoommatePost, pk=pk)
@@ -125,12 +130,14 @@ def create_roommate_comment(request, pk):
 
     return redirect("roommate_detail", pk=pk)
 
+
 @login_required(login_url="/users/login/")
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user == comment.user:  # Ensure only the comment author can delete
         comment.delete()
     return redirect("roommate_detail", pk=comment.post.pk)
+
 
 @login_required(login_url="/users/login/")
 def search_roommates(request):
