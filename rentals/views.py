@@ -191,7 +191,7 @@ def search_apartments(request):
 
 
 @login_required(login_url="/users/login/")
-def create_comment(request, pk):
+def create_apartment_comment(request, pk):
     post = get_object_or_404(ApartmentPost, pk=pk)
     parent_id = request.POST.get("parent_id")
     parent_comment = None
@@ -214,7 +214,7 @@ def create_comment(request, pk):
 
 
 @login_required(login_url="/users/login/")
-def delete_comment(request, comment_id):
+def delete_apartment_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if request.user == comment.user:  # Ensure only the comment author can delete
         comment.delete()

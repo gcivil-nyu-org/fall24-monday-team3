@@ -1,4 +1,4 @@
-<!-- rentals/templates/rentals/comment.html -->
+<!-- roommates/templates/roommates/comment.html -->
 <div class="comment mb-3 p-3" style="border: 1px solid #ddd; border-radius: 5px; background-color: #fff;">
     <strong>{{ comment.user.username }}</strong> says:
     <p>{{ comment.content }}</p>
@@ -7,12 +7,12 @@
      <!-- Reply and Delete Options -->
     <button class="btn btn-sm btn-link reply-toggle" data-comment-id="{{ comment.id }}">Reply</button>
     {% if request.user == comment.user %}
-        <a href="{% url 'delete_apartment_comment' comment_id=comment.id %}" class="btn btn-sm btn-link text-danger">Delete</a>
+        <a href="{% url 'delete_roommate_comment' comment_id=comment.id %}" class="btn btn-sm btn-link text-danger">Delete</a>
     {% endif %}
     
     <!-- Reply form, hidden by default, shown when clicking Reply -->
     <div class="reply-form" id="reply-form-{{ comment.id }}" style="margin-top: 10px;">
-        <form method="POST" action="{% url 'create_apartment_comment' pk=comment.post.pk %}">
+        <form method="POST" action="{% url 'create_roommate_comment' pk=comment.post.pk %}">
             {% csrf_token %}
             <textarea name="content" class="form-control" rows="2" style="resize: vertical; min-height: 20px; max-height: 50px; overflow-y: auto;" placeholder="Write your comment..."></textarea>
             <input type="hidden" name="parent_id" value="{{ comment.id }}">
@@ -23,7 +23,7 @@
      <!-- Display replies in a single nested box -->
      <div class="replies ml-4 mt-2" style="border-left: 2px solid #ddd; padding-left: 15px;">
         {% for reply in comment.replies.all %}
-            {% include "rentals/comment.html" with comment=reply %}
+            {% include "roommates/comment.html" with comment=reply %}
         {% endfor %}
     </div>
 </div>
