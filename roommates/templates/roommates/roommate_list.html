@@ -1,0 +1,48 @@
+<!-- rentals/templates/rentals/apartment_list.html -->
+
+{% extends 'roommates/base.html' %}
+{% load static %}
+{% block title %}Roommate Listings{% endblock %}
+
+{% block content %}
+<header class="mb-4">
+    <h1 class="text-center">Roommate Listings</h1>
+</header>
+
+<form method="get" action="{% url 'roommate_list' %}" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="q" class="form-control" placeholder="Search for roommates..." value="{{ search_query|default:''}}">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </div>
+</form>
+
+{% if roommates %}
+    <div class="row">
+        {% for roommate in roommates %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if roommate.images.first %}
+                        <img src="{{ roommate.images.first.image.url }}" class="card-img-top" alt="{{ roommate.name }}">
+                    {% else %}
+                        <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="No Image Available">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ roommate.name }}</h5>
+                        <p class="card-text">{{ roommate.description|truncatewords:15 }}</p>
+                        <div class="mt-2">
+                            <span class="badge bg-primary">Budget: ${{ roommate.budget }}</span>
+                            <span class="badge bg-secondary">Age: {{ roommate.age }}</span>
+                            <span class="badge bg-info">{{ roommate.gender }}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'roommate_detail' roommate.pk %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-center">No roommates available.</p>
+{% endif %}
+{% endblock %}

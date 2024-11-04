@@ -309,6 +309,7 @@
             <p>Your AI-powered rental companion for smarter property decisions</p>
             {% if user.is_authenticated %}
                 <a href="/rentals/" class="cta-button">View Rentals</a>
+                <a href="/roommates/" class="cta-button">Find Roommates</a>
             {% else %}
                 <a href="{% url 'login' %}" class="cta-button">Get Started</a>
             {% endif %}

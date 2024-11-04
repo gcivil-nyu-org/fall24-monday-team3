@@ -98,7 +98,7 @@
                           <!-- Add New Comment Form -->
                           <h4>Add a Comment</h4>
                           {% if request.user.is_authenticated %}
-                              <form method="POST" action="{% url 'create_comment' pk=apartment.pk %}">
+                              <form method="POST" action="{% url 'create_apartment_comment' apartment.pk %}">
                                   {% csrf_token %}
                                   <textarea name="content" class="form-control" rows="2" maxlength="2000" 
                                             placeholder="Write your comment..." 

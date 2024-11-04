@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     # Your custom apps
     "users",  # App for user registration/authentication
     # 'groups',                        # App for posting messages in groups (if applicable)
+    "roommates",
 ]
 
 MIDDLEWARE = [

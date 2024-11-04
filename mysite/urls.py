@@ -27,6 +27,7 @@ urlpatterns = [
     path("", views.home_view, name="home"),
     # path('admin/', admin.site.urls),
     path("rentals/", include("rentals.urls")),
+    path("roommates/", include("roommates.urls")),
 ]
 
 if settings.DEBUG:
