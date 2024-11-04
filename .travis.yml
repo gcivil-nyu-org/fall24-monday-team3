@@ -24,17 +24,17 @@ after_script:
 # - python manage.py migrate --run-syncdb
 # - python manage.py sqlmigrate users 0001_initial
 
-# deploy:
-# - skip_cleanup: 'true'
-#   provider: elasticbeanstalk
-#   access_key_id: $AWS_ID
-#   secret_access_key: $AWS_KEY
-#   region: us-west-2
-#   app: django-tutorial-test-before-deploy2
-#   env: django-tutorial-test-before-deploy2
-#   bucket_name: elasticbeanstalk-us-west-2-682033502272
-#   on:
-#     repo: gcivil-nyu-org/fall24-monday-team3
-#     branch: test-before-deploy
+deploy:
+- skip_cleanup: 'true'
+  provider: elasticbeanstalk
+  access_key_id: $AWS_ID
+  secret_access_key: $AWS_KEY
+  region: us-west-2
+  app: django-tutorial-test-before-deploy2
+  env: django-tutorial-test-before-deploy2
+  bucket_name: elasticbeanstalk-us-west-2-682033502272
+  on:
+    repo: gcivil-nyu-org/fall24-monday-team3
+    branch: test-before-deploy
   
 
