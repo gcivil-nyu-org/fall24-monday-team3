@@ -1,9 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from .models import Topic, Discussion, Reply
+from .models import Topic, Discussion
 
 User = get_user_model()
+
 
 class TopicModelTest(TestCase):
     def setUp(self):
@@ -12,6 +13,7 @@ class TopicModelTest(TestCase):
     def test_topic_creation(self):
         self.assertEqual(self.topic.name, "Test Topic")
         self.assertEqual(self.topic.slug, "test-topic")
+
 
 class DiscussionModelTest(TestCase):
     def setUp(self):
@@ -30,6 +32,7 @@ class DiscussionModelTest(TestCase):
         self.assertEqual(self.discussion.topic, self.topic)
         self.assertEqual(self.discussion.author, self.user)
 
+
 class DiscussionListViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
@@ -46,6 +49,7 @@ class DiscussionListViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'discussions/discussion_list.html')
         self.assertContains(response, "Test Discussion")
+
 
 class DiscussionDetailViewTest(TestCase):
     def setUp(self):

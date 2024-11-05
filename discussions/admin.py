@@ -2,11 +2,13 @@
 from django.contrib import admin
 from .models import Topic, Discussion, Reply, Vote
 
+
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'description')
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name', 'description')
+
 
 @admin.register(Discussion)
 class DiscussionAdmin(admin.ModelAdmin):
@@ -16,12 +18,14 @@ class DiscussionAdmin(admin.ModelAdmin):
     raw_id_fields = ('author',)
     date_hierarchy = 'created_at'
 
+
 @admin.register(Reply)
 class ReplyAdmin(admin.ModelAdmin):
     list_display = ('discussion', 'author', 'created_at', 'updated_at')
     list_filter = ('created_at', 'updated_at')
     search_fields = ('content', 'author__username', 'discussion__title')
     raw_id_fields = ('author', 'discussion')
+
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):

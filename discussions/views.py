@@ -10,6 +10,7 @@ class DiscussionForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'rows': 5}),
         }
 
+
 class ReplyForm(forms.ModelForm):
     class Meta:
         model = Reply
@@ -17,6 +18,7 @@ class ReplyForm(forms.ModelForm):
         widgets = {
             'content': forms.Textarea(attrs={'rows': 3}),
         }
+
 
 # discussions/views.py
 from django.shortcuts import render, get_object_or_404, redirect
@@ -32,7 +34,7 @@ def discussion_list(request):
     topics = Topic.objects.annotate(discussion_count=Count('discussions'))
     discussions = Discussion.objects.select_related('author', 'topic')\
         .annotate(reply_count=Count('replies'),
-                 vote_score=Count('votes__value'))\
+                  vote_score=Count('votes__value'))\
         .order_by('-created_at')
     
     topic_slug = request.GET.get('topic')
@@ -50,6 +52,7 @@ def discussion_list(request):
     }
     return render(request, 'discussions/discussion_list.html', context)
 
+
 @login_required
 def discussion_create(request):
     if request.method == 'POST':
@@ -58,14 +61,18 @@ def discussion_create(request):
             discussion = form.save(commit=False)
             discussion.author = request.user
             discussion.save()
-            return redirect(reverse('discussions:discussion_detail', args=[discussion.pk]))
+            return redirect(reverse('discussions:discussion_detail',
+                                    args=[discussion.pk]))
     else:
         form = DiscussionForm()
     
     return render(request, 'discussions/discussion_form.html', {'form': form})
 
+
 def discussion_detail(request, pk):
-    discussion = get_object_or_404(Discussion.objects.select_related('author', 'topic'), pk=pk)
+    discussion = get_object_or_404(
+        Discussion.objects.select_related('author', 'topic'), pk=pk
+    )
     replies = discussion.replies.select_related('author').order_by('created_at')
     
     if request.user.is_authenticated:
@@ -96,6 +103,7 @@ def discussion_detail(request, pk):
         'user_vote': user_vote,
     }
     return render(request, 'discussions/discussion_detail.html', context)
+
 
 @login_required
 def vote_discussion(request, pk):
@@ -129,6 +137,7 @@ def vote_discussion(request, pk):
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+
 @login_required
 def discussion_edit(request, pk):
     discussion = get_object_or_404(Discussion, pk=pk)
@@ -143,6 +152,7 @@ def discussion_edit(request, pk):
         form = DiscussionForm(instance=discussion)
     
     return render(request, 'discussions/discussion_form.html', {'form': form})
+
 
 @login_required
 def discussion_delete(request, pk):

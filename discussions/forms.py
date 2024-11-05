@@ -2,6 +2,7 @@
 from django import forms
 from .models import Discussion, Reply
 
+
 class DiscussionForm(forms.ModelForm):
     class Meta:
         model = Discussion
@@ -30,6 +31,7 @@ class DiscussionForm(forms.ModelForm):
             'content': 'Provide all relevant details for better responses',
             'topic': 'Choose the most appropriate category'
         }
+
 
 class ReplyForm(forms.ModelForm):
     class Meta:
