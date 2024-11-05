@@ -16,7 +16,7 @@ pathlib==1.0.1
 pathspec==0.12.1
 pillow==11.0.0
 platformdirs==4.3.6
-psycopg2-binary==2.9.10
+psycopg2-binary==2.8.6
 pycodestyle==2.12.1
 pyflakes==3.2.0
 python-dotenv==1.0.1
