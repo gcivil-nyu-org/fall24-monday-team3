@@ -1,0 +1,104 @@
+{# discussions/templates/discussions/partials/voting.html #}
+<div class="voting-controls">
+    {% if user.is_authenticated %}
+        <button class="vote-btn upvote {% if user_vote.value == 1 %}active{% endif %}" 
+                data-discussion="{{ discussion.pk }}" 
+                data-vote="upvote">
+            <svg class="vote-icon" viewBox="0 0 24 24">
+                <path d="M7 14l5-5 5 5H7z"/>
+            </svg>
+        </button>
+    {% endif %}
+    <span class="vote-count">{{ discussion.vote_score }}</span>
+    {% if user.is_authenticated %}
+        <button class="vote-btn downvote {% if user_vote.value == -1 %}active{% endif %}" 
+                data-discussion="{{ discussion.pk }}" 
+                data-vote="downvote">
+            <svg class="vote-icon" viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5H7z"/>
+            </svg>
+        </button>
+    {% endif %}
+</div>
+
+<style>
+.voting-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.vote-btn {
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.vote-btn:hover {
+    color: #3498db;
+    transform: scale(1.1);
+}
+
+.vote-btn.active {
+    color: #3498db;
+}
+
+.vote-btn.active.upvote {
+    color: #2ecc71;
+}
+
+.vote-btn.active.downvote {
+    color: #e74c3c;
+}
+
+.vote-icon {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.vote-count {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+</style>
+
+<script>
+document.querySelectorAll('.vote-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const discussionId = this.dataset.discussion;
+        const voteType = this.dataset.vote;
+        
+        fetch(`/discussions/${discussionId}/vote/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `vote_type=${voteType}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.vote_count !== undefined) {
+                this.closest('.voting-controls').querySelector('.vote-count').textContent = data.vote_count;
+                
+                // Toggle active states
+                if (voteType === 'upvote') {
+                    this.classList.toggle('active');
+                    this.closest('.voting-controls').querySelector('.downvote').classList.remove('active');
+                } else {
+                    this.classList.toggle('active');
+                    this.closest('.voting-controls').querySelector('.upvote').classList.remove('active');
+                }
+            }
+        });
+    });
+});
+</script>

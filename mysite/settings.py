@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "users",  # App for user registration/authentication
     # 'groups',                        # App for posting messages in groups (if applicable)
     "roommates",
+    "discussions",
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,72 @@
+{# discussions/templates/discussions/partials/reply_form.html #}
+<div class="reply-form-container">
+    {% if user.is_authenticated %}
+        <form method="post" class="reply-form">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.content }}
+                {% if form.content.errors %}
+                    <div class="error-feedback">
+                        {{ form.content.errors }}
+                    </div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Post Reply</button>
+        </form>
+    {% else %}
+        <div class="login-prompt">
+            <p>Please <a href="{% url 'login' %}?next={{ request.path }}">login</a> to post a reply.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.reply-form-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 1rem 0;
+}
+
+.reply-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.reply-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.reply-form textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.error-feedback {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.login-prompt {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+.login-prompt a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.login-prompt a:hover {
+    text-decoration: underline;
+}
+</style>
