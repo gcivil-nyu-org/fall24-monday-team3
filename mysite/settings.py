@@ -1,6 +1,11 @@
 import os
 from pathlib import Path
-
+from dotenv import load_dotenv
+load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/mysite/database.env")
+print("Database Name:", os.getenv('DATABASE_NAME'))
+print("Database User:", os.getenv('DATABASE_USER'))
+print("Database Host:", os.getenv('DATABASE_HOST'))
+print("Database Port:", os.getenv('DATABASE_PORT'))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -71,9 +76,16 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 # Default database is SQLite. For production, use PostgreSQL, MySQL, etc.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",  # Using SQLite for development
-        "NAME": str(BASE_DIR / "db.sqlite3"),
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('RDS_DB_NAME'),
+        'USER': os.getenv('RDS_USERNAME'),
+        'PASSWORD': os.getenv('RDS_PASSWORD'),
+        'HOST': os.getenv('RDS_HOSTNAME'),
+        'PORT': os.getenv('RDS_PORT'),
+        'OPTIONS': {
+            'options': '-c timezone=utc',
+        },
     }
 }
 
