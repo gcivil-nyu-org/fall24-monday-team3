@@ -139,17 +139,17 @@
     {% block navbar %}
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">Community Discussions</a>
+            <a class="navbar-brand" href="{% url 'home' %}">Discussions</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'discussions:discussion_list' %}">All Discussions</a>
+                        <a class="nav-link" href="{% url 'discussions:discussion_list' %}">View All Discussions</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'discussions:discussion_create' %}">Start Discussion</a>
+                        <a class="nav-link" href="{% url 'discussions:discussion_create' %}">Start a Discussion</a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">

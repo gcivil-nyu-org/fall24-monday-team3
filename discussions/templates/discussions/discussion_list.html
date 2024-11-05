@@ -51,30 +51,16 @@
                     <button class="filter-btn">Hot</button>
                 </div>
                 <div class="search-box">
-                    <input type="text" placeholder="Search discussions..." class="search-input">
+                    <form method="get" action="{% url 'discussions:discussion_list' %}">
+                        <input type="text" name="q" placeholder="Search discussions..." class="search-input" value="{{ request.GET.q }}">
+                    </form>
                 </div>
             </div>
 
             <div class="discussion-list">
                 {% for discussion in discussions %}
                     <div class="discussion-card">
-                        <div class="discussion-votes">
-                            {% if user.is_authenticated %}
-                                <button class="vote-btn upvote" data-discussion="{{ discussion.pk }}" data-vote="upvote">
-                                    <svg class="stat-icon" viewBox="0 0 24 24">
-                                        <path d="M7 14l5-5 5 5H7z"/>
-                                    </svg>
-                                </button>
-                            {% endif %}
-                            <span class="vote-count">{{ discussion.vote_score }}</span>
-                            {% if user.is_authenticated %}
-                                <button class="vote-btn downvote" data-discussion="{{ discussion.pk }}" data-vote="downvote">
-                                    <svg class="stat-icon" viewBox="0 0 24 24">
-                                        <path d="M7 10l5 5 5-5H7z"/>
-                                    </svg>
-                                </button>
-                            {% endif %}
-                        </div>
+                       
                         <div class="discussion-content">
                             <div class="discussion-meta">
                                 <span class="topic-tag">{{ discussion.topic.name }}</span>

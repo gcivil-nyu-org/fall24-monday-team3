@@ -122,18 +122,36 @@
         }
 
         .cta-button {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: #3498db;
-            color: white;
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
             text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s ease;
-            margin-top: 1rem;
+            color: #2c3e50;
+            gap: 1rem;
         }
 
         .cta-button:hover {
-            background: #2980b9;
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+        }
+
+        .action-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .action-desc {
+            font-size: 0.875rem;
+            color: #64748b;
         }
 
         footer {
@@ -221,6 +239,26 @@
             width: 100%;
         }
 
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            fill: #3498db;
+        }
+
         .dropdown-content .logout-btn {
             width: 100%;
             padding: 12px 16px;
@@ -236,6 +274,101 @@
         .dropdown-content .logout-btn:hover {
             background-color: #f1f1f1;
             border-radius: 5px;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 1rem;
+            text-decoration: none;
+            color: #2c3e50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.1);
+            color: #2c3e50;
+        }
+
+        .btn-rentals:hover {
+            background: #f0f9ff;
+        }
+
+        .btn-roommates:hover {
+            background: #f0fdf4;
+        }
+
+        .btn-discussions:hover {
+            background: #fdf2f8;
+        }
+
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .btn-rentals .action-icon {
+            color: #3b82f6;
+        }
+
+        .btn-roommates .action-icon {
+            color: #22c55e;
+        }
+
+        .btn-discussions .action-icon {
+            color: #ec4899;
+        }
+
+        .action-content {
+            text-align: left;
+        }
+
+        .action-title {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-desc {
+            display: block;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 1rem;
+            text-decoration: none;
+            color: #2c3e50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .button-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
         }
     </style>
     <script>
@@ -307,32 +440,85 @@
         <section class="hero">
             <h2>Welcome to Rent Sense</h2>
             <p>Your AI-powered rental companion for smarter property decisions</p>
-            {% if user.is_authenticated %}
-                <a href="/rentals/" class="cta-button">View Rentals</a>
-                <a href="/roommates/" class="cta-button">Find Roommates</a>
-            {% else %}
-                <a href="{% url 'login' %}" class="cta-button">Get Started</a>
-            {% endif %}
+            <div class="button-wrapper">
+                {% if user.is_authenticated %}
+                    <a href="/rentals/" class="action-button btn-rentals">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <path d="M9 22V12h6v10"/>
+                        </svg>
+                        <div class="action-content">
+                            <span class="action-title">View Rentals</span>
+                            <span class="action-desc">Browse available apartments</span>
+                        </div>
+                    </a>
+                    <a href="/roommates/" class="action-button btn-roommates">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                         
+                   
+                        </svg>
+                        <div class="action-content">
+                            <span class="action-title">Find Roommates</span>
+                            <span class="action-desc">Connect with potential roommates</span>
+                        </div>
+                    </a>
+                    <a href="{% url 'discussions:discussion_list' %}" class="action-button btn-discussions">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <div class="action-content">
+                            <span class="action-title">Discussions</span>
+                            <span class="action-desc">Join community conversations</span>
+                        </div>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="action-button">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                        <div class="action-content">
+                            <span class="action-title">Get Started</span>
+                            <span class="action-desc">Sign up to start using Rent Sense</span>
+                        </div>
+                    </a>
+                {% endif %}
+            </div>
         </section>
     
         <section class="features">
             <div class="feature-card">
-                <h3>AI-Powered Pricing</h3>
-                <p>Get accurate rental valuations using advanced AI algorithms</p>
+                <svg class="feature-icon" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+                </svg>
+                <h3>Pricing Discussion</h3>
+                <p>Discuss rent prices and negotiate with landlords</p>
             </div>
             <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24">
+                    <path d="M19 9.3V4h-3v2.6L12 3 2 12h3v8h5v-6h4v6h5v-8h3l-3-2.7zm-9 .7c0-1.1.9-2 2-2s2 .9 2 2h-4z"/>
+                </svg>
                 <h3>Property Listings</h3>
                 <p>Browse and list rental properties with detailed information</p>
             </div>
             <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05.02.01.03.03.04.04 1.14.83 1.93 1.94 1.93 3.41V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
                 <h3>Easy Sharing</h3>
-                <p>Share listings and collaborate with others seamlessly</p>
+                <p>Share listings and find roommates who match your lifestyle</p>
             </div>
             <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24">
+                    <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+                    
+                </svg>
                 <h3>Market Insights</h3>
                 <p>Access real-time market data and trends to make informed decisions</p>
             </div>
         </section>
+    </div>
     </div>
     
     <footer>

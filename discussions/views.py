@@ -39,6 +39,10 @@ def discussion_list(request):
     if topic_slug:
         discussions = discussions.filter(topic__slug=topic_slug)
     
+    search_query = request.GET.get('q')
+    if search_query:
+        discussions = discussions.filter(title__icontains=search_query)
+    
     context = {
         'topics': topics,
         'discussions': discussions,
