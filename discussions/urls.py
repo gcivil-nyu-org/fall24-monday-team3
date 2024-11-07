@@ -11,5 +11,9 @@ urlpatterns = [
     path('<int:pk>/', views.discussion_detail, name='discussion_detail'),
     path('<int:pk>/vote/', views.vote_discussion, name='vote_discussion'),
     path('<int:pk>/edit/', views.discussion_edit, name='discussion_edit'),
-    path('<int:pk>/delete/', views.discussion_delete, name='discussion_delete'),
+    path(
+        '<int:pk>/delete/',
+        views.discussion_delete,
+        name='discussion_delete'
+    ),
 ]

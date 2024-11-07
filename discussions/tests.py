@@ -17,7 +17,9 @@ class TopicModelTest(TestCase):
 
 class DiscussionModelTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='12345')
+        self.user = User.objects.create_user(
+            username='testuser', password='12345'
+        )
         self.topic = Topic.objects.create(name="Test Topic", slug="test-topic")
         self.discussion = Discussion.objects.create(
             title="Test Discussion",
@@ -35,7 +37,9 @@ class DiscussionModelTest(TestCase):
 
 class DiscussionListViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='12345')
+        self.user = User.objects.create_user(
+            username='testuser', password='12345'
+            )
         self.topic = Topic.objects.create(name="Test Topic", slug="test-topic")
         self.discussion = Discussion.objects.create(
             title="Test Discussion",
@@ -53,7 +57,9 @@ class DiscussionListViewTest(TestCase):
 
 class DiscussionDetailViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='12345')
+        self.user = User.objects.create_user(
+            username='testuser', password='12345'
+            )
         self.topic = Topic.objects.create(name="Test Topic", slug="test-topic")
         self.discussion = Discussion.objects.create(
             title="Test Discussion",
@@ -63,7 +69,9 @@ class DiscussionDetailViewTest(TestCase):
         )
 
     def test_discussion_detail_view(self):
-        response = self.client.get(reverse('discussions:discussion_detail', args=[self.discussion.pk]))
+        response = self.client.get(
+            reverse('discussions:discussion_detail', args=[self.discussion.pk])
+        )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'discussions/discussion_detail.html')
         self.assertContains(response, "Test Discussion")

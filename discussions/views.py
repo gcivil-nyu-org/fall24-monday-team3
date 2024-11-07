@@ -1,6 +1,13 @@
 # discussions/forms.py
 from django import forms
 from .models import Discussion, Reply
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Count
+from django.http import JsonResponse
+from django.urls import reverse
+from .models import Topic, Vote
 
 
 class DiscussionForm(forms.ModelForm):
@@ -20,16 +27,6 @@ class ReplyForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'rows': 3}),
         }
 
-
-# discussions/views.py
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db.models import Count
-from django.http import JsonResponse
-from django.urls import reverse
-from .models import Discussion, Topic, Reply, Vote
-from .forms import DiscussionForm, ReplyForm
 
 def discussion_list(request):
     topics = Topic.objects.annotate(discussion_count=Count('discussions'))
@@ -70,7 +67,8 @@ def discussion_detail(request, pk):
     discussion = get_object_or_404(
         Discussion.objects.select_related('author', 'topic'), pk=pk
     )
-    replies = discussion.replies.select_related('author').order_by('created_at')
+    replies = discussion.replies.select_related('author')\
+        .order_by('created_at')
     if request.user.is_authenticated:
         user_vote = discussion.votes.filter(user=request.user).first()
     else:
@@ -104,7 +102,7 @@ def vote_discussion(request, pk):
         discussion = get_object_or_404(Discussion, pk=pk)
         vote_type = request.POST.get('vote_type')
         if vote_type not in ['upvote', 'downvote']:
-            return JsonResponse({'error': 'Invalid vote type'}, status=400)    
+            return JsonResponse({'error': 'Invalid vote type'}, status=400)
         value = Vote.UPVOTE if vote_type == 'upvote' else Vote.DOWNVOTE
         vote, created = Vote.objects.get_or_create(
             user=request.user,
@@ -142,10 +140,15 @@ def discussion_edit(request, pk):
 def discussion_delete(request, pk):
     discussion = get_object_or_404(Discussion, pk=pk)
     if discussion.author != request.user:
-        messages.error(request, "You are not authorized to delete this discussion.")
+        messages.error(
+            request, "You are not authorized to delete this discussion."
+        )
         return redirect('discussions:discussion_detail', pk=pk)
     if request.method == 'POST':
         discussion.delete()
         messages.success(request, 'Discussion deleted successfully!')
         return redirect('discussions:discussion_list')
-    return render(request, 'discussions/discussion_confirm_delete.html', {'discussion': discussion})
+    return render(
+        request, 'discussions/discussion_confirm_delete.html',
+        {'discussion': discussion}
+    )
