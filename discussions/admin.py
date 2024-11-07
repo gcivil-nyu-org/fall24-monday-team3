@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import Topic, Discussion, Reply, Vote
 
 
+
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'description')
@@ -32,3 +33,4 @@ class VoteAdmin(admin.ModelAdmin):
     list_display = ('user', 'discussion', 'value', 'created_at')
     list_filter = ('value', 'created_at')
     raw_id_fields = ('user', 'discussion')
+

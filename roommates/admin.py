@@ -14,3 +14,5 @@ admin.site.register(RoommatePost, RoommatePostAdmin)
 admin.site.register(RoommateImage)
 admin.site.register(Amenity)
 admin.site.register(Comment)
+
+
