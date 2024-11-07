@@ -15,4 +15,3 @@ admin.site.register(RoommateImage)
 admin.site.register(Amenity)
 admin.site.register(Comment)
 
-
