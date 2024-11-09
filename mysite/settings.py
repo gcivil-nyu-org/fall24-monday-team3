@@ -27,9 +27,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",  # Session framework
     "django.contrib.messages",  # Messaging framework
     "django.contrib.staticfiles",  # Static files handling
-    'channels',
     # Your custom apps
     "users",  # App for user registration/authentication
+    "channels",
     # 'groups',                        # App for posting messages in groups (if applicable)
 ]
 
@@ -63,6 +63,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "mysite.wsgi.application"
+
+ASGI_APPLICATION = "mysite.asgi.application"
 
 
 # Database

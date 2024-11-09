@@ -1,7 +1,7 @@
 # rentals/forms.py
 
 from django import forms
-from .models import ApartmentPost, ApartmentImage
+from .models import ApartmentPost, ApartmentImage 
 from django.forms.widgets import CheckboxSelectMultiple
 from .models import Comment
 
@@ -42,3 +42,5 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ["content"]
+
+

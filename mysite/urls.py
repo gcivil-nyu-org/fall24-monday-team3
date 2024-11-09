@@ -22,10 +22,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("users/", include("users.urls")),  # Include the users app URLs
-    # Other URLs for the project
+    path("users/", include("users.urls")),  
     path("", views.home_view, name="home"),
-    # path('admin/', admin.site.urls),
     path("rentals/", include("rentals.urls")),
 ]
 

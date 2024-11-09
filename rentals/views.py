@@ -5,6 +5,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Avg, Q
+from django.utils import timezone
+from .models import Message
+from users.models import User
+from django.utils import timezone
+from django.http import JsonResponse
+import json
+
 
 # import PIL
 
@@ -219,3 +226,63 @@ def delete_comment(request, comment_id):
     if request.user == comment.user:  # Ensure only the comment author can delete
         comment.delete()
     return redirect("apartment_detail", pk=comment.post.pk)
+
+
+@login_required
+def chat_view(request, username):
+    recipient = get_object_or_404(User, username=username)
+    # Fetch all messages between the logged-in user and the recipient
+    messages = Message.objects.filter(
+        sender=request.user, recipient=recipient
+    ) | Message.objects.filter(
+        sender=recipient, recipient=request.user
+    ).order_by('timestamp')
+
+    return render(request, 'rentals/chat.html', {
+        'recipient': recipient,
+        'messages': messages,
+    })
+
+
+
+@login_required
+def send_message(request):
+    if request.method == "POST":
+        content = request.POST.get('content')
+        recipient_id = request.POST.get('recipient_id')
+        
+        if content and recipient_id:  # Ensure content and recipient are provided
+            try:
+                recipient = User.objects.get(id=recipient_id)
+                message = Message.objects.create(
+                    sender=request.user,
+                    recipient=recipient,
+                    content=content,
+                    timestamp=timezone.now()
+                )
+                return JsonResponse({
+                    'sender': request.user.username,
+                    'content': content,
+                    'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+                })
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Recipient not found'}, status=404)
+        return JsonResponse({'error': 'Invalid data'}, status=400)
+
+@login_required
+def get_messages(request, username):
+    try:
+        recipient = User.objects.get(username=username)
+        messages = Message.objects.filter(
+            sender=request.user, recipient=recipient
+        ) | Message.objects.filter(
+            sender=recipient, recipient=request.user
+        )
+        message_data = [{
+            'sender': msg.sender.username,
+            'content': msg.content,
+            'timestamp': msg.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        } for msg in messages]
+        return JsonResponse({'messages': message_data})
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'Recipient not found'}, status=404)

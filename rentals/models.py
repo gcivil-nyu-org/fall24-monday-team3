@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
-from django.contrib.auth.models import User
+from users.models import User
 
 
 class Amenity(models.Model):
@@ -76,7 +76,7 @@ class Comment(models.Model):
         return self.parent is not None
     
 
-    class Message(models.Model):
+class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
     recipient = models.ForeignKey(User, related_name="received_messages", on_delete=models.CASCADE)
     content = models.TextField()
@@ -87,5 +87,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.sender} to {self.recipient}: {self.content[:30]}"
-
-
