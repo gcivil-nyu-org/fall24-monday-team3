@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Avg, Q
-
+import requests
 # import PIL
 
 
@@ -163,11 +163,22 @@ def create_apartment_post(request):
             # Save many-to-many relationships
             post_form.save_m2m()
 
+            apartment_address = apartment_post.address
+
             images = request.FILES.getlist("image")
             for image in images:
                 ApartmentImage.objects.create(apartment=apartment_post, image=image)
 
             messages.success(request, "Apartment post created successfully!")
+            geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key=AIzaSyDb5PCuD_IF9dkCA0RUzsE6OxbJQ7shVaU"
+            
+            response = requests.get(geocode_url).json()
+            print(response)
+            if response['status'] == 'OK':
+                location = response['results'][0]['geometry']['location']
+                apartment_post.latitude = location['lat']
+                apartment_post.longitude = location['lng']
+                apartment_post.save()
             return redirect("apartment_detail", pk=apartment_post.pk)
     else:
         post_form = ApartmentPostForm()

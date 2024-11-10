@@ -5,6 +5,50 @@
 {% block title %}{{ apartment.title }}{% endblock %}
 
 {% block content %}
+<style>
+    /* Apply basic styles to the body and html to ensure full height */
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    /* Create a container to hold the map and center it */
+    .map-container {
+        display: flex;
+        justify-content: center; /* Horizontally center */
+        align-items: center;     /* Vertically center */
+        height: 100vh;           /* Full viewport height */
+    }
+
+    /* Set the map container to a fixed size */
+    #map {
+        height: 500px;  /* Height of the map */
+        width: 100%;     /* Adjust width as needed */
+    }
+
+    table {
+            width: 100%;              /* Makes the table fill the available width */
+            border-collapse: collapse; /* Ensures borders collapse */
+        }
+
+        td {
+            padding: 10px;             /* Padding inside cells */
+            text-align: center;        /* Optional, centers the text inside each cell */
+        }
+
+        /* Define the specific widths for each column */
+        td:nth-child(1) {
+            width: 25%;  /* Column 1 takes 25% of the row */
+        }
+
+        td:nth-child(2) {
+            width: 50%;  /* Column 2 takes 50% of the row */
+        }
+
+        td:nth-child(3) {
+            width: 25%;  /* Column 3 takes 25% of the row */
+        }
+</style>
 <div class="card mb-4">
     <div id="apartmentCarousel" class="carousel slide" data-bs-ride="carousel">
         {% if images %}
@@ -113,14 +157,36 @@
     <div class="card-footer text-center">
         <a href="{% url 'apartment_list' %}" class="btn btn-secondary">Back to Listings</a>
     </div>
+    
+    <table>
+        <tr>
+            <td></td>
+            <td><div id="map"></div></td>
+            <td></td>
+        </tr>
+    </table>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+function initMap() {
+        var location = {lat: parseFloat("{{ apartment.latitude }}"), lng: parseFloat("{{ apartment.longitude }}")};
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: location
+        });
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+    }
+
 $(document).ready(function() {
+    
     const stars = $('.star');
     const postId = "{{ apartment.id }}";
 
@@ -238,4 +304,5 @@ $(document).ready(function() {
     });
 });
 </script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDb5PCuD_IF9dkCA0RUzsE6OxbJQ7shVaU&callback=initMap"></script>
 {% endblock %}

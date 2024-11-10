@@ -20,6 +20,8 @@ class ApartmentPost(models.Model):
     square_feet = models.PositiveIntegerField()
     amenities = models.ManyToManyField(Amenity, blank=True)
     average_rating = models.FloatField(default=0)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
 
     def __str__(self):
         return self.title
