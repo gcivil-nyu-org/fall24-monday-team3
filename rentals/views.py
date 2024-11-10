@@ -6,6 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Avg, Q
 import requests
+import os
+from dotenv import load_dotenv
+load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map-api.env")
+
 # import PIL
 
 
@@ -45,7 +49,7 @@ def apartment_detail(request, pk):
         "comments": comments,
         "form": form,
     }
-    return render(request, "rentals/apartment_detail.html", context)
+    return render(request, "rentals/apartment_detail.html", context,{'google_maps_api_key': os.getenv('MAP_API')})
 
 
 @login_required(login_url="/users/login/")
@@ -170,7 +174,7 @@ def create_apartment_post(request):
                 ApartmentImage.objects.create(apartment=apartment_post, image=image)
 
             messages.success(request, "Apartment post created successfully!")
-            geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key=AIzaSyDb5PCuD_IF9dkCA0RUzsE6OxbJQ7shVaU"
+            geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
             
             response = requests.get(geocode_url).json()
             print(response)
