@@ -1,19 +1,33 @@
 # consumers.py
 import json
 from channels.generic.websocket import WebsocketConsumer
+from users.models import User
+from .models import Message
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
-        self.accept()
-    
+        if self.scope["user"].is_authenticated:
+            self.accept()
+        else:
+            self.close()
+
     def disconnect(self, close_code):
         pass
-    
+
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        
-        # Broadcast the message to the WebSocket
+        recipient_id = text_data_json.get('recipient_id')  # Get recipient from frontend
+
+        # Create a Message instance
+        sender = self.scope["user"]
+
+        recipient = User.objects.get(id=recipient_id)
+        Message.objects.create(sender=sender, recipient=recipient, content=message_content)
+
+        # Broadcast message to WebSocket
         self.send(text_data=json.dumps({
-            'message': message
+            'message': message,
+            'sender': self.scope["user"].username,
+            'recipient': recipient.username,
         }))

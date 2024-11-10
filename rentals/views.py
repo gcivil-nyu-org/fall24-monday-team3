@@ -230,20 +230,19 @@ def delete_comment(request, comment_id):
 
 @login_required
 def chat_view(request, username):
-    recipient = get_object_or_404(User, username=username)
-    # Fetch all messages between the logged-in user and the recipient
-    messages = Message.objects.filter(
-        sender=request.user, recipient=recipient
-    ) | Message.objects.filter(
-        sender=recipient, recipient=request.user
-    ).order_by('timestamp')
+    # Retrieve the user to chat with (the "other_user")
+    other_user = get_object_or_404(User, username=username)
 
-    return render(request, 'rentals/chat.html', {
-        'recipient': recipient,
-        'messages': messages,
-    })
+    # Pass the other user's details to the template for dynamic usage
+    context = {
+        'other_user': other_user
+    }
+    return render(request, 'base.html', context)
 
-
+def chatbox_view(request):
+    # Get all users except the current user
+    users = User.objects.exclude(id=request.user.id)
+    return render(request, 'chatbox.html', {'users': users})
 
 @login_required
 def send_message(request):

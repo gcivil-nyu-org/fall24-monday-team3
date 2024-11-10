@@ -4,11 +4,18 @@
         <span>Chat</span>
         <button onclick="toggleChatbox()">Close</button>
     </div>
-    <div id="chatbox-messages" style="height: 300px; overflow-y: auto; padding: 10px;">
+    <select id="recipientSelect" style="width: 100%; padding: 5px; margin: 5px 0;">
+        <option value="" disabled selected>Select recipient</option>
+        {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}</option>
+        {% endfor %}
+    </select>
+    <div id="chatbox-messages" style="height: 250px; overflow-y: auto; padding: 10px;">
         <!-- Chat messages will go here -->
     </div>
     <input type="text" id="chatbox-input" placeholder="Type a message..." style="width: 100%; padding: 10px;">
 </div>
+
 
 <button onclick="toggleChatbox()" style="position: fixed; bottom: 20px; right: 20px;">Open Chat</button>
 
@@ -40,6 +47,13 @@
     };
 
     function sendMessage(message) {
+        // Get the selected recipient ID
+        const recipientId = document.getElementById("recipientSelect").value;
+
+        if (!recipientId) {
+            alert("Please select a recipient.");
+            return;
+        }
         // Display the sent message in the chatbox
         const messagesDiv = document.getElementById("chatbox-messages");
         const newMessage = document.createElement("div");
@@ -48,7 +62,8 @@
 
         // TODO: Send message to the server via WebSocket
         chatSocket.send(JSON.stringify({
-            'message': message
+            'message': message,
+            'recipient_id': recipientId
         }));
     }
 </script>
