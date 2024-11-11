@@ -19,10 +19,14 @@ urlpatterns = [
     ),  # Delete view
     path("search/", views.search_roommates, name="search_roommates"),
     path(
-        "roommate/<int:pk>/comment/", views.create_roommate_comment, name="create_roommate_comment"
+        "roommate/<int:pk>/comment/",
+        views.create_roommate_comment,
+        name="create_roommate_comment",
     ),  # Create comment
     path(
-        "comment/<int:comment_id>/delete/", views.delete_comment, name="delete_roommate_comment"
+        "comment/<int:comment_id>/delete/",
+        views.delete_comment,
+        name="delete_roommate_comment",
     ),
     # You can add more URL patterns here, such as detail views
 ]

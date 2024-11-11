@@ -145,12 +145,14 @@ def search_roommates(request):
     query = request.GET.get("q")
     if query:
         results = RoommatePost.objects.filter(
-            Q(name__icontains=query) |
-            Q(preferred_location__icontains=query) |
-            Q(hobbies__icontains=query) |
-            Q(description__icontains=query)
+            Q(name__icontains=query)
+            | Q(preferred_location__icontains=query)
+            | Q(hobbies__icontains=query)
+            | Q(description__icontains=query)
         )
     else:
         results = RoommatePost.objects.all()
 
-    return render(request, "roommates/search_results.html", {"results": results, "query": query})
+    return render(
+        request, "roommates/search_results.html", {"results": results, "query": query}
+    )

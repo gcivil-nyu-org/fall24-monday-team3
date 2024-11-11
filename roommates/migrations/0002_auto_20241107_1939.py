@@ -11,33 +11,53 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('roommates', '0001_initial'),
+        ("roommates", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='roommatepost',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="roommatepost",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='roommateimage',
-            name='roommate',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='roommates.RoommatePost'),
+            model_name="roommateimage",
+            name="roommate",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="roommates.RoommatePost",
+            ),
         ),
         migrations.AddField(
-            model_name='comment',
-            name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='roommates.Comment'),
+            model_name="comment",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="replies",
+                to="roommates.Comment",
+            ),
         ),
         migrations.AddField(
-            model_name='comment',
-            name='post',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='roommates.RoommatePost'),
+            model_name="comment",
+            name="post",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="roommates.RoommatePost",
+            ),
         ),
         migrations.AddField(
-            model_name='comment',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='roommate_comments', to=settings.AUTH_USER_MODEL),
+            model_name="comment",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="roommate_comments",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

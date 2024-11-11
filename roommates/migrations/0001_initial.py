@@ -7,44 +7,78 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Amenity',
+            name="Amenity",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("content", models.TextField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='RoommateImage',
+            name="RoommateImage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='roommate_images/')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("image", models.ImageField(upload_to="roommate_images/")),
             ],
         ),
         migrations.CreateModel(
-            name='RoommatePost',
+            name="RoommatePost",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('age', models.PositiveIntegerField()),
-                ('gender', models.CharField(max_length=50)),
-                ('budget', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('preferred_location', models.CharField(max_length=255)),
-                ('hobbies', models.TextField()),
-                ('description', models.TextField(default='No description provided')),
-                ('amenities', models.ManyToManyField(blank=True, to='roommates.Amenity')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("age", models.PositiveIntegerField()),
+                ("gender", models.CharField(max_length=50)),
+                ("budget", models.DecimalField(decimal_places=2, max_digits=10)),
+                ("preferred_location", models.CharField(max_length=255)),
+                ("hobbies", models.TextField()),
+                ("description", models.TextField(default="No description provided")),
+                (
+                    "amenities",
+                    models.ManyToManyField(blank=True, to="roommates.Amenity"),
+                ),
             ],
         ),
     ]

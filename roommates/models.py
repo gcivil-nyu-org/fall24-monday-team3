@@ -38,7 +38,11 @@ class Comment(models.Model):
     post = models.ForeignKey(
         RoommatePost, on_delete=models.CASCADE, related_name="comments"
     )
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="roommate_comments")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="roommate_comments",
+    )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

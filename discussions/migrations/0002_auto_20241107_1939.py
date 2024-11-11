@@ -11,37 +11,55 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('discussions', '0001_initial'),
+        ("discussions", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='vote',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="vote",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='reply',
-            name='author',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='replies', to=settings.AUTH_USER_MODEL),
+            model_name="reply",
+            name="author",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="replies",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='reply',
-            name='discussion',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='discussions.Discussion'),
+            model_name="reply",
+            name="discussion",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="replies",
+                to="discussions.Discussion",
+            ),
         ),
         migrations.AddField(
-            model_name='discussion',
-            name='author',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='discussions', to=settings.AUTH_USER_MODEL),
+            model_name="discussion",
+            name="author",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="discussions",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='discussion',
-            name='topic',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='discussions', to='discussions.Topic'),
+            model_name="discussion",
+            name="topic",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="discussions",
+                to="discussions.Topic",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='vote',
-            unique_together={('user', 'discussion')},
+            name="vote",
+            unique_together={("user", "discussion")},
         ),
     ]

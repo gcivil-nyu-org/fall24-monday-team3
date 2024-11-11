@@ -29,7 +29,7 @@ urlpatterns = [
     path("rentals/", include("rentals.urls")),
     path("roommates/", include("roommates.urls")),
     path("discussions/", include("discussions.urls")),
-    path('chatbot/', include('chatbot.urls')),
+    path("chatbot/", include("chatbot.urls")),
 ]
 
 if settings.DEBUG:

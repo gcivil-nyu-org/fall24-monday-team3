@@ -11,47 +11,69 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('rentals', '0001_initial'),
+        ("rentals", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rating',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ratings', to=settings.AUTH_USER_MODEL),
+            model_name="rating",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ratings",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='comment',
-            name='parent',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='replies', to='rentals.Comment'),
+            model_name="comment",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="replies",
+                to="rentals.Comment",
+            ),
         ),
         migrations.AddField(
-            model_name='comment',
-            name='post',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='rentals.ApartmentPost'),
+            model_name="comment",
+            name="post",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="rentals.ApartmentPost",
+            ),
         ),
         migrations.AddField(
-            model_name='comment',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="comment",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='apartmentpost',
-            name='amenities',
-            field=models.ManyToManyField(blank=True, to='rentals.Amenity'),
+            model_name="apartmentpost",
+            name="amenities",
+            field=models.ManyToManyField(blank=True, to="rentals.Amenity"),
         ),
         migrations.AddField(
-            model_name='apartmentpost',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="apartmentpost",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AddField(
-            model_name='apartmentimage',
-            name='apartment',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='rentals.ApartmentPost'),
+            model_name="apartmentimage",
+            name="apartment",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="rentals.ApartmentPost",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='rating',
-            unique_together={('post', 'user')},
+            name="rating",
+            unique_together={("post", "user")},
         ),
     ]

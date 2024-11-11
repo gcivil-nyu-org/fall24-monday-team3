@@ -19,10 +19,10 @@ class Discussion(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     topic = models.ForeignKey(
-        Topic, on_delete=models.CASCADE, related_name='discussions'
+        Topic, on_delete=models.CASCADE, related_name="discussions"
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='discussions'
+        User, on_delete=models.CASCADE, related_name="discussions"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -32,43 +32,41 @@ class Discussion(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('discussion_detail', kwargs={'pk': self.pk})
+        return reverse("discussion_detail", kwargs={"pk": self.pk})
 
 
 class Reply(models.Model):
     discussion = models.ForeignKey(
-        Discussion, on_delete=models.CASCADE, related_name='replies'
+        Discussion, on_delete=models.CASCADE, related_name="replies"
     )
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='replies'
-    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="replies")
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name_plural = 'replies'
+        verbose_name_plural = "replies"
 
     def __str__(self):
-        return f'Reply by {self.author} on {self.discussion.title}'
+        return f"Reply by {self.author} on {self.discussion.title}"
 
 
 class Vote(models.Model):
     UPVOTE = 1
     DOWNVOTE = -1
     VOTE_CHOICES = (
-        (UPVOTE, 'Upvote'),
-        (DOWNVOTE, 'Downvote'),
+        (UPVOTE, "Upvote"),
+        (DOWNVOTE, "Downvote"),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     discussion = models.ForeignKey(
-        Discussion, on_delete=models.CASCADE, related_name='votes'
+        Discussion, on_delete=models.CASCADE, related_name="votes"
     )
     value = models.SmallIntegerField(choices=VOTE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ['user', 'discussion']
+        unique_together = ["user", "discussion"]
 
     def __str__(self):
-        return f'{self.user} voted {self.value} on {self.discussion.title}'
+        return f"{self.user} voted {self.value} on {self.discussion.title}"
