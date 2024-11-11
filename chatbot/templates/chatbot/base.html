@@ -1,4 +1,4 @@
-<!-- discussions/templates/discussions/base.html -->
+<!-- chatbot/templates/base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -124,6 +124,57 @@
             font-size: 0.875rem;
             color: #2c3e50;
         }
+
+        .chatbot-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .chat-window {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-message, .bot-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background-color: #e0f7fa;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #e8eaf6;
+            align-self: flex-start;
+        }
+
+        .input-group {
+            display: flex;
+        }
+
+        .form-control {
+            flex: 1;
+            margin-right: 10px;
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -139,18 +190,12 @@
     {% block navbar %}
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">Discussions</a>
+            <a class="navbar-brand" href="{% url 'home' %}">Neighborhood Chatbot</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'discussions:discussion_list' %}">View All Discussions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'discussions:discussion_create' %}">Start a Discussion</a>
-                    </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <button class="welcome-dropdown-btn" onclick="toggleDropdown(event)">
@@ -164,14 +209,14 @@
     </nav>
     {% endblock %}
 
-    <div class="container mt-4">
+    <div >
         {% if messages %}
             {% for message in messages %}
             {% endfor %}
         {% endif %}
         {% block content %}{% endblock %}
     </div>
-
+ 
     {% block footer %}
     <footer>
         <p>&copy; 2024 Rent Sense. All rights reserved.</p>

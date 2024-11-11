@@ -48,7 +48,7 @@ def discussion_list(request):
     return render(request, 'discussions/discussion_list.html', context)
 
 
-@login_required
+@login_required(login_url='/users/login/')
 def discussion_create(request):
     if request.method == 'POST':
         form = DiscussionForm(request.POST)
@@ -96,7 +96,7 @@ def discussion_detail(request, pk):
     return render(request, 'discussions/discussion_detail.html', context)
 
 
-@login_required
+@login_required(login_url='/users/login/')
 def vote_discussion(request, pk):
     if request.method == 'POST':
         discussion = get_object_or_404(Discussion, pk=pk)
@@ -122,7 +122,7 @@ def vote_discussion(request, pk):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
-@login_required
+@login_required(login_url='/users/login/')
 def discussion_edit(request, pk):
     discussion = get_object_or_404(Discussion, pk=pk)
     if request.method == 'POST':
@@ -136,7 +136,7 @@ def discussion_edit(request, pk):
     return render(request, 'discussions/discussion_form.html', {'form': form})
 
 
-@login_required
+@login_required(login_url='/users/login/')
 def discussion_delete(request, pk):
     discussion = get_object_or_404(Discussion, pk=pk)
     if discussion.author != request.user:

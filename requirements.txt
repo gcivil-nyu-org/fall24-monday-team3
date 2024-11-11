@@ -27,4 +27,5 @@ setuptools==75.1.0
 sqlparse==0.5.1
 urllib3==1.26.16
 zope.interface==7.0.3
+openai==0.28
 
