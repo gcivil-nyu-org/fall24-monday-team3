@@ -64,7 +64,7 @@ def update_apartment_post(request, pk):
 
     if request.method == "POST":
         form = ApartmentPostForm(request.POST, request.FILES, instance=apartment_post)
-        if form.is_valid():            
+        if form.is_valid():
             form.save()
             apartment_address = apartment_post.address
             geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
