@@ -73,7 +73,7 @@ class Comment(models.Model):
 
     @property
     def is_reply(self):
-        return self.parent is not None  
+        return self.parent is not None
 
 
 class Message(models.Model):
@@ -87,4 +87,3 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} to {self.recipient}: {self.content[:30]}"
-    

@@ -8,12 +8,6 @@ from django.db.models import Avg, Q
 from django.utils import timezone
 from .models import Message
 from users.models import User
-from django.utils import timezone
-from django.http import JsonResponse
-import json
-
-
-# import PIL
 
 
 @login_required(login_url="/users/login/")
@@ -239,16 +233,19 @@ def chat_view(request, username):
     }
     return render(request, 'base.html', context)
 
+
 def chatbox_view(request):
     # Get all users except the current user
     users = User.objects.exclude(id=request.user.id)
     return render(request, 'chatbox.html', {'users': users})
+
 
 @login_required
 def send_message(request):
     if request.method == "POST":
         content = request.POST.get('content')
         recipient_id = request.POST.get('recipient_id')
+
         
         if content and recipient_id:  # Ensure content and recipient are provided
             try:

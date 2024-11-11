@@ -19,8 +19,7 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        recipient_id = text_data_json.get('recipient_id') 
-
+        recipient_id = text_data_json.get('recipient_id')
         # Create a Message instance
         sender = self.scope["user"]
 
