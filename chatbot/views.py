@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .utils import get_chatgpt_response
 from .models import ChatMessage
 import requests
 from decouple import config
