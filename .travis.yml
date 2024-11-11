@@ -9,6 +9,8 @@ script:
 - flake8 --max-line-length=500 .
 - coverage run manage.py test --keepdb
 before_script:
+- find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
+- rm -rf rentals/migrations/__pycache__
 - python manage.py makemigrations
 - python manage.py migrate --run-syncdb
 after_script:
