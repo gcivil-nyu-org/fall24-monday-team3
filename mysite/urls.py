@@ -28,6 +28,8 @@ urlpatterns = [
     # path('admin/', admin.site.urls),
     path("rentals/", include("rentals.urls")),
     path("roommates/", include("roommates.urls")),
+    path("discussions/", include("discussions.urls")),
+    path("chatbot/", include("chatbot.urls")),
 ]
 
 if settings.DEBUG:

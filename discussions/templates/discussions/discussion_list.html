@@ -1,0 +1,414 @@
+{# discussions/templates/discussions/discussion_list.html #}
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Community Discussions</h1>
+            <p class="text-muted">Join the conversation with fellow renters</p>
+        </div>
+        {% if user.is_authenticated %}
+            <a href="{% url 'discussions:discussion_create' %}" class="new-topic-btn">
+                <svg class="btn-icon" viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Start New Discussion
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="discussion-container">
+        <aside class="sidebar">
+            <div class="topics-list">
+                <h3>Topics</h3>
+                <ul>
+                    <li>
+                        <a href="{% url 'discussions:discussion_list' %}" 
+                           class="topic-link {% if not selected_topic %}active{% endif %}">
+                            All Topics
+                            <span class="badge">{{ discussions.count }}</span>
+                        </a>
+                    </li>
+                    {% for topic in topics %}
+                        <li>
+                            <a href="{% url 'discussions:discussion_list' %}?topic={{ topic.slug }}" 
+                               class="topic-link {% if selected_topic == topic.slug %}active{% endif %}">
+                                {{ topic.name }}
+                                <span class="badge">{{ topic.discussion_count }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </aside>
+
+        <main class="discussion-main">
+            <div class="discussion-filters">
+                <div class="filter-buttons">
+                    <button class="filter-btn active">Latest</button>
+                    <button class="filter-btn">Top</button>
+                    <button class="filter-btn">Hot</button>
+                </div>
+                <div class="search-box">
+                    <form method="get" action="{% url 'discussions:discussion_list' %}">
+                        <input type="text" name="q" placeholder="Search discussions..." class="search-input" value="{{ request.GET.q }}">
+                    </form>
+                </div>
+            </div>
+
+            <div class="discussion-list">
+                {% for discussion in discussions %}
+                    <div class="discussion-card">
+                       
+                        <div class="discussion-content">
+                            <div class="discussion-meta">
+                                <span class="topic-tag">{{ discussion.topic.name }}</span>
+                                <span class="author">Posted by {{ discussion.author.username }}</span>
+                                <span class="date">{{ discussion.created_at|timesince }} ago</span>
+                            </div>
+                            <h3 class="discussion-title">
+                                <a href="{% url 'discussions:discussion_detail' discussion.pk %}">
+                                    {{ discussion.title }}
+                                </a>
+                            </h3>
+                            <p class="discussion-excerpt">{{ discussion.content|truncatewords:50 }}</p>
+                            <div class="discussion-stats">
+                                <div class="stat">
+                                    <svg class="stat-icon" viewBox="0 0 24 24">
+                                        <path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/>
+                                    </svg>
+                                    <span>{{ discussion.reply_count }} replies</span>
+                                </div>
+                                <div class="stat">
+                                    <svg class="stat-icon" viewBox="0 0 24 24">
+                                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                    </svg>
+                                    <span>{{ discussion.views }} views</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24" width="48" height="48">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                        </svg>
+                        <h3>No discussions yet</h3>
+                        <p>Be the first to start a discussion!</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'discussions:discussion_create' %}" class="btn btn-primary">Start Discussion</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary">Login to Start Discussion</a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if discussions.has_other_pages %}
+                <div class="pagination">
+                    {% if discussions.has_previous %}
+                        <a href="?page={{ discussions.previous_page_number }}" class="page-link">Previous</a>
+                    {% endif %}
+                    
+                    {% for num in discussions.paginator.page_range %}
+                        {% if discussions.number == num %}
+                            <span class="page-link active">{{ num }}</span>
+                        {% else %}
+                            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if discussions.has_next %}
+                        <a href="?page={{ discussions.next_page_number }}" class="page-link">Next</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<style>
+.discussion-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+}
+
+.sidebar {
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+}
+
+.topics-list {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.topics-list h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.topics-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.topic-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.topic-link:hover {
+    background: #f8f9fa;
+}
+
+.topic-link.active {
+    background: #3498db;
+    color: white;
+}
+
+.badge {
+    background: #e2e8f0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+}
+
+.topic-link.active .badge {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.discussion-filters {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: white;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: #f8f9fa;
+}
+
+.filter-btn.active {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.search-input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    min-width: 250px;
+}
+
+.discussion-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.discussion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.discussion-votes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vote-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    transition: color 0.3s ease;
+}
+
+.vote-btn:hover {
+    color: #3498db;
+}
+
+.vote-count {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.discussion-meta {
+    display: flex;
+    gap: 1rem;
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.topic-tag {
+    background: #e2e8f0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+}
+
+.discussion-title {
+    margin-bottom: 0.5rem;
+}
+
+.discussion-title a {
+    color: #2c3e50;
+    text-decoration: none;
+}
+
+.discussion-title a:hover {
+    color: #3498db;
+}
+
+.discussion-excerpt {
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.discussion-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #64748b;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.empty-icon {
+    fill: #64748b;
+    margin-bottom: 1rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.page-link {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background: #f8f9fa;
+}
+
+.page-link.active {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+@media (max-width: 768px) {
+    .discussion-container {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: static;
+        margin-bottom: 2rem;
+    }
+
+    .discussion-filters {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .discussion-card {
+        flex-direction: column;
+    }
+
+    .discussion-votes {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+</style>
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.vote-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const discussionId = this.dataset.discussion;
+        const voteType = this.dataset.vote;
+        
+        fetch(`/discussions/${discussionId}/vote/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `vote_type=${voteType}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.vote_count !== undefined) {
+                this.closest('.discussion-votes').querySelector('.vote-count').textContent = data.vote_count;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

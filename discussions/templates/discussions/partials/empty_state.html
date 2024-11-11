@@ -1,0 +1,36 @@
+{# discussions/templates/discussions/partials/empty_state.html #}
+<div class="empty-state">
+    <svg class="empty-icon" viewBox="0 0 24 24" width="48" height="48">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+    </svg>
+    <h3>{{ title|default:"No content found" }}</h3>
+    <p>{{ message|default:"Nothing to display here yet." }}</p>
+    {% if action_url and action_text %}
+        <a href="{{ action_url }}" class="btn btn-primary">{{ action_text }}</a>
+    {% endif %}
+</div>
+
+<style>
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.empty-icon {
+    fill: #64748b;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+</style>

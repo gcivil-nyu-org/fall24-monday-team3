@@ -20,10 +20,14 @@ urlpatterns = [
     path("<int:post_id>/rate/", views.rate_post, name="rate_post"),
     path("<int:post_id>/rate/clear/", views.clear_rating, name="clear_rating"),
     path(
-        "apartment/<int:pk>/comment/", views.create_apartment_comment, name="create_apartment_comment"
+        "apartment/<int:pk>/comment/",
+        views.create_apartment_comment,
+        name="create_apartment_comment",
     ),  # Create apartment comment
     path(
-        "comment/<int:comment_id>/delete/", views.delete_apartment_comment, name="delete_apartment_comment"
+        "comment/<int:comment_id>/delete/",
+        views.delete_apartment_comment,
+        name="delete_apartment_comment",
     ),
     path("search/", views.search_apartments, name="search_apartments"),
 ]

@@ -52,7 +52,7 @@ class RoommatePostOwnershipTest(TestCase):
         self.client.login(username="other", password="testpass123")
         response = self.client.post(
             reverse("create_roommate_comment", kwargs={"pk": self.roommate_post.pk}),
-            {"content": "This is a test comment."}
+            {"content": "This is a test comment."},
         )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Comment.objects.filter(post=self.roommate_post).exists())

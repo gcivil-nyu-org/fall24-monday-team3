@@ -75,5 +75,7 @@ venv.bak/
 !.vscode/extensions.json
 .history
 
+# Ignore 3.9 folder
+3.9/
 
 db.sqlite3

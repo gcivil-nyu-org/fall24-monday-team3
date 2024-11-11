@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+
 load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/mysite/database.env")
-print("Database Name:", os.getenv('DATABASE_NAME'))
-print("Database User:", os.getenv('DATABASE_USER'))
-print("Database Host:", os.getenv('DATABASE_HOST'))
-print("Database Port:", os.getenv('DATABASE_PORT'))
+print("Database Name:", os.getenv("DATABASE_NAME"))
+print("Database User:", os.getenv("DATABASE_USER"))
+print("Database Host:", os.getenv("DATABASE_HOST"))
+print("Database Port:", os.getenv("DATABASE_PORT"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,7 +21,7 @@ ALLOWED_HOSTS = [
     "django-tutorial-test-before-deploy.eba-uh8yfpf2.us-west-2.elasticbeanstalk.com",
     "127.0.0.1",
     "localhost",
-    "*"
+    "*",
 ]  # Add your domain or server IP in production
 
 
@@ -37,6 +39,8 @@ INSTALLED_APPS = [
     "users",  # App for user registration/authentication
     # 'groups',                        # App for posting messages in groups (if applicable)
     "roommates",
+    "discussions",
+    "chatbot",
 ]
 
 MIDDLEWARE = [
@@ -75,15 +79,15 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 # Default database is SQLite. For production, use PostgreSQL, MySQL, etc.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('RDS_DB_NAME'),
-        'USER': os.getenv('RDS_USERNAME'),
-        'PASSWORD': os.getenv('RDS_PASSWORD'),
-        'HOST': os.getenv('RDS_HOSTNAME'),
-        'PORT': os.getenv('RDS_PORT'),
-        'OPTIONS': {
-            'options': '-c timezone=utc',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("RDS_DB_NAME"),
+        "USER": os.getenv("RDS_USERNAME"),
+        "PASSWORD": os.getenv("RDS_PASSWORD"),
+        "HOST": os.getenv("RDS_HOSTNAME"),
+        "PORT": os.getenv("RDS_PORT"),
+        "OPTIONS": {
+            "options": "-c timezone=utc",
         },
     }
 }
