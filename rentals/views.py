@@ -41,14 +41,14 @@ def apartment_detail(request, pk):
 
     comments = apartment.comments.all()  # Load comments for display
     form = CommentForm()  # Empty form for the template
-    print(os.getenv('MAP_API'))
+    print(os.getenv("MAP_API"))
     context = {
         "apartment": apartment,
         "user_rating": user_rating,
         "images": apartment.images.all(),
         "comments": comments,
         "form": form,
-        'google_maps_api_key': os.getenv('MAP_API'),
+        "google_maps_api_key": os.getenv("MAP_API"),
     }
     return render(request, "rentals/apartment_detail.html", context)
 
@@ -187,10 +187,10 @@ def create_apartment_post(request):
             geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
             response = requests.get(geocode_url).json()
             print(response)
-            if response['status'] == 'OK':
-                location = response['results'][0]['geometry']['location']
-                apartment_post.latitude = location['lat']
-                apartment_post.longitude = location['lng']
+            if response["status"] == "OK":
+                location = response["results"][0]["geometry"]["location"]
+                apartment_post.latitude = location["lat"]
+                apartment_post.longitude = location["lng"]
                 apartment_post.save()
             return redirect("apartment_detail", pk=apartment_post.pk)
     else:
