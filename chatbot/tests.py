@@ -1,8 +1,8 @@
 import openai
-from decouple import config
+import os
 
 # Load the API key from environment variables
-openai.api_key = config("OPENAI_API_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def test_openai_api():
