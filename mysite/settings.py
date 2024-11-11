@@ -29,9 +29,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",  # Static files handling
     # Your custom apps
     "users",  # App for user registration/authentication
-    "channels",
-    # 'groups',                        # App for posting messages in groups (if applicable)
-]
+    "channels",]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -84,8 +82,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",

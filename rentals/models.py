@@ -73,8 +73,8 @@ class Comment(models.Model):
 
     @property
     def is_reply(self):
-        return self.parent is not None
-    
+        return self.parent is not None  
+
 
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
@@ -87,3 +87,4 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} to {self.recipient}: {self.content[:30]}"
+    
