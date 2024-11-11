@@ -24,9 +24,6 @@ before_deploy:
 - python manage.py migrate --run-syncdb 
 # - python manage.py sqlmigrate users 0001_initial
 
-before_script:
-  - yes | python manage.py test
-
 deploy:
 - skip_cleanup: 'true'
   provider: elasticbeanstalk
