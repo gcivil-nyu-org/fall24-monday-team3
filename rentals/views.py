@@ -8,7 +8,7 @@ from django.db.models import Avg, Q
 import requests
 import os
 from dotenv import load_dotenv
-load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
+load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map-api.env")
 
 # import PIL
 
@@ -64,8 +64,17 @@ def update_apartment_post(request, pk):
 
     if request.method == "POST":
         form = ApartmentPostForm(request.POST, request.FILES, instance=apartment_post)
-        if form.is_valid():
+        if form.is_valid():            
             form.save()
+            apartment_address = apartment_post.address
+            geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
+            response = requests.get(geocode_url).json()
+            print(response)
+            if response['status'] == 'OK':
+                location = response['results'][0]['geometry']['location']
+                apartment_post.latitude = location['lat']
+                apartment_post.longitude = location['lng']
+                apartment_post.save()
             return redirect("apartment_detail", pk=apartment_post.pk)
     else:
         form = ApartmentPostForm(instance=apartment_post)
