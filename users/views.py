@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate
 from .forms import SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 def signup(request):
@@ -44,3 +45,8 @@ def register_view(request):
 
 def home_view(request):
     return render(request, "users/home.html")
+
+
+@login_required
+def profile_view(request):
+    return render(request, "users/profile.html")
