@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import ChatMessage
 import requests
-from decouple import config
+import os
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -37,7 +37,7 @@ def chatbot_query(request):
 
                 try:
                     headers = {
-                        "Authorization": f'Bearer {config("OPENAI_API_KEY")}',
+                        "Authorization": f'Bearer {os.getenv("OPENAI_API_KEY")}',
                         "OpenAI-Beta": "assistants=v2",
                     }
 
