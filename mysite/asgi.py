@@ -15,11 +15,11 @@ import rentals.routing
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(
-            rentals.routing.websocket_urlpatterns
-        )
-    ),
-})
+application = ProtocolTypeRouter(
+    {
+        "http": get_asgi_application(),
+        "websocket": AuthMiddlewareStack(
+            URLRouter(rentals.routing.websocket_urlpatterns)
+        ),
+    }
+)

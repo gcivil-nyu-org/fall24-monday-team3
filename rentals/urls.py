@@ -38,8 +38,10 @@ urlpatterns = [
     path("<int:post_id>/rate/", views.rate_post, name="rate_post"),
     path("search/", views.search_apartments, name="search_apartments"),
     path("<int:post_id>/rate/clear/", views.clear_rating, name="clear_rating"),
-    path("comment/<int:comment_id>/delete/", views.delete_comment, name="delete_comment"),
-    path('chat/<str:username>/', views.chat_view, name='chat'),
-    path('send_message/', views.send_message, name='send_message'),
-    path('get_messages/<str:username>/', views.get_messages, name='get_messages'),
+    path(
+        "comment/<int:comment_id>/delete/", views.delete_comment, name="delete_comment"
+    ),
+    path("chat/<str:username>/", views.chat_view, name="chat"),
+    path("send_message/", views.send_message, name="send_message"),
+    path("get_messages/<str:username>/", views.get_messages, name="get_messages"),
 ]

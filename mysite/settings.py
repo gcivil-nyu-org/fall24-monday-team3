@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",  # Static files handling
     # Your custom apps
     "users",  # App for user registration/authentication
-    "channels",]
+    "channels",
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
