@@ -16,12 +16,22 @@ class ApartmentPost(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     address = models.CharField(max_length=255)
-    bedrooms = models.PositiveIntegerField()
+    bedrooms = models.PositiveIntegerField(blank=True, null=True)
     square_feet = models.PositiveIntegerField()
     amenities = models.ManyToManyField(Amenity, blank=True)
     average_rating = models.FloatField(default=0)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
+
+    POST_TYPES = [
+        ('APARTMENT', 'Apartment'),
+        ('ROOM', 'Room'),
+    ]
+    post_type = models.CharField(
+        max_length=10,
+        choices=POST_TYPES,
+        default='APARTMENT'
+    )
 
     def __str__(self):
         return self.title

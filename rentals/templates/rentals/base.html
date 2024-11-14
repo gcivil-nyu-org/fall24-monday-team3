@@ -135,6 +135,20 @@ footer {
     background-color: #f8f9fa;
     color: rgba(0, 0, 0, 0.8);
 }
+
+/* static/css/styles.css */
+
+/* Ensure the card body fills the available space */
+.card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Optional: Style for the badge container to ensure it's at the bottom */
+.card-body .mt-auto {
+    margin-top: auto;
+}
+
     </style>
     {% block extra_head %}{% endblock %}
 </head>

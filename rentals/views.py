@@ -8,24 +8,44 @@ from django.db.models import Avg, Q
 import requests
 import os
 from dotenv import load_dotenv
-load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
+load_dotenv("/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/rentals/map.env")
 
 # import PIL
 
 
 @login_required(login_url="/users/login/")
 def apartment_list(request):
-    query = request.GET.get("q")
+    apartments = ApartmentPost.objects.all()
+    query = request.GET.get('q')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    bedrooms = request.GET.get('bedrooms')
+    post_type = request.GET.get('post_type')
+
     if query:
-        apartments = ApartmentPost.objects.filter(
-            Q(title__icontains=query)
-            | Q(description__icontains=query)
-            | Q(address__icontains=query)
+        apartments = apartments.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(address__icontains=query)
         )
-    else:
-        apartments = ApartmentPost.objects.all()
-    context = {"apartments": apartments, "search_query": query}
-    return render(request, "rentals/apartment_list.html", context)
+    if min_price:
+        apartments = apartments.filter(price__gte=min_price)
+    if max_price:
+        apartments = apartments.filter(price__lte=max_price)
+    if bedrooms:
+        apartments = apartments.filter(bedrooms=bedrooms)
+    if post_type:
+        apartments = apartments.filter(post_type=post_type)
+
+    context = {
+        'apartments': apartments,
+        'search_query': query,
+        'min_price': min_price,
+        'max_price': max_price,
+        'bedrooms': bedrooms,
+        'post_type': post_type,
+    }
+    return render(request, 'rentals/apartment_list.html', context)
 
 
 @login_required(login_url="/users/login/")

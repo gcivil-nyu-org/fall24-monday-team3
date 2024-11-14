@@ -23,6 +23,11 @@
         {% endif %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
+            <div class="mb-3">
+                {{ post_form.post_type.label_tag }}
+                {{ post_form.post_type }}
+                {{ post_form.post_type.errors }}
+            </div>            
             <!-- Title Field -->
             <div class="mb-3">
                 {{ post_form.title.label_tag }}
@@ -51,6 +56,9 @@
             <div class="mb-3">
                 {{ post_form.bedrooms.label_tag }}
                 {{ post_form.bedrooms }}
+                {% if post_form.bedrooms.help_text %}
+                    <small class="form-text text-muted">{{ post_form.bedrooms.help_text }} </small>
+                {% endif %}
                 {{ post_form.bedrooms.errors }}
             </div>
             <!-- Square Feet Field -->
