@@ -37,6 +37,8 @@ def apartment_list(request):
     if post_type:
         apartments = apartments.filter(post_type=post_type)
 
+    bedroom_choices = range(1, 7)
+
     context = {
         'apartments': apartments,
         'search_query': query,
@@ -44,6 +46,7 @@ def apartment_list(request):
         'max_price': max_price,
         'bedrooms': bedrooms,
         'post_type': post_type,
+        'bedroom_choices': bedroom_choices,
     }
     return render(request, 'rentals/apartment_list.html', context)
 

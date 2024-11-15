@@ -11,16 +11,49 @@
 
 <!-- Search and Filter Form -->
 <form method="get" action="{% url 'apartment_list' %}" class="mb-4">
-    <div class="row">
-        <!-- Existing search fields -->
+    <div class="row g-2 align-items-end">
+        <!-- Search Query -->
+        <div class="col-md-3">
+            <label for="id_q" class="form-label">Search</label>
+            <input type="text" name="q" id="id_q" class="form-control" value="{{ search_query }}" placeholder="Search...">
+        </div>
+        <!-- Min Price -->
         <div class="col-md-2">
-            <select name="post_type" class="form-select">
+            <label for="id_min_price" class="form-label">Min Price</label>
+            <input type="number" name="min_price" id="id_min_price" class="form-control" value="{{ min_price }}">
+        </div>
+        <!-- Max Price -->
+        <div class="col-md-2">
+            <label for="id_max_price" class="form-label">Max Price</label>
+            <input type="number" name="max_price" id="id_max_price" class="form-control" value="{{ max_price }}">
+        </div>
+        <!-- Bedrooms -->
+        <div class="col-md-2">
+            <label for="id_bedrooms" class="form-label">Bedrooms</label>
+            <select name="bedrooms" id="id_bedrooms" class="form-select">
+                <option value="">Any</option>
+                {% for i in bedroom_choices %}
+                    {% if i < 6 %}
+                        <option value="{{ i }}" {% if bedrooms == i|stringformat:"s" %}selected{% endif %}>{{ i }}</option>
+                    {% else %}
+                        <option value="{{ i }}" {% if bedrooms == i|stringformat:"s" %}selected{% endif %}>6+</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <!-- Post Type -->
+        <div class="col-md-2">
+            <label for="id_post_type" class="form-label">Type</label>
+            <select name="post_type" id="id_post_type" class="form-select">
                 <option value="">All Types</option>
                 <option value="APARTMENT" {% if post_type == 'APARTMENT' %}selected{% endif %}>Apartment</option>
                 <option value="ROOM" {% if post_type == 'ROOM' %}selected{% endif %}>Room</option>
             </select>
         </div>
-        <!-- Submit button -->
+        <!-- Submit Button -->
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
     </div>
 </form>
 
