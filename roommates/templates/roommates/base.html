@@ -225,6 +225,28 @@ footer {
     background-color: #f8f9fa;
     color: rgba(0, 0, 0, 0.8);
 }
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    margin: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+}
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -244,7 +266,7 @@ footer {
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <button class="welcome-dropdown-btn" onclick="toggleDropdown(event)">
-                            Welcome, {{ user.username }} &#9662;
+                            Welcome, {{ user.first_name }} &#9662;
                         </button>
                         <div id="dropdownMenu" class="custom-dropdown-menu">
                             <a href="{% url 'profile' %}" class="profile-btn">My Profile</a>

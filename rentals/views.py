@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ApartmentPostForm, ApartmentImageForm, CommentForm
-from .models import ApartmentImage, ApartmentPost, Rating, Comment
+from .models import ApartmentImage, ApartmentPost, Rating, Comment, Favorite
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -8,6 +8,8 @@ from django.db.models import Avg, Q
 import requests
 import os
 from dotenv import load_dotenv
+from django.conf import settings
+
 load_dotenv("/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/rentals/map.env")
 
 # import PIL
@@ -16,17 +18,17 @@ load_dotenv("/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/rentals/ma
 @login_required(login_url="/users/login/")
 def apartment_list(request):
     apartments = ApartmentPost.objects.all()
-    query = request.GET.get('q')
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
-    bedrooms = request.GET.get('bedrooms')
-    post_type = request.GET.get('post_type')
+    query = request.GET.get("q")
+    min_price = request.GET.get("min_price")
+    max_price = request.GET.get("max_price")
+    bedrooms = request.GET.get("bedrooms")
+    post_type = request.GET.get("post_type")
 
     if query:
         apartments = apartments.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(address__icontains=query)
+            Q(title__icontains=query)
+            | Q(description__icontains=query)
+            | Q(address__icontains=query)
         )
     if min_price:
         apartments = apartments.filter(price__gte=min_price)
@@ -40,31 +42,36 @@ def apartment_list(request):
     bedroom_choices = range(1, 7)
 
     context = {
-        'apartments': apartments,
-        'search_query': query,
-        'min_price': min_price,
-        'max_price': max_price,
-        'bedrooms': bedrooms,
-        'post_type': post_type,
-        'bedroom_choices': bedroom_choices,
+        "apartments": apartments,
+        "search_query": query,
+        "min_price": min_price,
+        "max_price": max_price,
+        "bedrooms": bedrooms,
+        "post_type": post_type,
+        "bedroom_choices": bedroom_choices,
     }
-    return render(request, 'rentals/apartment_list.html', context)
+    return render(request, "rentals/apartment_list.html", context)
 
 
 @login_required(login_url="/users/login/")
 def apartment_detail(request, pk):
     apartment = get_object_or_404(ApartmentPost, pk=pk)
-    # Get user's rating for this apartment if it exists
     user_rating = None
+    is_favorited = False
+
     if request.user.is_authenticated:
         try:
             user_rating = Rating.objects.get(post=apartment, user=request.user)
         except Rating.DoesNotExist:
             pass
 
-    comments = apartment.comments.all()  # Load comments for display
-    form = CommentForm()  # Empty form for the template
-    print(os.getenv("MAP_API"))
+        is_favorited = Favorite.objects.filter(
+            post=apartment, user=request.user
+        ).exists()
+
+    comments = apartment.comments.all()
+    form = CommentForm()
+
     context = {
         "apartment": apartment,
         "user_rating": user_rating,
@@ -72,6 +79,7 @@ def apartment_detail(request, pk):
         "comments": comments,
         "form": form,
         "google_maps_api_key": os.getenv("MAP_API"),
+        "is_favorited": is_favorited,
     }
     return render(request, "rentals/apartment_detail.html", context)
 
@@ -93,10 +101,10 @@ def update_apartment_post(request, pk):
             geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
             response = requests.get(geocode_url).json()
             print(response)
-            if response['status'] == 'OK':
-                location = response['results'][0]['geometry']['location']
-                apartment_post.latitude = location['lat']
-                apartment_post.longitude = location['lng']
+            if response["status"] == "OK":
+                location = response["results"][0]["geometry"]["location"]
+                apartment_post.latitude = location["lat"]
+                apartment_post.longitude = location["lng"]
                 apartment_post.save()
             return redirect("apartment_detail", pk=apartment_post.pk)
     else:
@@ -266,3 +274,73 @@ def delete_apartment_comment(request, comment_id):
     if request.user == comment.user:  # Ensure only the comment author can delete
         comment.delete()
     return redirect("apartment_detail", pk=comment.post.pk)
+
+
+@login_required(login_url="/users/login/")
+def toggle_favorite(request, pk):
+    if (
+        request.method == "POST"
+        and request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    ):
+        post = get_object_or_404(ApartmentPost, pk=pk)
+        favorite, created = Favorite.objects.get_or_create(user=request.user, post=post)
+
+        if not created:
+            # If it wasn't created, then it existed, so we should delete it
+            favorite.delete()
+            is_favorited = False
+            message = "Removed from favorites"
+        else:
+            is_favorited = True
+            message = "Added to favorites"
+
+        return JsonResponse(
+            {"success": True, "is_favorited": is_favorited, "message": message}
+        )
+
+    return JsonResponse({"success": False}, status=400)
+
+
+@login_required
+def rate_apartment(request, pk):
+    if request.method == "POST":
+        rating_value = int(request.POST.get("rating"))
+        apartment = get_object_or_404(ApartmentPost, pk=pk)
+
+        # Update or create the rating
+        rating, created = Rating.objects.update_or_create(
+            user=request.user, post=apartment, defaults={"value": rating_value}
+        )
+
+        # Get the updated apartment to get the new average_rating
+        apartment.refresh_from_db()
+
+        return JsonResponse(
+            {"success": True, "average_rating": apartment.average_rating}
+        )
+    return JsonResponse({"success": False}, status=400)
+
+
+@login_required
+def clear_apartment_rating(request, pk):
+    if request.method == "POST":
+        apartment = get_object_or_404(ApartmentPost, pk=pk)
+
+        try:
+            rating = Rating.objects.get(user=request.user, post=apartment)
+            rating.delete()  # This will trigger the delete method in the Rating model
+
+            # Refresh to get the updated average
+            apartment.refresh_from_db()
+
+            return JsonResponse(
+                {"success": True, "average_rating": apartment.average_rating}
+            )
+        except Rating.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "error": "Rating not found"}, status=404
+            )
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    return JsonResponse({"success": False}, status=400)

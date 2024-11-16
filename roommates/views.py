@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import RoommatePostForm, RoommateImageForm, CommentForm
-from .models import RoommateImage, RoommatePost, Comment
+from .models import RoommateImage, RoommatePost, Comment, Favorite
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.http import JsonResponse
 
 
 @login_required(login_url="/users/login/")
@@ -24,14 +25,21 @@ def roommate_list(request):
 @login_required(login_url="/users/login/")
 def roommate_detail(request, pk):
     roommate = get_object_or_404(RoommatePost, pk=pk)
-    comments = roommate.comments.all()  # Load comments for display
-    form = CommentForm()  # Empty form for the template
+    comments = roommate.comments.all()
+    form = CommentForm()
+    is_favorited = False
+
+    if request.user.is_authenticated:
+        is_favorited = Favorite.objects.filter(
+            post=roommate, user=request.user
+        ).exists()
 
     context = {
         "roommate": roommate,
         "images": roommate.images.all(),
         "comments": comments,
         "form": form,
+        "is_favorited": is_favorited,
     }
     return render(request, "roommates/roommate_detail.html", context)
 
@@ -156,3 +164,28 @@ def search_roommates(request):
     return render(
         request, "roommates/search_results.html", {"results": results, "query": query}
     )
+
+
+@login_required(login_url="/users/login/")
+def toggle_favorite(request, pk):
+    if (
+        request.method == "POST"
+        and request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    ):
+        post = get_object_or_404(RoommatePost, pk=pk)
+        favorite, created = Favorite.objects.get_or_create(user=request.user, post=post)
+
+        if not created:
+            # If it wasn't created, then it existed, so we should delete it
+            favorite.delete()
+            is_favorited = False
+            message = "Removed from favorites"
+        else:
+            is_favorited = True
+            message = "Added to favorites"
+
+        return JsonResponse(
+            {"success": True, "is_favorited": is_favorited, "message": message}
+        )
+
+    return JsonResponse({"success": False}, status=400)

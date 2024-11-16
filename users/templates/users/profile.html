@@ -1,119 +1,328 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Rent Sense</title>
-    <style>
-        /* Reuse your existing styles from home.html */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+{% extends 'users/base.html' %}
 
-        body {
-            background-color: #f4f4f4;
-            line-height: 1.6;
-        }
+{% block title %}My Profile - Rent Sense{% endblock %}
 
-        .container {
-            width: 80%;
-            margin: auto;
-            overflow: hidden;
-        }
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">My Profile</h3>
 
-        header {
-            background: linear-gradient(to right, #2c3e50, #3498db);
-            color: #fff;
-            padding: 1rem 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+                    <!-- View Mode Content -->
+                    <div id="viewMode">
+                        <p class="card-text">
+                            <strong>Username:</strong> {{ user.username }}<br>
+                            <strong>First Name:</strong> {{ user.first_name }}<br>
+                            <strong>Last Name:</strong> {{ user.last_name }}<br>
+                            <strong>Email:</strong> {{ user.email }}<br>
+                            {% if user.bio %}
+                                <strong>Bio:</strong> {{ user.bio }}
+                            {% endif %}
+                        </p>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" id="editButton" class="btn btn-primary" onclick="toggleEditMode()">
+                                Edit
+                            </button>
+                        </div>
+                    </div>
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-
-        .profile-section {
-            background: white;
-            padding: 2rem;
-            margin: 2rem 0;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-        }
-
-        .profile-header {
-            margin-bottom: 2rem;
-        }
-
-        .profile-header h2 {
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-
-        .profile-info {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .info-item {
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-
-        .info-label {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-value {
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="{% url 'home' %}" style="text-decoration: none; color: white;">
-                    <div class="logo">Rent Sense</div>
-                </a>
+                    <!-- Edit Mode Content (initially hidden) -->
+                    <form id="editMode" style="display: none;">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Username:</strong></label>
+                            <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>First Name:</strong></label>
+                            <input type="text" class="form-control" id="editFirstName" value="{{ user.first_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Last Name:</strong></label>
+                            <input type="text" class="form-control" id="editLastName" value="{{ user.last_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Email:</strong></label>
+                            <input type="email" class="form-control" id="editEmail" value="{{ user.email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Bio:</strong></label>
+                            <textarea class="form-control" id="editBio" rows="4">{{ user.bio }}</textarea>
+                        </div>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-secondary me-2" onclick="toggleEditMode()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="saveChanges()">Save</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </header>
+        
+        <div class="col-md-8">
+            <!-- Favorited Rentals Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Favorited Rentals</h4>
+                </div>
+                <div class="card-body">
+                    <div id="rental-favorites-container">
+                        {% if rental_favorites %}
+                            <div class="row">
+                                {% for favorite in rental_favorites %}
+                                    <div class="col-md-6 mb-3 favorite-card" data-favorite-id="{{ favorite.id }}">
+                                        <div class="card h-100">
+                                            {% if favorite.post.images.first %}
+                                                <img src="{{ favorite.post.images.first.image.url }}" class="card-img-top" alt="{{ favorite.post.title }}">
+                                            {% endif %}
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ favorite.post.title }}</h5>
+                                                <p class="card-text">
+                                                    <strong>Price:</strong> ${{ favorite.post.price }}<br>
+                                                    <strong>Location:</strong> {{ favorite.post.address }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <a href="{% url 'apartment_detail' pk=favorite.post.pk %}" class="btn btn-primary">View Details</a>
+                                                    <button class="btn btn-danger btn-sm delete-favorite" 
+                                                            data-type="rental" 
+                                                            data-id="{{ favorite.id }}"
+                                                            data-post-id="{{ favorite.post.pk }}"
+                                                            data-csrf="{{ csrf_token }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="no-favorites-text">No favorited rental posts yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
-    <div class="container">
-        <section class="profile-section">
-            <div class="profile-header">
-                <h2>My Profile</h2>
-                <p>Manage your account information</p>
+            <!-- Favorited Roommates Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Favorited Roommates</h4>
+                </div>
+                <div class="card-body">
+                    <div id="roommate-favorites-container">
+                        {% if roommate_favorites %}
+                            <div class="row">
+                                {% for favorite in roommate_favorites %}
+                                    <div class="col-md-6 mb-3 favorite-card" data-favorite-id="{{ favorite.id }}">
+                                        <div class="card h-100">
+                                            {% if favorite.post.images.first %}
+                                                <img src="{{ favorite.post.images.first.image.url }}" class="card-img-top" alt="{{ favorite.post.name }}">
+                                            {% endif %}
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ favorite.post.name }}</h5>
+                                                <p class="card-text">
+                                                    <strong>Budget:</strong> ${{ favorite.post.budget }}<br>
+                                                    <strong>Location:</strong> {{ favorite.post.preferred_location }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <a href="{% url 'roommate_detail' pk=favorite.post.pk %}" class="btn btn-primary">View Details</a>
+                                                    <button class="btn btn-danger btn-sm delete-favorite" 
+                                                            data-type="roommate" 
+                                                            data-id="{{ favorite.id }}"
+                                                            data-post-id="{{ favorite.post.pk }}"
+                                                            data-csrf="{{ csrf_token }}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="no-favorites-text">No favorited roommate posts yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <div class="profile-info">
-                <div class="info-item">
-                    <div class="info-label">Username</div>
-                    <div class="info-value">{{ user.username }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ user.email }}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Date Joined</div>
-                    <div class="info-value">{{ user.date_joined|date:"F j, Y" }}</div>
-                </div>
-            </div>
-        </section>
+        </div>
     </div>
-</body>
-</html> 
+</div>
+
+<style>
+    .btn-primary {
+        background: #3498db;
+        border-color: #3498db;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        border-color: #2980b9;
+    }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .form-control[disabled] {
+        background-color: #e9ecef;
+    }
+</style>
+
+<script>
+function toggleEditMode() {
+    const viewMode = document.getElementById('viewMode');
+    const editMode = document.getElementById('editMode');
+    const editButton = document.getElementById('editButton');
+    const editButtons = document.getElementById('editButtons');
+
+    if (viewMode.style.display !== 'none') {
+        // Switch to edit mode
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        editButton.style.display = 'none';
+        editButtons.style.display = 'block';
+    } else {
+        // Switch back to view mode
+        viewMode.style.display = 'block';
+        editMode.style.display = 'none';
+        editButton.style.display = 'block';
+        editButtons.style.display = 'none';
+    }
+}
+
+function saveChanges() {
+    const firstName = document.getElementById('editFirstName').value;
+    const lastName = document.getElementById('editLastName').value;
+    const email = document.getElementById('editEmail').value;
+    const bio = document.getElementById('editBio').value;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch("{% url 'edit_profile' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            bio: bio
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the view mode content
+            location.reload(); // Reload the page to show updated info
+        } else {
+            alert('Error updating profile');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating profile');
+    });
+}
+</script>
+{% endblock %} 
+
+{% block extra_js %}
+<script>
+// Add toast container to the body immediately
+document.body.insertAdjacentHTML('beforeend', '<div class="toast-container"></div>');
+
+function showToast(message) {
+    const container = document.querySelector('.toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+$(document).ready(function() {
+    $('.delete-favorite').click(function() {
+        const button = $(this);
+        const type = button.data('type');
+        const favoriteId = button.data('id');
+        const csrfToken = button.data('csrf');
+        const card = button.closest('.favorite-card');
+        const postId = button.data('post-id');
+        const postTitle = card.find('.card-title').text().trim();
+        const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+        
+        let url;
+        if (type === 'rental') {
+            url = "{% url 'toggle_favorite' pk=0 %}".replace('0', postId);
+        } else {
+            url = "{% url 'toggle_roommate_favorite' pk=0 %}".replace('0', postId);
+        }
+        
+        $.ajax({
+            url: url,
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            success: function(response) {
+                if (response.success) {
+                    card.fadeOut(300, function() {
+                        const container = $(`#${type}-favorites-container`);
+                        const row = card.closest('.row');
+                        $(this).remove();
+                        
+                        // If no more cards in the row
+                        if (row.children().length === 0) {
+                            row.remove();
+                            container.html(`<p class="no-favorites-text">No favorited ${type} posts yet.</p>`);
+                        }
+                        
+                        showToast(`${capitalizedType} post: "${postTitle}" deleted from Favorites`);
+                    });
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log('Error:', errmsg);
+                showToast('Error removing favorite');
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 
+
+<style>
+    .btn-primary {
+        background: #3498db;
+        border-color: #3498db;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        border-color: #2980b9;
+    }
+
+    .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .modal-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+</style> 

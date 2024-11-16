@@ -1,14 +1,28 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import User  # Import your custom user model if you have one
+from django.contrib.auth.forms import UserCreationForm
+from .models import User
 
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    bio = forms.CharField(widget=forms.Textarea(attrs={"rows": 4}), required=False)
 
     class Meta:
-        model = User  # If you're using a custom user model
-        fields = ("username", "email", "password1", "password2")
+        model = User
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "bio",
+            "password1",
+            "password2",
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["bio"].help_text = "Tell us a bit about yourself"
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -16,8 +30,3 @@ class SignUpForm(UserCreationForm):
         if commit:
             user.save()
         return user
-
-
-class UserLoginForm(AuthenticationForm):
-    # Inheriting from AuthenticationForm; no need to add extra fields unless required
-    pass

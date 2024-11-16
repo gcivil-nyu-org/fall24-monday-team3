@@ -501,7 +501,7 @@
                     {% if user.is_authenticated %}
                         <div class="dropdown">
                             <button class="welcome-text" onclick="toggleDropdown(event)">
-                                Welcome, {{ user.username }} &#9662;
+                                Welcome, {{ user.first_name }} &#9662;
                             </button>
                         </div>
                     {% else %}

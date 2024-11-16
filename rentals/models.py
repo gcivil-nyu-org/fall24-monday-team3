@@ -24,14 +24,10 @@ class ApartmentPost(models.Model):
     longitude = models.FloatField(blank=True, null=True)
 
     POST_TYPES = [
-        ('APARTMENT', 'Apartment'),
-        ('ROOM', 'Room'),
+        ("APARTMENT", "Apartment"),
+        ("ROOM", "Room"),
     ]
-    post_type = models.CharField(
-        max_length=10,
-        choices=POST_TYPES,
-        default='APARTMENT'
-    )
+    post_type = models.CharField(max_length=10, choices=POST_TYPES, default="APARTMENT")
 
     def __str__(self):
         return self.title
@@ -85,3 +81,17 @@ class Comment(models.Model):
     @property
     def is_reply(self):
         return self.parent is not None
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey(
+        "ApartmentPost", on_delete=models.CASCADE, related_name="favorites"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "post")
+
+    def __str__(self):
+        return f"{self.user.username}'s favorite: {self.post.title}"
