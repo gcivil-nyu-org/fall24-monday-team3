@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Apartment Map</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{google_maps_api_key}}"></script>
+    <script>
+        function initMap() {
+            // Center the map (choose appropriate coordinates)
+            const mapCenter = { lat: 40.7128, lng: -74.0060 }; // Example: San Francisco, CA
+
+            // Create a map centered at the given location
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: mapCenter,
+            });
+
+            // Fetch apartment data from the server
+            fetch('/rentals/apartment-data/')
+    .then(response => response.json())
+    .then(apartments => {
+        apartments.forEach(apartment => {
+            if (apartment.latitude && apartment.longitude) {  // Check for valid lat/lng
+                const marker = new google.maps.Marker({
+                    position: { lat: apartment.latitude, lng: apartment.longitude },
+                    map: map,
+                    title: apartment.name,
+                });
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<h3>${apartment.name}</h3><p>${apartment.description}</p>`,
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+            }
+        });
+    })
+    .catch(error => console.error("Error loading apartments:", error)); // Catch any errors
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>Properties on the Map</h1>
+    <div id="map" style="height: 600px; width: 100%;"></div>
+</body>
+</html>

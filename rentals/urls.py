@@ -30,4 +30,6 @@ urlpatterns = [
         name="delete_apartment_comment",
     ),
     path("search/", views.search_apartments, name="search_apartments"),
+    path("apartment-data/", views.apartment_data, name='apartment-data'),
+    path("property-map/", views.property_map_view, name='property_map'),
 ]
