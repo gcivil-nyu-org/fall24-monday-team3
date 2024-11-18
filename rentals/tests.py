@@ -59,6 +59,7 @@ class ApartmentPostOwnershipTest(TestCase):
 
         # Verify the changes were saved
         updated_apartment = ApartmentPost.objects.get(pk=self.apartment.pk)
+        print(updated_apartment.title)
         self.assertEqual(updated_apartment.title, "Updated Title")
         self.assertEqual(updated_apartment.price, 1200.00)
 
