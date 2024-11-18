@@ -82,7 +82,7 @@ def discussion_detail(request, pk):
             reply.author = request.user
             reply.save()
             messages.success(request, "Reply posted successfully!")
-            return redirect("discussion_detail", pk=pk)
+            return redirect("discussions:discussion_detail", pk=pk)
     else:
         form = ReplyForm()
     # Increment view count
