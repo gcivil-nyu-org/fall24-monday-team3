@@ -29,7 +29,7 @@ class ApartmentPostForm(forms.ModelForm):
             "square_feet": forms.NumberInput(attrs={"class": "form-control"}),
             "amenities": CheckboxSelectMultiple(),
         }
-        
+
     def __init__(self, *args, **qwargs):
         super().__init__(*args, **qwargs)
         self.fields['bedrooms'].help_text = 'Required for apartments; optional for rooms.'

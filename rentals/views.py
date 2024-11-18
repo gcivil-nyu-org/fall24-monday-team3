@@ -267,16 +267,18 @@ def delete_apartment_comment(request, comment_id):
         comment.delete()
     return redirect("apartment_detail", pk=comment.post.pk)
 
+
 def apartment_data(request):
     print("called!!!")
-    apartments = ApartmentPost.objects.values('user', 'title', 'latitude', 'longitude', 'description','price','address','bedrooms','square_feet','amenities','average_rating')
+    apartments = ApartmentPost.objects.values('user', 'title', 'latitude', 'longitude', 'description', 'price', 'address', 'bedrooms', 'square_feet', 'amenities', 'average_rating')
     print(apartments)
     return JsonResponse(list(apartments), safe=False)
-    
+
+
 def property_map_view(request):
     print("The python viewer called")
     context = {
        'google_maps_api_key': os.getenv("MAP_API"),
     }
     print
-    return render(request, 'rentals/property-visualizer.html',context)
+    return render(request, 'rentals/property-visualizer.html', context)

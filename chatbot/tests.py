@@ -7,6 +7,7 @@ from .models import ChatMessage
 
 User = get_user_model()
 
+
 class ChatbotTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -30,6 +31,7 @@ class ChatbotTests(TestCase):
         ChatMessage.objects.create(user=self.user, message='Test message', is_bot=False)
         self.assertEqual(ChatMessage.objects.count(), 1)
         self.assertEqual(ChatMessage.objects.first().message, 'Test message')
+
 
 # Load the API key from environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
