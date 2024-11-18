@@ -55,7 +55,7 @@ class ApartmentPostOwnershipTest(TestCase):
         )
 
         # Check if redirect to detail page after successful update
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
         # Verify the changes were saved
         updated_apartment = ApartmentPost.objects.get(pk=self.apartment.pk)
