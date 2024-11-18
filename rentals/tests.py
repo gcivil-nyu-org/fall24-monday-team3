@@ -20,6 +20,7 @@ class ApartmentPostOwnershipTest(TestCase):
         self.apartment = ApartmentPost.objects.create(
             user=self.owner,
             title="Test Apartment",
+            post_type="APARTMENT",
             description="Test Description",
             price=1000.00,
             address="123 Test St",
@@ -43,6 +44,7 @@ class ApartmentPostOwnershipTest(TestCase):
         # Try to edit the post
         update_data = {
             "title": "Updated Title",
+            "post_type": "APARTMENT",
             "description": "Updated Description",
             "price": 1200.00,
             "address": "123 Test St",
@@ -55,11 +57,10 @@ class ApartmentPostOwnershipTest(TestCase):
         )
 
         # Check if redirect to detail page after successful update
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
         # Verify the changes were saved
         updated_apartment = ApartmentPost.objects.get(pk=self.apartment.pk)
-        print(updated_apartment.title)
         self.assertEqual(updated_apartment.title, "Updated Title")
         self.assertEqual(updated_apartment.price, 1200.00)
 
