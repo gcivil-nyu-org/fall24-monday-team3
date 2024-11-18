@@ -93,3 +93,4 @@ def delete_favorite(request, type, favorite_id):
         return JsonResponse({"success": True})
     except (RentalFavorite.DoesNotExist, RoommateFavorite.DoesNotExist):
         return JsonResponse({"success": False}, status=404)
+
