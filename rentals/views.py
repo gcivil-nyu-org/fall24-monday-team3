@@ -8,7 +8,7 @@ from django.db.models import Avg, Q
 import requests
 import os
 from dotenv import load_dotenv
-load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
+load_dotenv("/Users/navro/Desktop/DjangoProj/fall24-monday-team3/rentals/map.env")
 
 # import PIL
 
