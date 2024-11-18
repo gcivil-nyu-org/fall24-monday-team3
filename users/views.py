@@ -10,7 +10,6 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import json
 from django.views.decorators.http import require_http_methods
-from rentals.models import Favorite, ApartmentPost
 
 
 def signup(request):
@@ -56,10 +55,12 @@ def home_view(request):
 
 @login_required
 def profile_view(request):
-    rental_favorites = Favorite.objects.filter(user=request.user).select_related("post")
-
+    rental_favorites = RentalFavorite.objects.filter(user=request.user).select_related("post")
+    roommate_favorites = RoommateFavorite.objects.filter(user=request.user).select_related("post")
+    
     context = {
         "rental_favorites": rental_favorites,
+        "roommate_favorites": roommate_favorites,
     }
     return render(request, "users/profile.html", context)
 
@@ -93,4 +94,3 @@ def delete_favorite(request, type, favorite_id):
         return JsonResponse({"success": True})
     except (RentalFavorite.DoesNotExist, RoommateFavorite.DoesNotExist):
         return JsonResponse({"success": False}, status=404)
-
