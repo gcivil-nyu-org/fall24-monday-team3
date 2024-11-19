@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 from django.conf import settings
 
-load_dotenv("/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/rentals/map.env")
+load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
 
 # import PIL
 
@@ -71,7 +71,7 @@ def apartment_detail(request, pk):
 
     comments = apartment.comments.all()
     form = CommentForm()
-
+    print(os.getenv("MAP_API"))
     context = {
         "apartment": apartment,
         "user_rating": user_rating,
