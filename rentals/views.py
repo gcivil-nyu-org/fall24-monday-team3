@@ -8,7 +8,6 @@ from django.db.models import Avg, Q
 import requests
 import os
 from dotenv import load_dotenv
-from django.conf import settings
 
 load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
 
@@ -344,16 +343,18 @@ def clear_apartment_rating(request, pk):
             return JsonResponse({"success": False, "error": str(e)}, status=400)
 
     return JsonResponse({"success": False}, status=400)
+
+
 def apartment_data(request):
     print("called!!!")
-    apartments = ApartmentPost.objects.values('user', 'title', 'latitude', 'longitude', 'description','price','address','bedrooms','square_feet','amenities','average_rating')
+    apartments = ApartmentPost.objects.values('user', 'title', 'latitude', 'longitude', 'description', 'price', 'address', 'bedrooms', 'square_feet', 'amenities', 'average_rating')
     print(apartments)
     return JsonResponse(list(apartments), safe=False)
-    
+
+
 def property_map_view(request):
     print("The python viewer called")
     context = {
        'google_maps_api_key': os.getenv("MAP_API"),
     }
-    print
-    return render(request, 'rentals/property-visualizer.html',context)
+    return render(request, 'rentals/property-visualizer.html', context)
