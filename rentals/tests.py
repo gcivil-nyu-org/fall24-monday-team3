@@ -25,6 +25,7 @@ class ApartmentPostOwnershipTest(TestCase):
             address="123 Test St",
             bedrooms=2,
             square_feet=1000,
+            post_type="APARTMENT",
         )
 
         # Set up the test client
@@ -48,6 +49,7 @@ class ApartmentPostOwnershipTest(TestCase):
             "address": "123 Test St",
             "bedrooms": 2,
             "square_feet": 1000,
+            "post_type" : "APARTMENT",
         }
         response = self.client.post(
             reverse("update_apartment_post", kwargs={"pk": self.apartment.pk}),
@@ -55,11 +57,10 @@ class ApartmentPostOwnershipTest(TestCase):
         )
 
         # Check if redirect to detail page after successful update
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
         # Verify the changes were saved
         updated_apartment = ApartmentPost.objects.get(pk=self.apartment.pk)
-        print(updated_apartment.title)
         self.assertEqual(updated_apartment.title, "Updated Title")
         self.assertEqual(updated_apartment.price, 1200.00)
 
