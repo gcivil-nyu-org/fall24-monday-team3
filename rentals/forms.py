@@ -32,16 +32,18 @@ class ApartmentPostForm(forms.ModelForm):
 
     def __init__(self, *args, **qwargs):
         super().__init__(*args, **qwargs)
-        self.fields['bedrooms'].help_text = 'Required for apartments; optional for rooms.'
+        self.fields["bedrooms"].help_text = (
+            "Required for apartments; optional for rooms."
+        )
 
     def clean(self):
         cleaned_data = super().clean()
-        post_type = cleaned_data.get('post_type')
-        bedrooms = cleaned_data.get('bedrooms')
+        post_type = cleaned_data.get("post_type")
+        bedrooms = cleaned_data.get("bedrooms")
 
-        if post_type == 'APARTMENT':
+        if post_type == "APARTMENT":
             if bedrooms is None:
-                self.add_error('bedrooms', 'This field is required for apartments.')
+                self.add_error("bedrooms", "This field is required for apartments.")
         return cleaned_data
 
 

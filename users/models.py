@@ -3,6 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    # You can add custom fields if needed, like:
-    bio = models.TextField(null=True, blank=True)
-    # Other custom fields here
+    bio = models.TextField(max_length=500, blank=True)
+
+    def __str__(self):
+        return self.username

@@ -4,6 +4,12 @@ from .forms import SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from rentals.models import Favorite as RentalFavorite
+from roommates.models import Favorite as RoommateFavorite
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
+from django.views.decorators.http import require_http_methods
 
 
 def signup(request):
@@ -49,4 +55,46 @@ def home_view(request):
 
 @login_required
 def profile_view(request):
+<<<<<<< HEAD
     return render(request, "users/profile.html")
+=======
+    rental_favorites = RentalFavorite.objects.filter(user=request.user).select_related("post")
+    roommate_favorites = RoommateFavorite.objects.filter(user=request.user).select_related("post")
+
+    context = {
+        "rental_favorites": rental_favorites,
+        "roommate_favorites": roommate_favorites,
+    }
+    return render(request, "users/profile.html", context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def edit_profile(request):
+    try:
+        data = json.loads(request.body)
+        user = request.user
+        user.first_name = data.get("first_name")
+        user.last_name = data.get("last_name")
+        user.email = data.get("email")
+        user.bio = data.get("bio")
+        user.save()
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
+
+
+@login_required
+@require_POST
+def delete_favorite(request, type, favorite_id):
+    try:
+        if type == "rental":
+            favorite = RentalFavorite.objects.get(id=favorite_id, user=request.user)
+        else:
+            favorite = RoommateFavorite.objects.get(id=favorite_id, user=request.user)
+
+        favorite.delete()
+        return JsonResponse({"success": True})
+    except (RentalFavorite.DoesNotExist, RoommateFavorite.DoesNotExist):
+        return JsonResponse({"success": False}, status=404)
+>>>>>>> profile-edit-favorites

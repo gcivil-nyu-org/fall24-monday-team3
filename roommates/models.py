@@ -56,3 +56,21 @@ class Comment(models.Model):
     @property
     def is_reply(self):
         return self.parent is not None
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="roommate_favorites",
+    )
+    post = models.ForeignKey(
+        RoommatePost, on_delete=models.CASCADE, related_name="favorited_by"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "post")
+
+    def __str__(self):
+        return f"{self.user.username}'s favorite: {self.post.name}"

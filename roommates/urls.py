@@ -28,5 +28,10 @@ urlpatterns = [
         views.delete_comment,
         name="delete_roommate_comment",
     ),
+    path(
+        "roommate/<int:pk>/favorite/",
+        views.toggle_favorite,
+        name="toggle_roommate_favorite",
+    ),
     # You can add more URL patterns here, such as detail views
 ]

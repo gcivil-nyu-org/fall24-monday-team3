@@ -48,6 +48,45 @@
         td:nth-child(3) {
             width: 25%;  /* Column 3 takes 25% of the row */
         }
+
+    /* Star Rating Styles */
+    .star {
+        font-size: 24px;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .star.filled {
+        color: #ffd700;
+    }
+
+    #rating-stars {
+        display: inline-block;
+    }
+
+    .star {
+        font-size: 24px;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+        display: inline-block;
+        padding: 0 2px;
+    }
+
+    .star.filled {
+        color: #ffd700;
+    }
+
+    .star.hover {
+        color: #ffd700;
+    }
+
+    /* Clear button styling */
+    #clear-rating {
+        padding: 2px 8px;
+        font-size: 0.875rem;
+    }
 </style>
 <div class="card mb-4">
     <div id="apartmentCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -72,6 +111,7 @@
     <div class="card-body">
         <h2 class="card-title">{{ apartment.title }}</h2>
         <p class="card-text">{{ apartment.description }}</p>
+        
         <ul class="list-group list-group-flush">
             <li class="list-group-item"><strong>Type:</strong> {{ apartment.get_post_type_display }}</li>
             <li class="list-group-item"><strong>Price:</strong> ${{ apartment.price }}</li>
@@ -98,15 +138,15 @@
             </span></li>
         </ul>
         <div class="mt-3">
-            <div id="rating-stars" class="mt-2">
-                <h6>                    
+            <div id="rating-stars" class="mt-2" style="text-align: left;">
+                <h6 style="display: flex; align-items: center;">                    
                     {% if user_rating %}
-                        <span id="user-rating-text">You rated {{ user_rating.value }} for this post</span>
+                        <span id="user-rating-text" style="margin-right: auto;">You rated {{ user_rating.value }} for this post</span>
                         <button id="clear-rating" class="btn btn-sm btn-outline-danger ms-2">
                             <i class="fas fa-times"></i> Clear
                         </button>
                     {% else %}
-                        <span id="user-rating-text">Rate this Post: </span>
+                        <span id="user-rating-text">Rate this post: </span>
                     {% endif %}
                 </h6>
                 {% for i in "12345" %}
@@ -114,9 +154,22 @@
                           data-value="{{ forloop.counter }}">★</span>
                 {% endfor %}
             </div>
-            </ul>
         </div>
         <div class="mt-3">
+            {% if user.is_authenticated %}
+            <button class="btn {% if is_favorited %}btn-primary{% else %}btn-outline-primary{% endif %} favorite-btn" 
+                    data-post-id="{{ apartment.pk }}" 
+                    data-csrf="{{ csrf_token }}">
+                <i class="fas fa-heart"></i> 
+                <span class="favorite-text">
+                    {% if is_favorited %}
+                        Remove from Favorites
+                    {% else %}
+                        Add to Favorites
+                    {% endif %}
+                </span>
+            </button>
+        {% endif %}
             <!-- Only show edit/delete buttons to the owner -->
             {% if user == apartment.user %}
                 <a href="{% url 'update_apartment_post' pk=apartment.pk %}" class="btn btn-secondary">Edit Listing</a>
@@ -172,9 +225,8 @@
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-function initMap() {
+    function initMap() {
         var location = {lat: parseFloat("{{ apartment.latitude }}"), lng: parseFloat("{{ apartment.longitude }}")};
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 15,
@@ -185,9 +237,58 @@ function initMap() {
             map: map
         });
     }
+// Add toast container to the body
+document.body.insertAdjacentHTML('beforeend', '<div class="toast-container"></div>');
+
+function showToast(message) {
+    const container = document.querySelector('.toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
 
 $(document).ready(function() {
-    
+    $('.favorite-btn').click(function() {
+        const button = $(this);
+        const postId = button.data('post-id');
+        const csrfToken = button.data('csrf');
+
+        $.ajax({
+            url: "{% url 'toggle_favorite' pk=apartment.pk %}",
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Toggle button appearance
+                    if (response.is_favorited) {
+                        button.removeClass('btn-outline-primary').addClass('btn-primary');
+                        button.find('.favorite-text').text('Remove from Favorites');
+                        showToast('Post added to favorites');
+                    } else {
+                        button.removeClass('btn-primary').addClass('btn-outline-primary');
+                        button.find('.favorite-text').text('Add to Favorites');
+                        showToast('Post removed from favorites');
+                    }
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log('Error:', errmsg);
+            }
+        });
+    });
+
     const stars = $('.star');
     const postId = "{{ apartment.id }}";
 
@@ -201,6 +302,9 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
+                    // Show toast message
+                    showToast('You removed your rating for this post.');
+
                     // Update average rating display
                     if (response.average_rating) {
                         $('#average-rating').text(response.average_rating.toFixed(2));
@@ -239,6 +343,9 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
+                    // Show toast message
+                    showToast(`You successfully rated this post - ${response.user_rating} stars`);
+
                     // Update average rating display
                     $('#average-rating').text(response.average_rating.toFixed(2));
                     $('#rating-text-empty').text("");
@@ -282,6 +389,7 @@ $(document).ready(function() {
             stars.each(function() {
                 const starValue = parseInt($(this).data('value'));
                 if (starValue <= currentValue) {
+                    console.log(starValue, currentValue)
                     $(this).addClass('hover');
                 }
                 $(this).removeClass('filled');

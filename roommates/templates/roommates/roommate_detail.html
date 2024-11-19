@@ -37,6 +37,20 @@
         </ul>
      
         <div class="mt-3">
+            {% if user.is_authenticated %}
+            <button class="btn {% if is_favorited %}btn-primary{% else %}btn-outline-primary{% endif %} favorite-btn" 
+                    data-post-id="{{ roommate.pk }}" 
+                    data-csrf="{{ csrf_token }}">
+                <i class="fas fa-heart"></i> 
+                <span class="favorite-text">
+                    {% if is_favorited %}
+                        Remove from Favorites
+                    {% else %}
+                        Add to Favorites
+                    {% endif %}
+                </span>
+            </button>
+        {% endif %}
             <!-- Only show edit/delete buttons to the owner -->
             {% if user == roommate.user %}
                 <a href="{% url 'update_roommate_post' pk=roommate.pk %}" class="btn btn-secondary">Edit Post</a>
@@ -77,6 +91,58 @@
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+// Add toast container to the body
+document.body.insertAdjacentHTML('beforeend', '<div class="toast-container"></div>');
 
+function showToast(message) {
+    const container = document.querySelector('.toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
 
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+$(document).ready(function() {
+    $('.favorite-btn').click(function() {
+        const button = $(this);
+        const postId = button.data('post-id');
+        const csrfToken = button.data('csrf');
+
+        $.ajax({
+            url: "{% url 'toggle_roommate_favorite' pk=roommate.pk %}",
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Toggle button appearance
+                    if (response.is_favorited) {
+                        button.removeClass('btn-outline-primary').addClass('btn-primary');
+                        button.find('.favorite-text').text('Remove from Favorites');
+                        showToast('Post added to favorites');
+                    } else {
+                        button.removeClass('btn-primary').addClass('btn-outline-primary');
+                        button.find('.favorite-text').text('Add to Favorites');
+                        showToast('Post removed from favorites');
+                    }
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log('Error:', errmsg);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
