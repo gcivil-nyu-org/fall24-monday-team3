@@ -26,7 +26,6 @@ class ApartmentPostOwnershipTest(TestCase):
             address="123 Test St",
             bedrooms=2,
             square_feet=1000,
-            post_type="APARTMENT",
         )
 
         # Set up the test client
@@ -51,7 +50,6 @@ class ApartmentPostOwnershipTest(TestCase):
             "address": "123 Test St",
             "bedrooms": 2,
             "square_feet": 1000,
-            "post_type": "APARTMENT",
         }
         response = self.client.post(
             reverse("update_apartment_post", kwargs={"pk": self.apartment.pk}),
