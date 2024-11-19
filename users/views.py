@@ -55,9 +55,6 @@ def home_view(request):
 
 @login_required
 def profile_view(request):
-<<<<<<< HEAD
-    return render(request, "users/profile.html")
-=======
     rental_favorites = RentalFavorite.objects.filter(user=request.user).select_related("post")
     roommate_favorites = RoommateFavorite.objects.filter(user=request.user).select_related("post")
 
@@ -97,4 +94,3 @@ def delete_favorite(request, type, favorite_id):
         return JsonResponse({"success": True})
     except (RentalFavorite.DoesNotExist, RoommateFavorite.DoesNotExist):
         return JsonResponse({"success": False}, status=404)
->>>>>>> profile-edit-favorites
