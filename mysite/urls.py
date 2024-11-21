@@ -20,16 +20,17 @@ from django.urls import include, path
 from users import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
 
 urlpatterns = [
     path("users/", include("users.urls")),  # Include the users app URLs
     # Other URLs for the project
     path("", views.home_view, name="home"),
-    # path('admin/', admin.site.urls),
     path("rentals/", include("rentals.urls")),
     path("roommates/", include("roommates.urls")),
     path("discussions/", include("discussions.urls")),
     path("chatbot/", include("chatbot.urls")),
+    path("admin/", admin.site.urls),
 ]
 
 if settings.DEBUG:

@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(
-    "/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/mysite/database.env"
+    "/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/mysite/database.env"
 )
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "django.contrib.admin",
     "rentals.apps.RentalsConfig",
     # 'django.contrib.admin',          # Django admin interface
     "django.contrib.auth",  # Authentication framework
@@ -153,3 +154,4 @@ EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"  # Logs emails to console
 )
 # In production, you’d configure a real email backend here (SMTP, etc.)
+USE_TZ = False
