@@ -55,8 +55,12 @@ def home_view(request):
 
 @login_required
 def profile_view(request):
-    rental_favorites = RentalFavorite.objects.filter(user=request.user).select_related("post")
-    roommate_favorites = RoommateFavorite.objects.filter(user=request.user).select_related("post")
+    rental_favorites = RentalFavorite.objects.filter(user=request.user).select_related(
+        "post"
+    )
+    roommate_favorites = RoommateFavorite.objects.filter(
+        user=request.user
+    ).select_related("post")
 
     context = {
         "rental_favorites": rental_favorites,

@@ -37,6 +37,6 @@ urlpatterns = [
         views.clear_apartment_rating,
         name="clear_apartment_rating",
     ),
-    path("apartment-data/", views.apartment_data, name='apartment-data'),
-    path("property-map/", views.property_map_view, name='property_map'),
+    path("apartment-data/", views.apartment_data, name="apartment-data"),
+    path("property-map/", views.property_map_view, name="property_map"),
 ]
