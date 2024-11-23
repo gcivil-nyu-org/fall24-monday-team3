@@ -196,7 +196,7 @@ def create_apartment_post(request):
     if request.method == "POST":
         post_form = ApartmentPostForm(request.POST)
         image_form = ApartmentImageForm(request.POST, request.FILES)
-
+        print(request.FILES)
         if post_form.is_valid() and image_form.is_valid():
             # Create apartment post but don't save to DB yet
             apartment_post = post_form.save(commit=False)
@@ -212,6 +212,10 @@ def create_apartment_post(request):
             images = request.FILES.getlist("image")
             for image in images:
                 ApartmentImage.objects.create(apartment=apartment_post, image=image)
+                all_images = ApartmentImage.objects.all()
+                for img in all_images:
+                    print(img.image.url) 
+                
 
             messages.success(request, "Apartment post created successfully!")
             geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
