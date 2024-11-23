@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 
+
 class Amenity(models.Model):
     name = models.CharField(max_length=100)
 

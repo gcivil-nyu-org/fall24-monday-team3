@@ -214,8 +214,7 @@ def create_apartment_post(request):
                 ApartmentImage.objects.create(apartment=apartment_post, image=image)
                 all_images = ApartmentImage.objects.all()
                 for img in all_images:
-                    print(img.image.url) 
-                
+                    print(img.image.url)
 
             messages.success(request, "Apartment post created successfully!")
             geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
