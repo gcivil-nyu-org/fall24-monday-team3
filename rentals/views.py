@@ -9,7 +9,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
+load_dotenv("/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/rentals/map.env")
 
 # import PIL
 
@@ -351,7 +351,19 @@ def clear_apartment_rating(request, pk):
 
 def apartment_data(request):
     print("called!!!")
-    apartments = ApartmentPost.objects.values('user', 'title', 'latitude', 'longitude', 'description', 'price', 'address', 'bedrooms', 'square_feet', 'amenities', 'average_rating')
+    apartments = ApartmentPost.objects.values(
+        "user",
+        "title",
+        "latitude",
+        "longitude",
+        "description",
+        "price",
+        "address",
+        "bedrooms",
+        "square_feet",
+        "amenities",
+        "average_rating",
+    )
     print(apartments)
     return JsonResponse(list(apartments), safe=False)
 
@@ -359,6 +371,6 @@ def apartment_data(request):
 def property_map_view(request):
     print("The python viewer called")
     context = {
-       'google_maps_api_key': os.getenv("MAP_API"),
+        "google_maps_api_key": os.getenv("MAP_API"),
     }
-    return render(request, 'rentals/property-visualizer.html', context)
+    return render(request, "rentals/property-visualizer.html", context)
