@@ -114,7 +114,7 @@
     <nav class="custom-navbar">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <a href="/" class="navbar-brand">
-                <i class="fas fa-map-marker-alt me-2"></i>Property Explorer
+                <i class="fas fa-map-marker-alt me-2"></i>RentSense Map
             </a>
             <div class="navbar-links">
                 <a href="{% url 'apartment_list' %}" class="nav-link">
@@ -183,12 +183,31 @@
                 .then(apartments => {
                     console.log('Received apartments data:', apartments);
                     clearMarkers();
-                    apartments.forEach(property => {
+                    const filteredApartments = filterApartments(apartments);
+                    filteredApartments.forEach(property => {
                         console.log('Processing property:', property);
                         createMarker(property);
                     });
                 })
                 .catch(error => console.error("Error loading properties:", error));
+        }
+
+        function filterApartments(apartments) {
+            const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+            const bedrooms = document.getElementById('bedrooms').value;
+
+            return apartments.filter(property => {
+                const propertyPrice = parseFloat(property.price);
+                const propertyBedrooms = property.bedrooms;
+
+                const meetsMinPrice = propertyPrice >= minPrice;
+                const meetsMaxPrice = maxPrice === Infinity || propertyPrice <= maxPrice;
+                const meetsBedrooms = !bedrooms || propertyBedrooms === parseInt(bedrooms) || 
+                                    (bedrooms === '4+' && propertyBedrooms >= 4);
+
+                return meetsMinPrice && meetsMaxPrice && meetsBedrooms;
+            });
         }
 
         function createMarker(property) {
@@ -202,6 +221,12 @@
 
                 const content = `
                     <div class="custom-info-window">
+                        ${property.image_url ? 
+                            `<div class="property-image">
+                                <img src="${property.image_url}" alt="${property.title}" 
+                                    style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 10px;">
+                            </div>` : ''
+                        }
                         <div class="property-title">${property.title}</div>
                         <div class="property-details">
                             <i class="fas fa-bed me-2"></i>${property.bedrooms} Bedrooms
@@ -231,12 +256,7 @@
         }
 
         function applyFilters() {
-            const minPrice = document.getElementById('minPrice').value;
-            const maxPrice = document.getElementById('maxPrice').value;
-            const bedrooms = document.getElementById('bedrooms').value;
-
-            // Implement filter logic here
-            loadProperties(); // Reload properties with filters
+            loadProperties();
         }
 
         // Initialize map when page loads
