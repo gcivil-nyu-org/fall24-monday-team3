@@ -6,7 +6,7 @@
     <div class="form-container">
         <h1>{% if form.instance.pk %}Edit{% else %}Start New{% endif %} Discussion</h1>
         
-        <form method="post" class="discussion-form">
+        <form method="post" class="discussion-form" onsubmit="return handleSubmit(event)">
             {% csrf_token %}
             
             <div class="form-group">
@@ -46,7 +46,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
                     {% if form.instance.pk %}Update{% else %}Post{% endif %} Discussion
                 </button>
                 <a href="{% url 'discussions:discussion_list' %}" class="btn btn-outline">Cancel</a>
@@ -54,6 +54,16 @@
         </form>
     </div>
 </div>
+
+<!-- Add submit handling script -->
+<script>
+function handleSubmit(event) {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '{% if form.instance.pk %}Updating...{% else %}Posting...{% endif %}';
+    return true;
+}
+</script>
 
 <style>
 .form-container {

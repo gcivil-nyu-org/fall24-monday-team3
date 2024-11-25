@@ -50,10 +50,10 @@
             
             {% if user.is_authenticated %}
                 <div class="reply-form-container">
-                    <form method="post" class="mt-3">
+                    <form method="post" class="mt-3" onsubmit="handleReplySubmit(event)">
                         {% csrf_token %}
                         {{ form.content }}
-                        <button type="submit" class="btn btn-primary mt-2">Post Reply</button>
+                        <button type="submit" class="btn btn-primary mt-2" id="replySubmitBtn">Post Reply</button>
                     </form>
                 </div>
             {% else %}
@@ -304,6 +304,13 @@
     {% block extra_js %}
     {{ block.super }}
     <script>
+    function handleReplySubmit(event) {
+        const submitBtn = document.getElementById('replySubmitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Posting...';
+        return true;
+    }
+
     document.querySelectorAll('.vote-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
