@@ -146,7 +146,7 @@ def public_profile(request, username):
 @login_required(login_url="/users/login/")
 def discussion_create(request):
     if request.method == "POST":
-        form = DiscussionForm(request.POST)
+        form = Discussion(request.POST)
         if form.is_valid():
             discussion = form.save(commit=False)
             discussion.author = request.user
@@ -155,7 +155,7 @@ def discussion_create(request):
                 reverse("discussions:discussion_detail", args=[discussion.pk])
             )
     else:
-        form = DiscussionForm()
+        form = Discussion()
     return render(request, "discussions/discussion_form.html", {"form": form})
 
 
@@ -175,9 +175,7 @@ def send_user_email(request, username):
         # Create the email message
         full_message = f"""
         You received a message from {name}:
-        
         {message}
-        
         ---
         This message was sent via RentSense.
         """

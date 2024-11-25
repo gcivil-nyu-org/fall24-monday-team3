@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(
-    "/Users/zachfan/Documents/2024 Fall/RentSense/fall24-monday-team3/mysite/database.env"
+    "env"
 )
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
