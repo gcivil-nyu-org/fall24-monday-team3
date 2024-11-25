@@ -2,7 +2,9 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv("/Users/navro/Desktop/DjangoProj/fall24-monday-team3/mysite/database.env")
+load_dotenv(
+    "/Users/zachfan/Documents/2024 Fall/RentSense/fall24-monday-team3/mysite/database.env"
+)
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
@@ -43,16 +45,16 @@ INSTALLED_APPS = [
     "roommates",
     "discussions",
     "chatbot",
-    'storages',
+    "storages",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    'django.middleware.cache.UpdateCacheMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -167,3 +169,12 @@ EMAIL_BACKEND = (
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Log out when the browser is closed
 SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiry with each request
 USE_TZ = False
+
+# Email settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # Or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "rentsense2024@gmail.com"  # Your email
+EMAIL_HOST_PASSWORD = "ehrhqehcerudmkds"  # Your email password or app-specific password
+DEFAULT_FROM_EMAIL = "rentsense2024@gmail.com"

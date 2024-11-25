@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, get_user_model
 from .forms import SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
@@ -12,6 +12,13 @@ import json
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
+from rentals.models import ApartmentPost
+from roommates.models import RoommatePost
+from discussions.models import Discussion
+from django.urls import reverse
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 @never_cache
 def signup(request):
@@ -48,9 +55,11 @@ def login_view(request):
 
     return render(request, "users/login.html", {"form": form})
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def register_view(request):
     return render(request, "users/register.html")
+
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home_view(request):
@@ -66,10 +75,18 @@ def profile_view(request):
     roommate_favorites = RoommateFavorite.objects.filter(
         user=request.user
     ).select_related("post")
+    user_rental_posts = ApartmentPost.objects.filter(user=request.user).order_by("-id")
+    user_roommate_posts = RoommatePost.objects.filter(user=request.user).order_by("-id")
+    user_discussion_posts = Discussion.objects.filter(author=request.user).order_by(
+        "-created_at"
+    )
 
     context = {
         "rental_favorites": rental_favorites,
         "roommate_favorites": roommate_favorites,
+        "user_rental_posts": user_rental_posts,
+        "user_roommate_posts": user_roommate_posts,
+        "user_discussion_posts": user_discussion_posts,
     }
     return render(request, "users/profile.html", context)
 
@@ -105,3 +122,75 @@ def delete_favorite(request, type, favorite_id):
         return JsonResponse({"success": True})
     except (RentalFavorite.DoesNotExist, RoommateFavorite.DoesNotExist):
         return JsonResponse({"success": False}, status=404)
+
+
+def public_profile(request, username):
+    profile_user = get_object_or_404(get_user_model(), username=username)
+
+    context = {
+        "profile_user": profile_user,
+        "user_rental_posts": ApartmentPost.objects.filter(user=profile_user).order_by(
+            "-id"
+        ),
+        "user_roommate_posts": RoommatePost.objects.filter(user=profile_user).order_by(
+            "-id"
+        ),
+        "user_discussion_posts": Discussion.objects.filter(
+            author=profile_user
+        ).order_by("-created_at"),
+    }
+
+    return render(request, "users/public_profile.html", context)
+
+
+@login_required(login_url="/users/login/")
+def discussion_create(request):
+    if request.method == "POST":
+        form = DiscussionForm(request.POST)
+        if form.is_valid():
+            discussion = form.save(commit=False)
+            discussion.author = request.user
+            discussion.save()
+            return redirect(
+                reverse("discussions:discussion_detail", args=[discussion.pk])
+            )
+    else:
+        form = DiscussionForm()
+    return render(request, "discussions/discussion_form.html", {"form": form})
+
+
+@login_required
+@require_POST
+def send_user_email(request, username):
+    try:
+        recipient = get_object_or_404(get_user_model(), username=username)
+        name = (
+            f"{request.user.first_name} {request.user.last_name}"
+            if request.user.first_name and request.user.last_name
+            else request.user.username
+        )
+        subject = f"RentSense: Message from {name}"
+        message = request.POST.get("message")
+
+        # Create the email message
+        full_message = f"""
+        You received a message from {name}:
+        
+        {message}
+        
+        ---
+        This message was sent via RentSense.
+        """
+
+        # Send the email
+        send_mail(
+            subject,
+            full_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient.email],
+            fail_silently=False,
+        )
+
+        return JsonResponse({"success": True})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})

@@ -285,6 +285,15 @@
     </div>
     <div class="card-body">
         <h2 class="card-title">{{ apartment.title }}</h2>
+        <p class="text-muted mb-3">
+            Posted by: <a href="{% url 'public_profile' username=apartment.user.username %}">
+                {% if apartment.user.first_name and apartment.user.last_name %}
+                    {{ apartment.user.first_name }} {{ apartment.user.last_name }}
+                {% else %}
+                    {{ apartment.user.username }}
+                {% endif %}
+            </a>
+        </p>
         <p class="card-text">{{ apartment.description }}</p>
         
         <ul class="list-group list-group-flush">

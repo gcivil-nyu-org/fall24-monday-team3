@@ -27,6 +27,15 @@
     </div>
     <div class="card-body">
         <h2 class="card-title">{{ roommate.name }}</h2>
+        <p class="text-muted mb-3">
+            Posted by: <a href="{% url 'public_profile' username=roommate.user.username %}">
+                {% if roommate.user.first_name and roommate.user.last_name %}
+                    {{ roommate.user.first_name }} {{ roommate.user.last_name }}
+                {% else %}
+                    {{ roommate.user.username }}
+                {% endif %}
+            </a>
+        </p>
         <p class="card-text">{{ roommate.description }}</p>
         <ul class="list-group list-group-flush">
             <li class="list-group-item"><strong>Age:</strong> {{ roommate.age }}</li>

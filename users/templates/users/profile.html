@@ -4,16 +4,17 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row">
+    <!-- Profile Card -->
+    <div class="row mb-4">
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title">My Profile</h3>
-
+                    <p class="text-muted">Member since: {{ user.date_joined|date:"F Y" }}</p>
                     <!-- View Mode Content -->
                     <div id="viewMode">
                         <p class="card-text">
-                            <strong>Username:</strong> {{ user.username }}<br>
+                            <strong>Username:</strong>{{ user.username }}<br>
                             <strong>First Name:</strong> {{ user.first_name }}<br>
                             <strong>Last Name:</strong> {{ user.last_name }}<br>
                             <strong>Email:</strong> {{ user.email }}<br>
@@ -59,90 +60,239 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-8">
-            <!-- Favorited Rentals Section -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4>Favorited Rentals</h4>
-                </div>
-                <div class="card-body">
-                    <div id="rental-favorites-container">
-                        {% if rental_favorites %}
-                            <div class="row">
-                                {% for favorite in rental_favorites %}
-                                    <div class="col-md-6 mb-3 favorite-card" data-favorite-id="{{ favorite.id }}">
-                                        <div class="card h-100">
-                                            {% if favorite.post.images.first %}
-                                                <img src="{{ favorite.post.images.first.image.url }}" class="card-img-top" alt="{{ favorite.post.title }}">
-                                            {% endif %}
-                                            <div class="card-body">
-                                                <h5 class="card-title">{{ favorite.post.title }}</h5>
-                                                <p class="card-text">
-                                                    <strong>Price:</strong> ${{ favorite.post.price }}<br>
-                                                    <strong>Location:</strong> {{ favorite.post.address }}
-                                                </p>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <a href="{% url 'apartment_detail' pk=favorite.post.pk %}" class="btn btn-primary">View Details</a>
-                                                    <button class="btn btn-danger btn-sm delete-favorite" 
-                                                            data-type="rental" 
-                                                            data-id="{{ favorite.id }}"
-                                                            data-post-id="{{ favorite.post.pk }}"
-                                                            data-csrf="{{ csrf_token }}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
+    </div>
+
+    <!-- Main Content Sections -->
+    <div class="row">
+        <!-- Favorites Section -->
+        <div class="col-12 mb-4">
+            <h4 class="mb-3">My Favorites</h4>
+            <ul class="nav nav-tabs mb-3" id="favoritesTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="fav-rentals-tab" data-bs-toggle="tab" data-bs-target="#fav-rentals" type="button" role="tab">
+                        Rentals
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="fav-roommates-tab" data-bs-toggle="tab" data-bs-target="#fav-roommates" type="button" role="tab">
+                        Roommates
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="favoritesTabContent">
+                <!-- Favorited Rentals Tab -->
+                <div class="tab-pane fade show active" id="fav-rentals" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="rental-favorites-container">
+                                {% if rental_favorites %}
+                                    <div class="row">
+                                        {% for favorite in rental_favorites %}
+                                            <div class="col-md-6 mb-3 favorite-card" data-favorite-id="{{ favorite.id }}">
+                                                <div class="card h-100">
+                                                    {% if favorite.post.images.first %}
+                                                        <img src="{{ favorite.post.images.first.image.url }}" class="card-img-top" alt="{{ favorite.post.title }}">
+                                                    {% endif %}
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{{ favorite.post.title }}</h5>
+                                                        <p class="card-text">
+                                                            <strong>Price:</strong> ${{ favorite.post.price }}<br>
+                                                            <strong>Location:</strong> {{ favorite.post.address }}
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <a href="{% url 'apartment_detail' pk=favorite.post.pk %}" class="btn btn-primary">View Details</a>
+                                                            <button class="btn btn-danger btn-sm delete-favorite" 
+                                                                    data-type="rental" 
+                                                                    data-id="{{ favorite.id }}"
+                                                                    data-post-id="{{ favorite.post.pk }}"
+                                                                    data-csrf="{{ csrf_token }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        {% endfor %}
                                     </div>
-                                {% endfor %}
+                                {% else %}
+                                    <p class="no-favorites-text">No favorited rental posts yet.</p>
+                                {% endif %}
                             </div>
-                        {% else %}
-                            <p class="no-favorites-text">No favorited rental posts yet.</p>
-                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Favorited Roommates Tab -->
+                <div class="tab-pane fade" id="fav-roommates" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="roommate-favorites-container">
+                                {% if roommate_favorites %}
+                                    <div class="row">
+                                        {% for favorite in roommate_favorites %}
+                                            <div class="col-md-6 mb-3 favorite-card" data-favorite-id="{{ favorite.id }}">
+                                                <div class="card h-100">
+                                                    {% if favorite.post.images.first %}
+                                                        <img src="{{ favorite.post.images.first.image.url }}" class="card-img-top" alt="{{ favorite.post.name }}">
+                                                    {% endif %}
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{{ favorite.post.name }}</h5>
+                                                        <p class="card-text">
+                                                            <strong>Budget:</strong> ${{ favorite.post.budget }}<br>
+                                                            <strong>Location:</strong> {{ favorite.post.preferred_location }}
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <a href="{% url 'roommate_detail' pk=favorite.post.pk %}" class="btn btn-primary">View Details</a>
+                                                            <button class="btn btn-danger btn-sm delete-favorite" 
+                                                                    data-type="roommate" 
+                                                                    data-id="{{ favorite.id }}"
+                                                                    data-post-id="{{ favorite.post.pk }}"
+                                                                    data-csrf="{{ csrf_token }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="no-favorites-text">No favorited roommate posts yet.</p>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Favorited Roommates Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h4>Favorited Roommates</h4>
-                </div>
-                <div class="card-body">
-                    <div id="roommate-favorites-container">
-                        {% if roommate_favorites %}
-                            <div class="row">
-                                {% for favorite in roommate_favorites %}
-                                    <div class="col-md-6 mb-3 favorite-card" data-favorite-id="{{ favorite.id }}">
-                                        <div class="card h-100">
-                                            {% if favorite.post.images.first %}
-                                                <img src="{{ favorite.post.images.first.image.url }}" class="card-img-top" alt="{{ favorite.post.name }}">
-                                            {% endif %}
-                                            <div class="card-body">
-                                                <h5 class="card-title">{{ favorite.post.name }}</h5>
-                                                <p class="card-text">
-                                                    <strong>Budget:</strong> ${{ favorite.post.budget }}<br>
-                                                    <strong>Location:</strong> {{ favorite.post.preferred_location }}
-                                                </p>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <a href="{% url 'roommate_detail' pk=favorite.post.pk %}" class="btn btn-primary">View Details</a>
-                                                    <button class="btn btn-danger btn-sm delete-favorite" 
-                                                            data-type="roommate" 
-                                                            data-id="{{ favorite.id }}"
-                                                            data-post-id="{{ favorite.post.pk }}"
-                                                            data-csrf="{{ csrf_token }}">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
+        <!-- My Posts Section -->
+        <div class="col-12">
+            <h4 class="mb-3">My Posts</h4>
+            <ul class="nav nav-tabs mb-3" id="postsTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="my-rentals-tab" data-bs-toggle="tab" data-bs-target="#my-rentals" type="button" role="tab">
+                        Rental
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="my-roommates-tab" data-bs-toggle="tab" data-bs-target="#my-roommates" type="button" role="tab">
+                        Roommate
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="my-discussions-tab" data-bs-toggle="tab" data-bs-target="#my-discussions" type="button" role="tab">
+                        Discussion
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="postsTabContent">
+                <!-- My Rental Posts Tab -->
+                <div class="tab-pane fade show active" id="my-rentals" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if user_rental_posts %}
+                                <div class="row">
+                                    {% for post in user_rental_posts %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                {% if post.images.first %}
+                                                    <img src="{{ post.images.first.image.url }}" class="card-img-top" alt="{{ post.title }}">
+                                                {% endif %}
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ post.title }}</h5>
+                                                    <p class="card-text">
+                                                        <strong>Price:</strong> ${{ post.price }}<br>
+                                                        <strong>Location:</strong> {{ post.address }}
+                                                    </p>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <a href="{% url 'apartment_detail' pk=post.pk %}" class="btn btn-primary">View</a>
+                                                        <a href="{% url 'update_apartment_post' pk=post.pk %}" class="btn btn-secondary">Edit</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <p class="no-favorites-text">No favorited roommate posts yet.</p>
-                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-center">You haven't created any rental posts yet.</p>
+                                <div class="text-center">
+                                    <a href="{% url 'create_apartment_post' %}" class="btn btn-primary">Create Rental Post</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Roommate Posts Tab -->
+                <div class="tab-pane fade" id="my-roommates" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if user_roommate_posts %}
+                                <div class="row">
+                                    {% for post in user_roommate_posts %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                {% if post.images.first %}
+                                                    <img src="{{ post.images.first.image.url }}" class="card-img-top" alt="{{ post.name }}">
+                                                {% endif %}
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ post.name }}</h5>
+                                                    <p class="card-text">
+                                                        <strong>Budget:</strong> ${{ post.budget }}<br>
+                                                        <strong>Location:</strong> {{ post.preferred_location }}
+                                                    </p>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <a href="{% url 'roommate_detail' pk=post.pk %}" class="btn btn-primary">View</a>
+                                                        <a href="{% url 'update_roommate_post' pk=post.pk %}" class="btn btn-secondary">Edit</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-center">You haven't created any roommate posts yet.</p>
+                                <div class="text-center">
+                                    <a href="{% url 'create_roommate_post' %}" class="btn btn-primary">Create Roommate Post</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Discussion Posts Tab -->
+                <div class="tab-pane fade" id="my-discussions" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if user_discussion_posts %}
+                                <div class="list-group">
+                                    {% for post in user_discussion_posts %}
+                                        <div class="list-group-item">
+                                            <div class="d-flex w-100 justify-content-between">
+                                                <h5 class="mb-1">{{ post.title }}</h5>
+                                                <small>{{ post.created_at|timesince }} ago</small>
+                                            </div>
+                                            <p class="mb-1">{{ post.content|truncatewords:30 }}</p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <small>{{ post.comments.count }} comments</small>
+                                                <div>
+                                                    <a href="{% url 'discussions:discussion_detail' pk=post.pk %}" class="btn btn-sm btn-primary">View</a>
+                                                    <a href="{% url 'discussions:discussion_update' pk=post.pk %}" class="btn btn-sm btn-secondary">Edit</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-center">You haven't created any discussion posts yet.</p>
+                                <div class="text-center">
+                                    <a href="{% url 'discussions:discussion_create' %}" class="btn btn-primary">Create Discussion Post</a>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -151,23 +301,49 @@
 </div>
 
 <style>
-    .btn-primary {
-        background: #3498db;
-        border-color: #3498db;
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
     }
 
-    .btn-primary:hover {
-        background: #2980b9;
-        border-color: #2980b9;
+    .nav-tabs .nav-link {
+        color: #495057;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: .75rem 1.25rem;
+        margin-bottom: -2px;
+        transition: all 0.3s ease;
     }
 
-    .form-control:focus {
-        border-color: #80bdff;
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    .nav-tabs .nav-link.active {
+        color: #3498db;
+        border-bottom: 2px solid #3498db;
+        background-color: transparent;
     }
 
-    .form-control[disabled] {
-        background-color: #e9ecef;
+    .nav-tabs .nav-link:hover {
+        color: #3498db;
+        border-bottom: 2px solid #3498db;
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    .list-group-item {
+        border: none;
+        margin-bottom: 10px;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
 </style>
 
