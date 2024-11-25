@@ -2,17 +2,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(
-    "/Users/navro/Desktop/DjangoProj/fall24-monday-team3/mysite/database.env"
-)
-print("Database Name:", os.getenv("DATABASE_NAME"))
-print("Database User:", os.getenv("DATABASE_USER"))
-print("Database Host:", os.getenv("DATABASE_HOST"))
-print("Database Port:", os.getenv("DATABASE_PORT"))
+load_dotenv("/Users/navro/Desktop/DjangoProj/fall24-monday-team3/mysite/database.env")
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+print(BASE_DIR)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-p=owv8y(&-%z!5_$88kl7ezp+zh$r1w@a#wsfyg4q!9_=oscgh"
 
@@ -30,6 +25,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "django.contrib.admin",
     "rentals.apps.RentalsConfig",
     # 'django.contrib.admin',          # Django admin interface
     "django.contrib.auth",  # Authentication framework
@@ -43,6 +39,7 @@ INSTALLED_APPS = [
     "roommates",
     "discussions",
     "chatbot",
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -125,7 +122,13 @@ USE_L10N = True  # Enable localization
 
 USE_TZ = True  # Enable timezone support
 
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = "us-west-2"
 
+# Use S3 for media storage
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
@@ -133,8 +136,8 @@ STATIC_URL = "/static/"  # Base URL for serving static files
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  # Where static files are located
 
 # Media files (user-uploaded content like profile pics)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/media/"
+MEDIA_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -153,3 +156,4 @@ EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"  # Logs emails to console
 )
 # In production, you’d configure a real email backend here (SMTP, etc.)
+USE_TZ = False

@@ -30,6 +30,13 @@ urlpatterns = [
         name="delete_apartment_comment",
     ),
     path("search/", views.search_apartments, name="search_apartments"),
-    path("apartment-data/", views.apartment_data, name='apartment-data'),
-    path("property-map/", views.property_map_view, name='property_map'),
+    path("apartment/<int:pk>/favorite/", views.toggle_favorite, name="toggle_favorite"),
+    path("apartment/<int:pk>/rate/", views.rate_apartment, name="rate_apartment"),
+    path(
+        "apartment/<int:pk>/clear-rating/",
+        views.clear_apartment_rating,
+        name="clear_apartment_rating",
+    ),
+    path("apartment-data/", views.apartment_data, name="apartment-data"),
+    path("property-map/", views.property_map_view, name="property_map"),
 ]
