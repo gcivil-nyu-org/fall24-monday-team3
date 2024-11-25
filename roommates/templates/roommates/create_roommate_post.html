@@ -19,7 +19,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="roommateForm" onsubmit="handleSubmit(event)">
             {% csrf_token %}
             <!-- Name Field -->
             <div class="mb-3">
@@ -70,8 +70,23 @@
                 <label for="id_image" class="form-label">Upload Profile Picture</label>
                 <input type="file" name="image" id="id_image" class="form-control" accept="image/*">
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
         </form>
     </div>
 </div>
+
+<!-- Add this script at the bottom of your content block -->
+<script>
+function handleSubmit(event) {
+    // Get the submit button
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Disable the submit button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Submitting...';
+    
+    // Allow form submission to continue
+    return true;
+}
+</script>
 {% endblock %}

@@ -21,7 +21,7 @@
             {% endif %}
             </div>
         {% endif %}
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="apartmentForm" onsubmit="handleSubmit(event)">
             {% csrf_token %}
             <div class="mb-3">
                 {{ post_form.post_type.label_tag }}
@@ -96,4 +96,18 @@
         </form>
     </div>
 </div>
+
+<script>
+function handleSubmit(event) {
+    // Get the submit button
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Disable the submit button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Submitting...';
+    
+    // Allow form submission to continue
+    return true;
+}
+</script>
 {% endblock %}
