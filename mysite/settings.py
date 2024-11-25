@@ -2,13 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(
-    "/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/mysite/database.env"
-)
-print("Database Name:", os.getenv("DATABASE_NAME"))
-print("Database User:", os.getenv("DATABASE_USER"))
-print("Database Host:", os.getenv("DATABASE_HOST"))
-print("Database Port:", os.getenv("DATABASE_PORT"))
+load_dotenv("/Users/navro/Desktop/DjangoProj/fall24-monday-team3/mysite/database.env")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -128,9 +122,9 @@ USE_L10N = True  # Enable localization
 
 USE_TZ = True  # Enable timezone support
 
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_REGION_NAME = "us-west-2"
 
 # Use S3 for media storage
