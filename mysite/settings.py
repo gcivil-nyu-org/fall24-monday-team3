@@ -164,7 +164,6 @@ EMAIL_BACKEND = (
 )
 # In production, you’d configure a real email backend here (SMTP, etc.)
 
-SESSION_COOKIE_AGE = 120  # Session expires after 5 minutes (adjust as needed)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Log out when the browser is closed
 SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiry with each request
 USE_TZ = False

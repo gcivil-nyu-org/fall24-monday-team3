@@ -28,7 +28,7 @@ class RoommatePostForm(forms.ModelForm):
             "preferred_location": forms.TextInput(attrs={"class": "form-control"}),
             "hobbies": forms.Textarea(attrs={"class": "form-control"}),
             "amenities": CheckboxSelectMultiple(),
-            "description": forms.Textarea(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", 'placeholder': 'Enter a description...'}),
         }
 
     def clean_age(self):

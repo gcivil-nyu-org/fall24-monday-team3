@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 
 
 class Amenity(models.Model):
@@ -28,21 +29,15 @@ class RoommatePost(models.Model):
     preferred_location = models.CharField(max_length=255)
     hobbies = models.TextField()
     amenities = models.ManyToManyField(Amenity, blank=True)
-    description = models.TextField(default="No description provided")
+    description = models.TextField(blank=True, null=True)
 
     def clean(self):
         super().clean()
         if self.budget < 0:
-            raise models.ValidationError("Budget cannot be negative.")
-
-        if self.age < 0:
-            raise models.ValidationError("Age cannot be negative.")
-
-        if self.age > 100:
-            raise models.ValidationError("Age cannot be greater than 100.")
+            raise ValidationError("Budget cannot be negative.")
 
         if self.gender not in [choice[0] for choice in self.GENDER_CHOICES]:
-            raise models.ValidationError(
+            raise ValidationError(
                 {"gender": 'Gender must be either "Male" or "Female".'}
             )
 
