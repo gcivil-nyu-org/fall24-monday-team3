@@ -20,7 +20,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 
-
 @never_cache
 def signup(request):
     if request.method == "POST":
@@ -125,6 +124,7 @@ def delete_favorite(request, type, favorite_id):
         return JsonResponse({"success": False}, status=404)
 
 
+@login_required(login_url="/users/login/")
 def public_profile(request, username):
     profile_user = get_object_or_404(get_user_model(), username=username)
 
