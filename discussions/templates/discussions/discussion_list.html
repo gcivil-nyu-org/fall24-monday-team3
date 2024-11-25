@@ -60,19 +60,23 @@
             <div class="discussion-list">
                 {% for discussion in discussions %}
                     <div class="discussion-card">
-                       
                         <div class="discussion-content">
-                            <div class="discussion-meta">
-                                <span class="topic-tag">{{ discussion.topic.name }}</span>
-                                <span class="author">Posted by {{ discussion.author.username }}</span>
-                                <span class="date">{{ discussion.created_at|timesince }} ago</span>
-                            </div>
                             <h3 class="discussion-title">
-                                <a href="{% url 'discussions:discussion_detail' discussion.pk %}">
-                                    {{ discussion.title }}
-                                </a>
+                                <a href="{% url 'discussions:discussion_detail' discussion.pk %}">{{ discussion.title }}</a>
                             </h3>
-                            <p class="discussion-excerpt">{{ discussion.content|truncatewords:50 }}</p>
+                            <div class="discussion-meta">
+                                <span class="posted-by">Posted by: 
+                                    <a href="{% url 'public_profile' username=discussion.author.username %}">
+                                        {% if discussion.author.first_name and discussion.author.last_name %}
+                                            {{ discussion.author.first_name }} {{ discussion.author.last_name }}
+                                        {% else %}
+                                            {{ discussion.author.username }}
+                                        {% endif %}
+                                    </a>
+                                </span>
+                                <span class="post-date">{{ discussion.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <p class="discussion-preview">{{ discussion.content|truncatewords:30 }}</p>
                             <div class="discussion-stats">
                                 <div class="stat">
                                     <svg class="stat-icon" viewBox="0 0 24 24">
