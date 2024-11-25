@@ -84,6 +84,15 @@
                 <input type="file" name="image" id="id_image" class="form-control" accept="image/*" multiple>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
+            <script>
+                const form = document.querySelector("form"); // Adjust the selector if needed
+                const submitButton = document.getElementById("submit-button");
+            
+                form.addEventListener("submit", () => {
+                    submitButton.disabled = true;
+                    submitButton.textContent = "Submitting..."; // Optional: Change text to indicate progress
+                });
+            </script>
         </form>
     </div>
 </div>

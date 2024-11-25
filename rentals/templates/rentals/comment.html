@@ -27,3 +27,29 @@
         {% endfor %}
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle Reply Toggle
+        const replyToggles = document.querySelectorAll('.reply-toggle');
+        replyToggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+                const replyForm = document.getElementById(`reply-form-${commentId}`);
+                replyForm.style.display = replyForm.style.display === 'none' || replyForm.style.display === '' ? 'block' : 'none';
+            });
+        });
+
+        // Prevent duplicate reply submissions
+        const replyForms = document.querySelectorAll('.reply-form form');
+        replyForms.forEach(form => {
+            form.addEventListener('submit', function(event) {
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton.disabled) {
+                    event.preventDefault(); // Prevent duplicate submission
+                    return;
+                }
+                submitButton.disabled = true; // Disable the button
+            });
+        });
+    });
+</script>

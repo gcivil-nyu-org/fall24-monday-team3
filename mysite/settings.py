@@ -2,9 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(
-    "/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/mysite/database.env"
-)
+load_dotenv("/Users/pooja/Documents/Python/rentsense/mysite/database.env")
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
@@ -43,12 +41,16 @@ INSTALLED_APPS = [
     "roommates",
     "discussions",
     "chatbot",
+    'storages',
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -153,3 +155,7 @@ EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"  # Logs emails to console
 )
 # In production, you’d configure a real email backend here (SMTP, etc.)
+
+SESSION_COOKIE_AGE = 120  # Session expires after 5 minutes (adjust as needed)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Log out when the browser is closed
+SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiry with each request

@@ -675,6 +675,11 @@
             <p>&copy; 2024 Rent Sense. All rights reserved.</p>
         </div>
     </footer>
+    <script>
+        if (performance.navigation.type === 2) {  // Detect back/forward navigation
+            window.location.reload();
+        }
+    </script>
 </body>
 
 </html>

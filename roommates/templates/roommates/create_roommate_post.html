@@ -35,9 +35,11 @@
             </div>
             <!-- Gender Field -->
             <div class="mb-3">
-                {{ post_form.gender.label_tag }}
-                {{ post_form.gender }}
-                {{ post_form.gender.errors }}
+                {{ post_form.gender.label_tag }}  <!-- Renders the label for gender -->
+                {{ post_form.gender }}           <!-- Renders the input/select field -->
+                    <div class="text-danger">        <!-- Bootstrap class for red text -->
+                        {{ post_form.gender.errors }}  <!-- Renders validation errors -->
+                    </div>
             </div>
             <!-- Description Field -->
             <div class="mb-3">

@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Amenity(models.Model):
@@ -11,14 +12,39 @@ class Amenity(models.Model):
 
 class RoommatePost(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    GENDER_CHOICES = [
+        ("Male", "Male"),
+        ("Female", "Female"),
+    ]
     name = models.CharField(max_length=255)
-    age = models.PositiveIntegerField()
-    gender = models.CharField(max_length=50)
+    age = models.IntegerField(
+        validators=[
+            MinValueValidator(18, message="Age must be at least 18."),
+            MaxValueValidator(100, message="Age cannot exceed 100."),
+        ]
+    )
+    gender = models.CharField(max_length=6, choices=GENDER_CHOICES)
     budget = models.DecimalField(max_digits=10, decimal_places=2)
     preferred_location = models.CharField(max_length=255)
     hobbies = models.TextField()
     amenities = models.ManyToManyField(Amenity, blank=True)
     description = models.TextField(default="No description provided")
+
+    def clean(self):
+        super().clean()
+        if self.budget < 0:
+            raise models.ValidationError("Budget cannot be negative.")
+
+        if self.age < 0:
+            raise models.ValidationError("Age cannot be negative.")
+
+        if self.age > 100:
+            raise models.ValidationError("Age cannot be greater than 100.")
+
+        if self.gender not in [choice[0] for choice in self.GENDER_CHOICES]:
+            raise models.ValidationError(
+                {"gender": 'Gender must be either "Male" or "Female".'}
+            )
 
     def __str__(self):
         return self.name

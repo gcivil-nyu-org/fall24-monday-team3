@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ApartmentPostForm, ApartmentImageForm, CommentForm
 from .models import ApartmentImage, ApartmentPost, Rating, Comment, Favorite
 from django.contrib import messages
+from django.utils.timezone import now, timedelta
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Avg, Q
@@ -9,7 +10,9 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
+load_dotenv(
+    "/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env"
+)
 
 # import PIL
 
@@ -17,7 +20,7 @@ load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_ren
 @login_required(login_url="/users/login/")
 def apartment_list(request):
     apartments = ApartmentPost.objects.all()
-    query = request.GET.get("q")
+    query = request.GET.get("q", "").strip()
     min_price = request.GET.get("min_price")
     max_price = request.GET.get("max_price")
     bedrooms = request.GET.get("bedrooms")
@@ -347,7 +350,19 @@ def clear_apartment_rating(request, pk):
 
 def apartment_data(request):
     print("called!!!")
-    apartments = ApartmentPost.objects.values('user', 'title', 'latitude', 'longitude', 'description', 'price', 'address', 'bedrooms', 'square_feet', 'amenities', 'average_rating')
+    apartments = ApartmentPost.objects.values(
+        "user",
+        "title",
+        "latitude",
+        "longitude",
+        "description",
+        "price",
+        "address",
+        "bedrooms",
+        "square_feet",
+        "amenities",
+        "average_rating",
+    )
     print(apartments)
     return JsonResponse(list(apartments), safe=False)
 
@@ -355,6 +370,6 @@ def apartment_data(request):
 def property_map_view(request):
     print("The python viewer called")
     context = {
-       'google_maps_api_key': os.getenv("MAP_API"),
+        "google_maps_api_key": os.getenv("MAP_API"),
     }
-    return render(request, 'rentals/property-visualizer.html', context)
+    return render(request, "rentals/property-visualizer.html", context)

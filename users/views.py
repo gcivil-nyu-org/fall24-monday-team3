@@ -9,9 +9,11 @@ from roommates.models import Favorite as RoommateFavorite
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import json
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import cache_control
 
-
+@never_cache
 def signup(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
@@ -24,6 +26,8 @@ def signup(request):
     return render(request, "users/signup.html", {"form": form})
 
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@never_cache
 def login_view(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -44,19 +48,24 @@ def login_view(request):
 
     return render(request, "users/login.html", {"form": form})
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def register_view(request):
     return render(request, "users/register.html")
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home_view(request):
     return render(request, "users/home.html")
 
 
 @login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def profile_view(request):
-    rental_favorites = RentalFavorite.objects.filter(user=request.user).select_related("post")
-    roommate_favorites = RoommateFavorite.objects.filter(user=request.user).select_related("post")
+    rental_favorites = RentalFavorite.objects.filter(user=request.user).select_related(
+        "post"
+    )
+    roommate_favorites = RoommateFavorite.objects.filter(
+        user=request.user
+    ).select_related("post")
 
     context = {
         "rental_favorites": rental_favorites,
@@ -67,6 +76,7 @@ def profile_view(request):
 
 @login_required
 @require_http_methods(["POST"])
+@never_cache
 def edit_profile(request):
     try:
         data = json.loads(request.body)
@@ -83,6 +93,7 @@ def edit_profile(request):
 
 @login_required
 @require_POST
+@never_cache
 def delete_favorite(request, type, favorite_id):
     try:
         if type == "rental":
