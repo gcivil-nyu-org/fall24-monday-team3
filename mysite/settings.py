@@ -3,12 +3,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(
-    "/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/mysite/database.env"
+    "/Users/navro/Desktop/DjangoProj/fall24-monday-team3/mysite/database.env"
 )
-print("Database Name:", os.getenv("DATABASE_NAME"))
-print("Database User:", os.getenv("DATABASE_USER"))
-print("Database Host:", os.getenv("DATABASE_HOST"))
-print("Database Port:", os.getenv("DATABASE_PORT"))
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

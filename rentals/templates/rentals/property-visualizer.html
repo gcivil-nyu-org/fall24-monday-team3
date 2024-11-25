@@ -1,47 +1,246 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Apartment Map</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{google_maps_api_key}}"></script>
-    <script>
-        function initMap() {
-            // Center the map (choose appropriate coordinates)
-            const mapCenter = { lat: 40.7128, lng: -74.0060 }; // Example: San Francisco, CA
+    <title>Property Map Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+        }
 
-            // Create a map centered at the given location
-            const map = new google.maps.Map(document.getElementById("map"), {
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .custom-navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white;
+        }
+
+        .map-container {
+            position: relative;
+            height: calc(100vh - 76px);
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            max-width: 300px;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .custom-info-window {
+            padding: 10px;
+            max-width: 300px;
+        }
+
+        .property-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .property-details {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .property-price {
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-top: 8px;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{google_maps_api_key}}"></script>
+</head>
+<body>
+    <!-- Custom Navbar -->
+    <nav class="custom-navbar">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a href="/" class="navbar-brand">
+                <i class="fas fa-map-marker-alt me-2"></i>Property Explorer
+            </a>
+            <div class="navbar-links">
+                <a href="{% url 'apartment_list' %}" class="nav-link">
+                    <i class="fas fa-list me-1"></i>Listings
+                </a>
+                <a href="{% url 'create_apartment_post' %}" class="nav-link">
+                    <i class="fas fa-plus me-1"></i>Post Property
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="map-container">
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <div class="filter-group">
+                <div class="filter-label">Price Range</div>
+                <input type="number" class="filter-input" id="minPrice" placeholder="Min Price">
+                <input type="number" class="filter-input" id="maxPrice" placeholder="Max Price">
+            </div>
+            <div class="filter-group">
+                <div class="filter-label">Bedrooms</div>
+                <select class="filter-input" id="bedrooms">
+                    <option value="">Any</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4+">4+</option>
+                </select>
+            </div>
+            <button onclick="applyFilters()" class="btn btn-primary w-100">
+                <i class="fas fa-filter me-2"></i>Apply Filters
+            </button>
+        </div>
+        
+        <!-- Map Element -->
+        <div id="map"></div>
+    </div>
+
+    <script>
+        let map;
+        let markers = [];
+        let currentInfoWindow = null;
+
+        function initMap() {
+            const mapCenter = { lat: 40.7128, lng: -74.0060 };
+            
+            map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 12,
                 center: mapCenter,
+                styles: [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    }
+                ]
             });
 
-            // Fetch apartment data from the server
+            loadProperties();
+        }
+
+        function loadProperties() {
             fetch('/rentals/apartment-data/')
-    .then(response => response.json())
-    .then(apartments => {
-        apartments.forEach(apartment => {
-            if (apartment.latitude && apartment.longitude) {  // Check for valid lat/lng
+                .then(response => response.json())
+                .then(apartments => {
+                    console.log('Received apartments data:', apartments);
+                    clearMarkers();
+                    apartments.forEach(property => {
+                        console.log('Processing property:', property);
+                        createMarker(property);
+                    });
+                })
+                .catch(error => console.error("Error loading properties:", error));
+        }
+
+        function createMarker(property) {
+            if (property.latitude && property.longitude) {
                 const marker = new google.maps.Marker({
-                    position: { lat: apartment.latitude, lng: apartment.longitude },
+                    position: { lat: property.latitude, lng: property.longitude },
                     map: map,
-                    title: apartment.name,
+                    animation: google.maps.Animation.DROP,
+                    title: property.title
                 });
 
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `<h3>${apartment.title}</h3><p>${apartment.description}</p>`,
-                });
+                const content = `
+                    <div class="custom-info-window">
+                        <div class="property-title">${property.title}</div>
+                        <div class="property-details">
+                            <i class="fas fa-bed me-2"></i>${property.bedrooms} Bedrooms
+                            <br>
+                            <i class="fas fa-ruler-combined me-2"></i>${property.square_feet} sq ft
+                        </div>
+                        <div class="property-price">$${property.price}</div>
+                        <a href="/rentals/apartment/${property.id}/" class="btn btn-sm btn-primary mt-2">View Details</a>
+                    </div>
+                `;
+
+                const infoWindow = new google.maps.InfoWindow({ content });
 
                 marker.addListener('click', () => {
+                    if (currentInfoWindow) currentInfoWindow.close();
                     infoWindow.open(map, marker);
+                    currentInfoWindow = infoWindow;
                 });
+
+                markers.push(marker);
             }
-        });
-    })
-    .catch(error => console.error("Error loading apartments:", error)); // Catch any errors
         }
+
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+        }
+
+        function applyFilters() {
+            const minPrice = document.getElementById('minPrice').value;
+            const maxPrice = document.getElementById('maxPrice').value;
+            const bedrooms = document.getElementById('bedrooms').value;
+
+            // Implement filter logic here
+            loadProperties(); // Reload properties with filters
+        }
+
+        // Initialize map when page loads
+        window.onload = initMap;
     </script>
-</head>
-<body onload="initMap()">
-    <h1>Properties on the Map</h1>
-    <div id="map" style="height: 600px; width: 100%;"></div>
 </body>
 </html>

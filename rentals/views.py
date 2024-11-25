@@ -8,10 +8,110 @@ from django.db.models import Avg, Q
 import requests
 import os
 from dotenv import load_dotenv
+from pathlib import Path
+import re
 
-load_dotenv("/Users/samuelvieira/Documents/GitHub/fall24-monday-team3/rentals/map.env")
+# Get the base directory of your project
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# import PIL
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / 'database.env')
+
+# Get API key with a default value to help with debugging
+MAPS_API_KEY = os.getenv('MAP_API')
+if not MAPS_API_KEY:
+    raise EnvironmentError(
+        "MAP_API environment variable is not set! "
+        "Please ensure map.env is properly configured."
+    )
+
+def get_nearby_places(lat, lng, place_type, radius=1000):
+    """
+    Fetch nearby places using Google Places API and format the response
+    """
+    if not MAPS_API_KEY:
+        print("Error: No API key available for Places API request")
+        return []
+        
+    # First get nearby places
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+    params = {
+        'location': f"{lat},{lng}",
+        'radius': radius,
+        'type': place_type,  # Use the place_type parameter instead of hardcoding
+        'key': MAPS_API_KEY
+    }
+    
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        results = response.json()
+        if results.get('status') != 'OK':
+            print(f"API Error: {results.get('status')} - {results.get('error_message', 'No error message')}")
+            return []
+            
+        formatted_places = []
+        for place in results.get('results', []):
+            # Get place details
+            details_url = "https://maps.googleapis.com/maps/api/place/details/json"
+            details_params = {
+                'place_id': place['place_id'],
+                'fields': 'name,formatted_address,editorial_summary',
+                'key': MAPS_API_KEY
+            }
+            
+            details_response = requests.get(details_url, params=details_params)
+            if details_response.status_code == 200:
+                details = details_response.json()
+                if details.get('status') == 'OK':
+                    place_details = details['result']
+                    
+                    # Only process train lines for subway stations
+                    train_lines = []
+                    if place_type == 'subway_station' and 'editorial_summary' in place_details:
+                        summary = place_details['editorial_summary']['overview']
+                        lines = re.findall(r'(?:lines?|trains?)\s*([A-Z0-9,\s]+)', summary, re.IGNORECASE)
+                        if lines:
+                            train_lines = [line.strip() for line in lines[0].split(',')]
+                    
+                    # Calculate distance
+                    place_lat = place['geometry']['location']['lat']
+                    place_lng = place['geometry']['location']['lng']
+                    distance = calculate_distance(lat, lng, place_lat, place_lng)
+                    distance_text = f"{distance:.1f} km" if distance >= 1 else f"{int(distance * 1000)} m"
+                    
+                    formatted_place = {
+                        'name': place['name'],
+                        'distance': distance_text,
+                        'address': place_details.get('formatted_address', '')
+                    }
+                    
+                    # Only add train lines for subway stations
+                    if place_type == 'subway_station':
+                        formatted_place['lines'] = train_lines if train_lines else ['T']
+                        
+                    formatted_places.append(formatted_place)
+            
+        return formatted_places
+    return []
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate distance between two points in kilometers
+    """
+    from math import sin, cos, sqrt, atan2, radians
+    
+    R = 6371  # Earth's radius in kilometers
+
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1-a))
+    distance = R * c
+    
+    return distance
 
 
 @login_required(login_url="/users/login/")
@@ -55,6 +155,46 @@ def apartment_list(request):
 @login_required(login_url="/users/login/")
 def apartment_detail(request, pk):
     apartment = get_object_or_404(ApartmentPost, pk=pk)
+    
+    # Debug print
+    print(f"Apartment coordinates: {apartment.latitude}, {apartment.longitude}")
+    
+    # Get nearby places with specific types
+    nearby_transit = get_nearby_places(
+        apartment.latitude, 
+        apartment.longitude, 
+        'subway_station',  # Changed to specifically get subway stations
+        radius=1500
+    )
+    
+    nearby_schools = get_nearby_places(
+        apartment.latitude,
+        apartment.longitude,
+        'school',
+        radius=2000
+    )
+    
+    nearby_parks = get_nearby_places(  # Changed from colleges to parks
+        apartment.latitude,
+        apartment.longitude,
+        'park',
+        radius=3000
+    )
+    
+    nearby_museums = get_nearby_places(  # Added museums
+        apartment.latitude,
+        apartment.longitude,
+        'museum',
+        radius=3000
+    )
+    
+    # Debug print
+    print("Found nearby places:",
+          f"\nTransit: {len(nearby_transit)}",
+          f"\nSchools: {len(nearby_schools)}",
+          f"\nParks: {len(nearby_parks)}",  # Updated debug print
+          f"\nMuseums: {len(nearby_museums)}")  # Added museums to debug print
+    
     user_rating = None
     is_favorited = False
 
@@ -79,6 +219,10 @@ def apartment_detail(request, pk):
         "form": form,
         "google_maps_api_key": os.getenv("MAP_API"),
         "is_favorited": is_favorited,
+        "nearby_transit": nearby_transit,
+        "nearby_schools": nearby_schools,
+        "nearby_parks": nearby_parks,  # Updated context
+        "nearby_museums": nearby_museums,  # Added to context
     }
     return render(request, "rentals/apartment_detail.html", context)
 
@@ -96,15 +240,21 @@ def update_apartment_post(request, pk):
         form = ApartmentPostForm(request.POST, request.FILES, instance=apartment_post)
         if form.is_valid():
             form.save()
-            apartment_address = apartment_post.address
-            geocode_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={apartment_address}&key={os.getenv('MAP_API')}"
-            response = requests.get(geocode_url).json()
-            print(response)
-            if response["status"] == "OK":
-                location = response["results"][0]["geometry"]["location"]
-                apartment_post.latitude = location["lat"]
-                apartment_post.longitude = location["lng"]
-                apartment_post.save()
+            # Fetch coordinates using Google Geocoding API
+            if apartment_post.latitude and apartment_post.longitude:
+                geocode_url = (
+                    f"https://maps.googleapis.com/maps/api/geocode/json"
+                    f"?latlng={apartment_post.latitude},{apartment_post.longitude}&key={os.getenv('MAP_API')}"
+                )
+                response = requests.get(geocode_url).json()
+                if response["status"] == "OK":
+                    formatted_address = response["results"][0]["formatted_address"]
+                    apartment_post.address = formatted_address  # Update address
+                    apartment_post.save()
+                else:
+                    messages.warning(
+                        request, "Unable to update the address based on coordinates."
+                    )
             return redirect("apartment_detail", pk=apartment_post.pk)
     else:
         form = ApartmentPostForm(instance=apartment_post)
@@ -222,8 +372,10 @@ def create_apartment_post(request):
             print(response)
             if response["status"] == "OK":
                 location = response["results"][0]["geometry"]["location"]
+                formatted_address = response["results"][0]["formatted_address"]
                 apartment_post.latitude = location["lat"]
                 apartment_post.longitude = location["lng"]
+                apartment_post.address = formatted_address
                 apartment_post.save()
             return redirect("apartment_detail", pk=apartment_post.pk)
     else:
@@ -349,22 +501,24 @@ def clear_apartment_rating(request, pk):
 
 
 def apartment_data(request):
-    print("called!!!")
-    apartments = ApartmentPost.objects.values(
-        "user",
-        "title",
-        "latitude",
-        "longitude",
-        "description",
-        "price",
-        "address",
-        "bedrooms",
-        "square_feet",
-        "amenities",
-        "average_rating",
-    )
-    print(apartments)
-    return JsonResponse(list(apartments), safe=False)
+    apartments = ApartmentPost.objects.all()
+    data = []
+    
+    for apartment in apartments:
+        apartment_data = {
+            'id': apartment.id,  # Ensure ID is included
+            'title': apartment.title,
+            'latitude': apartment.latitude,
+            'longitude': apartment.longitude,
+            'description': apartment.description,
+            'price': str(apartment.price),
+            'address': apartment.address,
+            'bedrooms': apartment.bedrooms,
+            'square_feet': apartment.square_feet,
+        }
+        data.append(apartment_data)
+    
+    return JsonResponse(data, safe=False)
 
 
 def property_map_view(request):
