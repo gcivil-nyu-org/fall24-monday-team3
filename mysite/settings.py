@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv("/Users/pooja/Documents/Python/rentsense/mysite/database.env")
+load_dotenv("/Users/navro/Desktop/DjangoProj/fall24-monday-team3/mysite/database.env")
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
