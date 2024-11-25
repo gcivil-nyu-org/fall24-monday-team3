@@ -277,10 +277,8 @@
                                             </div>
                                             <p class="mb-1">{{ post.content|truncatewords:30 }}</p>
                                             <div class="d-flex justify-content-between align-items-center mt-2">
-                                                <small>{{ post.comments.count }} comments</small>
                                                 <div>
                                                     <a href="{% url 'discussions:discussion_detail' pk=post.pk %}" class="btn btn-sm btn-primary">View</a>
-                                                    <a href="{% url 'discussions:discussion_update' pk=post.pk %}" class="btn btn-sm btn-secondary">Edit</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -352,20 +350,17 @@ function toggleEditMode() {
     const viewMode = document.getElementById('viewMode');
     const editMode = document.getElementById('editMode');
     const editButton = document.getElementById('editButton');
-    const editButtons = document.getElementById('editButtons');
 
     if (viewMode.style.display !== 'none') {
         // Switch to edit mode
         viewMode.style.display = 'none';
         editMode.style.display = 'block';
         editButton.style.display = 'none';
-        editButtons.style.display = 'block';
     } else {
         // Switch back to view mode
         viewMode.style.display = 'block';
         editMode.style.display = 'none';
         editButton.style.display = 'block';
-        editButtons.style.display = 'none';
     }
 }
 
@@ -376,7 +371,7 @@ function saveChanges() {
     const bio = document.getElementById('editBio').value;
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    fetch("{% url 'edit_profile' %}", {
+    fetch('/users/edit_profile/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -389,18 +384,22 @@ function saveChanges() {
             bio: bio
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            // Update the view mode content
-            location.reload(); // Reload the page to show updated info
+            location.reload();
         } else {
-            alert('Error updating profile');
+            alert('Error updating profile: ' + (data.error || 'Unknown error'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error updating profile');
+        alert('Error updating profile. Please try again.');
     });
 }
 </script>
