@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
+from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class Amenity(models.Model):
@@ -42,7 +43,7 @@ class ApartmentImage(models.Model):
     apartment = models.ForeignKey(
         ApartmentPost, related_name="images", on_delete=models.CASCADE
     )
-    image = models.ImageField(upload_to="apartment_images/")
+    image = models.ImageField(storage=S3Boto3Storage())
 
     def __str__(self):
         return f"Image for {self.apartment.title}"

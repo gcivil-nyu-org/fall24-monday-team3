@@ -20,12 +20,12 @@ class ApartmentPostOwnershipTest(TestCase):
         self.apartment = ApartmentPost.objects.create(
             user=self.owner,
             title="Test Apartment",
+            post_type="APARTMENT",
             description="Test Description",
             price=1000.00,
             address="123 Test St",
             bedrooms=2,
             square_feet=1000,
-            post_type="APARTMENT",
         )
 
         # Set up the test client
@@ -44,12 +44,12 @@ class ApartmentPostOwnershipTest(TestCase):
         # Try to edit the post
         update_data = {
             "title": "Updated Title",
+            "post_type": "APARTMENT",
             "description": "Updated Description",
             "price": 1200.00,
             "address": "123 Test St",
             "bedrooms": 2,
             "square_feet": 1000,
-            "post_type": "APARTMENT",
         }
         response = self.client.post(
             reverse("update_apartment_post", kwargs={"pk": self.apartment.pk}),
