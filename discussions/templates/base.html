@@ -153,7 +153,7 @@
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <button class="welcome-dropdown-btn" onclick="toggleDropdown(event)">
-                            Welcome, {{ user.first_name }} &#9662;
+                            Welcome, {% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %} &#9662;
                         </button>
                         <div id="dropdownMenu" class="custom-dropdown-menu">
                             <a href="{% url 'profile' %}" class="profile-btn">My Profile</a>
