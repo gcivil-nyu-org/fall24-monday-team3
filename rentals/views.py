@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ApartmentPostForm, ApartmentImageForm, CommentForm
 from .models import ApartmentImage, ApartmentPost, Rating, Comment, Favorite
 from django.contrib import messages
-from django.utils.timezone import now, timedelta
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Avg, Q

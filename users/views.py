@@ -13,6 +13,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 
+
 @never_cache
 def signup(request):
     if request.method == "POST":
@@ -48,9 +49,11 @@ def login_view(request):
 
     return render(request, "users/login.html", {"form": form})
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def register_view(request):
     return render(request, "users/register.html")
+
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home_view(request):

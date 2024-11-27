@@ -28,7 +28,9 @@ class RoommatePostForm(forms.ModelForm):
             "preferred_location": forms.TextInput(attrs={"class": "form-control"}),
             "hobbies": forms.Textarea(attrs={"class": "form-control"}),
             "amenities": CheckboxSelectMultiple(),
-            "description": forms.Textarea(attrs={"class": "form-control", 'placeholder': 'Enter a description...'}),
+            "description": forms.Textarea(
+                attrs={"class": "form-control", "placeholder": "Enter a description..."}
+            ),
         }
 
     def clean_age(self):
@@ -36,7 +38,7 @@ class RoommatePostForm(forms.ModelForm):
         if age < 18 or age > 100:
             raise forms.ValidationError("Age must be between 18 and 100.")
         return age
-    
+
     def clean_gender(self):
         gender = self.cleaned_data.get("gender")
         if gender not in ["Male", "Female"]:
@@ -57,6 +59,3 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ["content"]
-
-
-
