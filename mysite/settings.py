@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "discussions",
     "chatbot",
     "storages",
+    "alerts",
 ]
 
 MIDDLEWARE = [
