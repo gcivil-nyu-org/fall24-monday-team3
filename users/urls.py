@@ -10,5 +10,7 @@ urlpatterns = [
     path("register/", register_view, name="register"),
     path("logout/", LogoutView.as_view(next_page="home"), name="logout"),
     path("profile/", views.profile_view, name="profile"),
-    path("profile/edit/", views.edit_profile, name="edit_profile"),
+    path("profile/<str:username>/", views.public_profile, name="public_profile"),
+    path("edit_profile/", views.edit_profile, name="edit_profile"),
+    path("send-email/<str:username>/", views.send_user_email, name="send_user_email"),
 ]

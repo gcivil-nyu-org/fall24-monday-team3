@@ -18,13 +18,21 @@
             <div class="discussion-content">
                 <div class="discussion-meta">
                     <span class="topic-tag">{{ discussion.topic.name }}</span>
-                    <span>Posted by {{ discussion.author.username }}</span>
                     <span>{{ discussion.created_at|timesince }} ago</span>
                     {% if discussion.updated_at != discussion.created_at %}
                         <span>(edited {{ discussion.updated_at|timesince }} ago)</span>
                     {% endif %}
                 </div>
                 <h1 class="discussion-title">{{ discussion.title }}</h1>
+                <p class="text-muted mb-3">
+                    Posted by: <a href="{% url 'public_profile' username=discussion.author.username %}">
+                        {% if discussion.author.first_name and discussion.author.last_name %}
+                            {{ discussion.author.first_name }} {{ discussion.author.last_name }}
+                        {% else %}
+                            {{ discussion.author.username }}
+                        {% endif %}
+                    </a>
+                </p>
                 <div class="discussion-body">
                     {{ discussion.content|linebreaks }}
                 </div>
@@ -64,13 +72,36 @@
 
             <div class="replies-list mt-4">
                 {% for reply in replies %}
-                    <div class="reply-card" id="reply-{{ reply.pk }}">
-                        <div class="reply-meta">
-                            <span class="reply-author">{{ reply.author.username }}</span>
-                            <span class="reply-date">{{ reply.created_at|timesince }} ago</span>
-                        </div>
-                        <div class="reply-content">
-                            {{ reply.content|linebreaks }}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="reply-meta">
+                                    <h6 class="mb-1">
+                                        <a href="{% url 'public_profile' username=reply.author.username %}">
+                                            {% if reply.author.first_name and reply.author.last_name %}
+                                                {{ reply.author.first_name }} {{ reply.author.last_name }}
+                                            {% else %}
+                                                {{ reply.author.username }}
+                                            {% endif %}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        {{ reply.created_at|timesince }} ago
+                                        {% if reply.updated_at != reply.created_at %}
+                                            (edited {{ reply.updated_at|timesince }} ago)
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% if user == reply.author %}
+                                    <div class="reply-actions">
+                                        <button class="btn btn-sm btn-outline-secondary">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="reply-content mt-3">
+                                {{ reply.content|linebreaks }}
+                            </div>
                         </div>
                     </div>
                 {% empty %}
@@ -299,7 +330,29 @@
             gap: 0.5rem;
         }
     }
-    </style>
+    .replies-section {
+        margin-top: 2rem;
+    }
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .reply-meta a {
+        color: #007bff;  /* Bootstrap primary blue */
+        text-decoration: underline;
+    }
+    .reply-meta a:hover {
+        color: #0056b3;  /* Darker blue on hover */
+    }
+    .reply-actions {
+        gap: 0.5rem;
+        display: flex;
+    }
+    .reply-content {
+        color: #34495e;
+        line-height: 1.6;
+    }
+</style>
     
     {% block extra_js %}
     {{ block.super }}

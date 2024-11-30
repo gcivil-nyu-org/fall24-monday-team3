@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv("/Users/pooja/Documents/Python/rentsense/mysite/database.env")
+load_dotenv("env")
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
@@ -168,3 +168,12 @@ EMAIL_BACKEND = (
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Log out when the browser is closed
 SESSION_SAVE_EVERY_REQUEST = True  # Refresh session expiry with each request
 USE_TZ = False
+
+# Email settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # Or your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "rentsense2024@gmail.com"  # Your email
+EMAIL_HOST_PASSWORD = "ehrhqehcerudmkds"  # Your email password or app-specific password
+DEFAULT_FROM_EMAIL = "rentsense2024@gmail.com"
