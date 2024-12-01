@@ -31,7 +31,7 @@ urlpatterns = [
     path("discussions/", include("discussions.urls")),
     path("chatbot/", include("chatbot.urls")),
     path("admin/", admin.site.urls),
-    path('dm/', include('dm.urls',namespace='dm')),
+    path('dm/', include('dm.urls', namespace='dm')),
 ]
 
 if settings.DEBUG:

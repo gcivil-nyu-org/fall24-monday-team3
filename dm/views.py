@@ -2,12 +2,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Message
-from .forms import MessageForm
+# from .forms import MessageForm
 from users.models import User
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 from django.db.models import Q
 from django.utils.timezone import now
+
 
 @login_required
 def inbox(request):
@@ -28,9 +29,7 @@ def inbox(request):
 def conversation(request, username):
     other_user = get_object_or_404(User, username=username)
     messages = Message.objects.filter(
-        (Q(sender=request.user) & Q(receiver=other_user)) |
-        (Q(sender=other_user) & Q(receiver=request.user))
-    ).order_by('sent_at')
+        (Q(sender=request.user) & Q(receiver=other_user)) | (Q(sender=other_user) & Q(receiver=request.user))).order_by('sent_at')
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         messages_html = render_to_string('partials/messages.html', {'messages': messages, 'user': request.user})
@@ -60,4 +59,3 @@ def send_message(request):
             })
 
         return redirect('conversation', username=receiver.username)
-
