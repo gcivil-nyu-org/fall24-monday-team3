@@ -1,0 +1,11 @@
+{% for message in messages %}
+    <li>
+        {% if message.sender == user %}
+            <strong>You:</strong>
+        {% else %}
+            <strong>{{ message.sender.username }}:</strong>
+        {% endif %}
+        {{ message.message_text }}
+        <small>({{ message.sent_at }})</small>
+    </li>
+{% endfor %}
