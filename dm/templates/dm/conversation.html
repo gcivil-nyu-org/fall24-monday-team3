@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Conversation with {{ other_user.username }}</h1>
+        <nav>
+            <a href="{% url 'dm:inbox' %}">Back to Inbox</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <ul id="message-list">
+            {% for message in messages %}
+                <li>
+                    {% if message.sender == user %}
+                        <strong>You:</strong>
+                    {% else %}
+                        <strong>{{ other_user.username }}:</strong>
+                    {% endif %}
+                    {{ message.message_text }}
+                    <small>({{ message.sent_at }})</small>
+                </li>
+            {% endfor %}
+        </ul>
+        <form id="message-form" method="post" action="{% url 'dm:send_message' %}">
+            {% csrf_token %}
+            <input type="hidden" name="receiver" value="{{ other_user.id }}">
+            <textarea id="message-text" name="message_text" rows="3" cols="50" placeholder="Type your message here..."></textarea>
+            <button type="submit">Send</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 My Django App</p>
+    </footer>
+
+    <script>
+        $(document).ready(function () {
+            // Handle form submission via AJAX
+            $('#message-form').on('submit', function (event) {
+                event.preventDefault();
+
+                const formData = $(this).serialize();
+                const url = $(this).attr('action');
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: formData,
+                    success: function (response) {
+                        // Append the new message to the list
+                        $('#message-list').append(`
+                            <li>
+                                <strong>You:</strong> ${response.message_text}
+                                <small>(${response.sent_at})</small>
+                            </li>
+                        `);
+                        $('#message-text').val(''); // Clear the textarea
+                    },
+                    error: function () {
+                        alert('Error sending the message.');
+                    }
+                });
+            });
+
+            // Periodically fetch new messages
+            setInterval(function () {
+                $.ajax({
+                    url: `{% url 'dm:conversation' other_user.username %}`,
+                    type: 'GET',
+                    success: function (response) {
+                        $('#message-list').html(response.messages_html);
+                    }
+                });
+            }, 1000); // Fetch new messages every 1 seconds
+        });
+    </script>
+</body>
+</html>

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv("env")
+load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/mysite/database.env")
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "discussions",
     "chatbot",
     "storages",
+    "dm",
 ]
 
 MIDDLEWARE = [
