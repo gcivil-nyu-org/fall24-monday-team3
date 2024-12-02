@@ -19,14 +19,17 @@
                         {% if profile_user.first_name and profile_user.last_name %}
                         <strong>Username:</strong>{{ profile_user.username }}<br>
                         {% else %}
-                        <strong>First Name:</strong> {{ profile_user.first_name }}<br>
+                        <strong>First Name Modified:</strong> {{ profile_user.first_name }}<br>                        
                         <strong>Last Name:</strong> {{ profile_user.last_name }}<br>
                         {% endif %}
                         <strong>Email:</strong> {{ profile_user.email }}<br>
+                        <strong><a href="{% url 'dm:conversation' profile_user.username %}">Let's talk</a></strong> <br>
                         {% if profile_user.bio %}
+                        
                         <strong>Bio:</strong>
                         <p class="text-muted">{{ profile_user.bio }}</p>
                         {% endif %}
+                        
                     </p>
                         <!-- Email Button -->
                     <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#emailModal">

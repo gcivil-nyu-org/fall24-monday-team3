@@ -1,0 +1,95 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borough Statistics</title>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .stats {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBiO2qn3NFCIqukydvcuSl9fkJWk2LCOzw&callback=initMap" async defer></script>
+    <script>
+        // Parse the JSON data passed from Django view into JavaScript
+        let boroughStats = JSON.parse('{{ borough_data_json|escapejs }}');
+
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 10,
+                center: { lat: 40.7128, lng: -74.0060 }, // Default center for NYC
+            });
+
+            // Loop through the boroughStats object
+            for (const [borough, stats] of Object.entries(boroughStats)) {
+                const marker = new google.maps.Marker({
+                    position: stats.center,
+                    map: map,
+                    title: `${borough}: Avg Rent $${stats.average_rent.toFixed(2)}`,
+                });
+
+                // Optional: Add InfoWindow
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<h3>${borough}</h3><p>Avg Rent: $${stats.average_rent.toFixed(2)}</p>`,
+                });
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+            }
+        }
+
+        // Function to display the borough data in the table
+        window.onload = function() {
+            let tableBody = document.getElementById("borough-table-body");
+
+            // Loop through the boroughStats to populate the table
+            for (const [borough, stats] of Object.entries(boroughStats)) {
+                let row = tableBody.insertRow(); // Create a new row
+
+                let cell1 = row.insertCell(0); // Borough name
+                cell1.textContent = borough;
+
+                let cell2 = row.insertCell(1); // Property Count
+                cell2.textContent = stats.count;
+
+                let cell3 = row.insertCell(2); // Average Rent
+                cell3.textContent = stats.average_rent.toFixed(2);
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Borough-Wise Statistics</h1>
+    <div id="map"></div>
+    <div class="stats">
+        <h2>Borough Data</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Borough</th>
+                    <th>Property Count</th>
+                    <th>Average Rent ($)</th>
+                </tr>
+            </thead>
+            <tbody id="borough-table-body">
+                <!-- Table rows will be dynamically populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
