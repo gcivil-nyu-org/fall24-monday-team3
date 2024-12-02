@@ -2,11 +2,14 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/mysite/database.env")
+
+load_dotenv("mysite/database.env")
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
 print("Database Port:", os.getenv("DATABASE_PORT"))
+print("Loaded MAP_API:", os.getenv("MAP_API"))
+
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     "discussions",
     "chatbot",
     "storages",
+    "alerts",
     "dm",
 ]
 

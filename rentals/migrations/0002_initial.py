@@ -10,25 +10,18 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("roommates", "0001_initial"),
+        ("rentals", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name="roommatepost",
+            model_name="rating",
             name="user",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
-            ),
-        ),
-        migrations.AddField(
-            model_name="roommateimage",
-            name="roommate",
-            field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="images",
-                to="roommates.roommatepost",
+                related_name="ratings",
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AddField(
@@ -36,17 +29,15 @@ class Migration(migrations.Migration):
             name="post",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="favorited_by",
-                to="roommates.roommatepost",
+                related_name="favorites",
+                to="rentals.apartmentpost",
             ),
         ),
         migrations.AddField(
             model_name="favorite",
             name="user",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="roommate_favorites",
-                to=settings.AUTH_USER_MODEL,
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
             ),
         ),
         migrations.AddField(
@@ -57,7 +48,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="replies",
-                to="roommates.comment",
+                to="rentals.comment",
             ),
         ),
         migrations.AddField(
@@ -66,17 +57,40 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="comments",
-                to="roommates.roommatepost",
+                to="rentals.apartmentpost",
             ),
         ),
         migrations.AddField(
             model_name="comment",
             name="user",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name="roommate_comments",
-                to=settings.AUTH_USER_MODEL,
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
             ),
+        ),
+        migrations.AddField(
+            model_name="apartmentpost",
+            name="amenities",
+            field=models.ManyToManyField(blank=True, to="rentals.amenity"),
+        ),
+        migrations.AddField(
+            model_name="apartmentpost",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
+        ),
+        migrations.AddField(
+            model_name="apartmentimage",
+            name="apartment",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="rentals.apartmentpost",
+            ),
+        ),
+        migrations.AlterUniqueTogether(
+            name="rating",
+            unique_together={("post", "user")},
         ),
         migrations.AlterUniqueTogether(
             name="favorite",

@@ -533,6 +533,7 @@
 <body>
     <div id="dropdownMenu" class="dropdown-content">
         <a href="{% url 'profile' %}" class="profile-btn">My Profile</a>
+        <a href="{% url 'price_alerts' %}" class="profile-btn">Price Alerts</a>
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="logout-btn">Logout</button>
