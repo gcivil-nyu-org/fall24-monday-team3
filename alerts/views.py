@@ -65,13 +65,18 @@ def edit_price_alert(request, alert_id):
 
                 # If location is updated, filter by the new location
                 if alert.location:
-                    matching_posts = matching_posts.filter(address__icontains=alert.location)
+                    matching_posts = matching_posts.filter(
+                        address__icontains=alert.location
+                    )
 
                 # Send alerts for the matching posts
                 for post in matching_posts:
                     is_favorite = post.favorites.filter(user=request.user).exists()
                     send_alert_email(
-                        request.user, post, is_favorite, is_updated=(max_price_increased or location_changed)
+                        request.user,
+                        post,
+                        is_favorite,
+                        is_updated=(max_price_increased or location_changed),
                     )  # Pass the is_updated flag
 
             messages.success(request, "Price alert updated successfully!")

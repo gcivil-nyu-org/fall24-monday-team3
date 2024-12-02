@@ -22,7 +22,8 @@ def check_price_drops_or_location_changes(sender, instance, **kwargs):
     matching_alerts = [
         alert
         for alert in alerts
-        if not alert.location or alert.location.strip().lower() == instance.address.strip().lower()
+        if not alert.location
+        or alert.location.strip().lower() == instance.address.strip().lower()
     ]
 
     # Send alerts for matching price alerts
@@ -47,7 +48,9 @@ def check_alert_updates(sender, instance, **kwargs):
 
     # If the alert specifies a location, filter by location
     if instance.location:
-        matching_posts = matching_posts.filter(address__icontains=instance.location.strip())
+        matching_posts = matching_posts.filter(
+            address__icontains=instance.location.strip()
+        )
 
     # Send alerts for the matching apartment posts
     for post in matching_posts:
