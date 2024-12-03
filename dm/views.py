@@ -31,6 +31,7 @@ def conversation(request, username):
     messages = Message.objects.filter(
         (Q(sender=request.user) & Q(receiver=other_user)) | (Q(sender=other_user) & Q(receiver=request.user))).order_by('sent_at')
 
+    print(messages)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         messages_html = render_to_string('partials/messages.html', {'messages': messages, 'user': request.user})
         return JsonResponse({'messages_html': messages_html})
@@ -43,6 +44,7 @@ def send_message(request):
     if request.method == 'POST':
         message_text = request.POST.get('message_text')
         receiver_id = request.POST.get('receiver')
+        print(receiver_id)
         receiver = get_object_or_404(User, id=receiver_id)
 
         message = Message.objects.create(
@@ -51,7 +53,7 @@ def send_message(request):
             message_text=message_text,
             sent_at=now()
         )
-
+        print(message.__dict__)
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({
                 'message_text': message.message_text,
