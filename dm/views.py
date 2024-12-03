@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Message
+
 # from .forms import MessageForm
 from users.models import User
 from django.template.loader import render_to_string
@@ -14,29 +15,33 @@ from django.utils.timezone import now
 def inbox(request):
     # Get distinct users who have either sent or received messages with the logged-in user
     distinct_users = User.objects.filter(
-        id__in=Message.objects.filter(
-            sender=request.user
-        ).values('receiver')
+        id__in=Message.objects.filter(sender=request.user).values("receiver")
     ).union(
         User.objects.filter(
-            id__in=Message.objects.filter(receiver=request.user).values('sender')
+            id__in=Message.objects.filter(receiver=request.user).values("sender")
         )
     )
-    return render(request, 'dm/inbox.html', {'distinct_users': distinct_users})
+    return render(request, "dm/inbox.html", {"distinct_users": distinct_users})
 
 
 @login_required
 def conversation(request, username):
     other_user = get_object_or_404(User, username=username)
     messages = Message.objects.filter(
-        (Q(sender=request.user) & Q(receiver=other_user)) | (Q(sender=other_user) & Q(receiver=request.user))).order_by('sent_at')
+        (Q(sender=request.user) & Q(receiver=other_user))
+        | (Q(sender=other_user) & Q(receiver=request.user))
+    ).order_by("sent_at")
 
     print(messages)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         messages_html = render_to_string('partials/messages.html', {'messages': messages, 'user': request.user})
         return JsonResponse({'messages_html': messages_html})
 
-    return render(request, 'dm/conversation.html', {'messages': messages, 'other_user': other_user})
+    return render(
+        request,
+        "dm/conversation.html",
+        {"messages": messages, "other_user": other_user},
+    )
 
 
 @login_required
@@ -51,7 +56,7 @@ def send_message(request):
             sender=request.user,
             receiver=receiver,
             message_text=message_text,
-            sent_at=now()
+            sent_at=now(),
         )
         print(message.__dict__)
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -60,4 +65,4 @@ def send_message(request):
                 'sent_at': message.sent_at.strftime('%Y-%m-%d %H:%M:%S')
             })
 
-        return redirect('conversation', username=receiver.username)
+        return redirect("conversation", username=receiver.username)

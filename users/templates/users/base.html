@@ -248,10 +248,191 @@ footer {
 .toast.show {
     opacity: 1;
 }
+
+.notification-btn {
+    background: none;
+    border: none;
+    color: white;
+    padding: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.notification-btn:hover {
+    transform: scale(1.1);
+}
+
+.notification-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    min-width: 18px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    min-width: 350px;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    z-index: 1000;
+    margin-top: 10px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h6 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.mark-all-read {
+    font-size: 0.8rem;
+    color: #4a90e2;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.mark-all-read:hover {
+    background-color: #e3f0ff;
+}
+
+.notification-list {
+    max-height: 80vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f8f9fa;
+}
+
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 3px;
+}
+
+.notification-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+    background-color: #ebf5ff;
+}
+
+.notification-item.unread:hover {
+    background-color: #e3f0ff;
+}
+
+.notification-item strong {
+    color: #2c3e50;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.notification-item p {
+    margin: 5px 0;
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.notification-item small {
+    display: block;
+    color: #718096;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.notification-empty {
+    padding: 20px;
+    text-align: center;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.notification-item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #cbd5e0;
+    border-bottom: 2px solid #cbd5e0;
+    transform: translateY(-50%) rotate(-45deg);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.notification-item:hover::after {
+    opacity: 1;
+}
     </style>
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    {% csrf_token %}
     {% block navbar %}
     <nav class="navbar navbar-expand-lg custom-navbar">
         <div class="container-fluid">
@@ -273,6 +454,24 @@ footer {
                                 {% csrf_token %}
                                 <button type="submit" class="logout-btn">Logout</button>
                             </form>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <button class="notification-btn" onclick="toggleNotifications(event)">
+                            <svg class="notification-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                        </button>
+                        <div id="notificationDropdown" class="notification-dropdown">
+                            <div class="notification-header">
+                                <h6>Notifications</h6>
+                                <span class="mark-all-read" onclick="markAllNotificationsRead()">Mark all as read</span>
+                            </div>
+                            <div id="notificationList" class="notification-list">
+                                <!-- Notifications will be inserted here -->
+                            </div>
                         </div>
                     </li>
                     {% endif %}
@@ -329,6 +528,200 @@ footer {
             dropdown.style.top = (buttonRect.bottom + window.scrollY + 5) + 'px';
         }
     });
+
+    function toggleNotifications(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById('notificationDropdown');
+        const isDisplayed = dropdown.style.display === 'block';
+        
+        if (!isDisplayed) {
+            dropdown.style.display = 'block';
+            fetchNotifications();
+        } else {
+            dropdown.style.display = 'none';
+            clearNotificationsOnClose();
+        }
+    }
+
+    function markAllNotificationsRead() {
+        fetch('/alerts/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`Marked ${data.count} notifications as read`);
+                // Clear the notification badge
+                const badge = document.getElementById('notificationBadge');
+                badge.style.display = 'none';
+                
+                // Update the UI to show all notifications as read
+                const notifications = document.querySelectorAll('.notification-item');
+                notifications.forEach(notification => {
+                    notification.classList.remove('unread');
+                });
+                
+                // Refresh the notifications list
+                fetchNotifications();
+            }
+        })
+        .catch(error => {
+            console.error('Error marking notifications as read:', error);
+        });
+    }
+
+    function fetchNotifications() {
+        // Add timestamp to prevent caching
+        fetch('/alerts/notifications/?_=' + new Date().getTime(), {
+            method: 'GET',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const notificationList = document.getElementById('notificationList');
+                const badge = document.getElementById('notificationBadge');
+                
+                // Clear existing notifications first
+                if (notificationList) {
+                    notificationList.innerHTML = '';
+                }
+                
+                if (data.unread_count > 0) {
+                    badge.style.display = 'block';
+                    badge.textContent = data.unread_count;
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                if (!data.notifications || data.notifications.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-empty">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2" style="margin-bottom: 10px">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <div>No notifications yet</div>
+                        </div>`;
+                } else {
+                    notificationList.innerHTML = data.notifications.map(notification => `
+                        <div class="notification-item ${notification.is_read ? '' : 'unread'}" 
+                             data-id="${notification.id}"
+                             onclick="markNotificationRead(${notification.id})">
+                            <strong>${notification.sender_name}</strong>
+                            <p>${notification.message}</p>
+                            <small>${notification.created_at}</small>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+                const notificationList = document.getElementById('notificationList');
+                notificationList.innerHTML = `
+                    <div class="notification-empty">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2" style="margin-bottom: 10px">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>Error loading notifications</div>
+                    </div>`;
+            });
+    }
+
+    function markNotificationRead(notificationId) {
+        fetch(`/alerts/notifications/${notificationId}/read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update the UI
+                const notification = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
+                if (notification) {
+                    notification.classList.remove('unread');
+                }
+                // Refresh notifications to update badge count
+                fetchNotifications();
+            }
+        })
+        .catch(error => {
+            console.error('Error marking notification as read:', error);
+        });
+    }
+
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('notificationDropdown');
+        const button = document.querySelector('.notification-btn');
+        if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    // Make sure the notification elements exist in the DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded, checking notification elements...');
+        const notificationList = document.getElementById('notificationList');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        
+        if (!notificationList || !notificationDropdown) {
+            console.error('Notification elements not found in DOM');
+        } else {
+            console.log('Notification elements found, fetching notifications...');
+            fetchNotifications();
+        }
+    });
+
+    // Clear notifications when user logs out
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutLink = document.querySelector('a[href="/users/logout/"]');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function() {
+                // Clear notifications from DOM
+                const notificationList = document.getElementById('notificationList');
+                if (notificationList) {
+                    notificationList.innerHTML = '';
+                }
+                // Clear badge
+                const badge = document.getElementById('notificationBadge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            });
+        }
+        
+        // Initial fetch of notifications
+        fetchNotifications();
+    });
+
+    // Refresh notifications periodically (every 30 seconds)
+    setInterval(fetchNotifications, 30000);
+
+    // Add this function to clear notifications when dropdown is closed
+    function clearNotificationsOnClose() {
+        const notificationList = document.getElementById('notificationList');
+        if (notificationList) {
+            notificationList.innerHTML = '';
+        }
+        const badge = document.getElementById('notificationBadge');
+        if (badge) {
+            badge.style.display = 'none';
+        }
+    }
     </script>
     {% block extra_js %}{% endblock %}
 </body>
