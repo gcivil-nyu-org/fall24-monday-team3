@@ -18,6 +18,7 @@ from discussions.models import Discussion
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
+from alerts.models import Notification
 
 
 @never_cache
@@ -173,23 +174,94 @@ def send_user_email(request, username):
         subject = f"RentSense: Message from {name}"
         message = request.POST.get("message")
 
-        # Create the email message
-        full_message = f"""
-        You received a message from {name}:
-        {message}
-        ---
-        This message was sent via RentSense.
+        print(f"\nCreating notification:")
+        print(f"Sender: {request.user.username} (ID: {request.user.id})")
+        print(f"Recipient: {recipient.username} (ID: {recipient.id})")
+
+        # Create notification ONLY for the recipient
+        notification = Notification.objects.create(
+            recipient=recipient,  # The person receiving the message
+            sender=request.user,  # The person sending the message
+            message=f"New message from {name}: {message[:100]}{'...' if len(message) > 100 else ''}",
+        )
+
+        # Verify the notification
+        saved_notification = Notification.objects.get(id=notification.id)
+        print(f"\nVerified notification in database:")
+        print(f"ID: {saved_notification.id}")
+        print(
+            f"Recipient: {saved_notification.recipient.username} (ID: {saved_notification.recipient.id})"
+        )
+        print(
+            f"Sender: {saved_notification.sender.username} (ID: {saved_notification.sender.id})"
+        )
+
+        # HTML email template
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333333;
+                }}
+                .container {{
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }}
+                .header {{
+                    background-color: #4A90E2;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 5px 5px 0 0;
+                }}
+                .content {{
+                    background-color: #ffffff;
+                    padding: 20px;
+                    border: 1px solid #dddddd;
+                    border-radius: 0 0 5px 5px;
+                }}
+                .footer {{
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #666666;
+                    font-size: 12px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>New Message from RentSense</h2>
+                </div>
+                <div class="content">
+                    <p>Hello {recipient.first_name or recipient.username},</p>
+                    <p>You have received a message from <strong>{name}</strong>:</p>
+                    <p style="background-color: #f8f9fa; padding: 15px; border-radius: 5px;">{message}</p>
+                    <p>You can reply to this message by visiting their profile on RentSense.</p>
+                </div>
+                <div class="footer">
+                    <p>This is an automated message from RentSense. Please do not reply to this email.</p>
+                </div>
+            </div>
+        </body>
+        </html>
         """
 
-        # Send the email
+        # Send email
         send_mail(
-            subject,
-            full_message,
-            settings.DEFAULT_FROM_EMAIL,
-            [recipient.email],
-            fail_silently=False,
+            subject=subject,
+            message=f"Hi {recipient.username},\n\nYou have received a message from {name}:\n\n{message}\n\nVisit RentSense to reply.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[recipient.email],
+            html_message=html_message,
         )
 
         return JsonResponse({"success": True})
     except Exception as e:
+        print(f"Error sending email: {str(e)}")
         return JsonResponse({"success": False, "error": str(e)})
