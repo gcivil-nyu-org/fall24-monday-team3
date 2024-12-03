@@ -145,8 +145,8 @@ DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"  # Base URL for serving static files
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  # Where static files are located
-STATIC_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/static/"
+STATICFILES_DIRS = ["https://elasticbeanstalk-us-west-2-682033502272.s3.us-west-2.amazonaws.com/static/"]  # Where static files are located
+#STATIC_ROOT = "https://elasticbeanstalk-us-west-2-682033502272.s3.us-west-2.amazonaws.com/static/"
 # Media files (user-uploaded content like profile pics)
 MEDIA_URL = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/media/"
 MEDIA_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/media/"
