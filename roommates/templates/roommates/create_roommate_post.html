@@ -1,0 +1,92 @@
+<!-- rentals/templates/rentals/create_apartment_post.html -->
+
+{% extends 'roommates/base.html' %}
+
+{% block title %}Create Roommate Post{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Create Roommate Post</h2>
+    </div>
+    <div class="card-body">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        {{ message }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" id="roommateForm" onsubmit="handleSubmit(event)">
+            {% csrf_token %}
+            <!-- Name Field -->
+            <div class="mb-3">
+                {{ post_form.name.label_tag }}
+                {{ post_form.name }}
+                {{ post_form.name.errors }}
+            </div>
+            <!-- Age Field -->
+            <div class="mb-3">
+                {{ post_form.age.label_tag }}
+                {{ post_form.age }}
+                {{ post_form.age.errors }}
+            </div>
+            <!-- Gender Field -->
+            <div class="mb-3">
+                {{ post_form.gender.label_tag }}  <!-- Renders the label for gender -->
+                {{ post_form.gender }}           <!-- Renders the input/select field -->
+                    <div class="text-danger">        <!-- Bootstrap class for red text -->
+                        {{ post_form.gender.errors }}  <!-- Renders validation errors -->
+                    </div>
+            </div>
+            <!-- Description Field -->
+            <div class="mb-3">
+                {{ post_form.description.label_tag }}
+                {{ post_form.description }}
+                {{ post_form.description.errors }}
+            </div>
+            <!-- Budget Field -->
+            <div class="mb-3">
+                {{ post_form.budget.label_tag }}
+                {{ post_form.budget }}
+                {{ post_form.budget.errors }}
+            </div>
+            <!-- Preferred Location Field -->
+            <div class="mb-3">
+                {{ post_form.preferred_location.label_tag }}
+                {{ post_form.preferred_location }}
+                {{ post_form.preferred_location.errors }}
+            </div>
+            <!-- Hobbies/Interests Field -->
+            <div class="mb-3">
+                {{ post_form.hobbies.label_tag }}
+                {{ post_form.hobbies }}
+                {{ post_form.hobbies.errors }}
+            </div>
+            <!-- Image Upload Field -->
+            <div class="mb-3">
+                <label for="id_image" class="form-label">Upload Profile Picture</label>
+                <input type="file" name="image" id="id_image" class="form-control" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add this script at the bottom of your content block -->
+<script>
+function handleSubmit(event) {
+    // Get the submit button
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Disable the submit button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Submitting...';
+    
+    // Allow form submission to continue
+    return true;
+}
+</script>
+{% endblock %}

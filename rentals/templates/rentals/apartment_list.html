@@ -1,0 +1,112 @@
+<!-- rentals/templates/rentals/apartment_list.html -->
+
+{% extends 'rentals/base.html' %}
+{% load static %}
+{% block title %}Apartment Listings{% endblock %}
+
+{% block content %}
+<header class="mb-4">
+    <h1 class="text-center">Apartment Listings</h1>
+</header>
+
+<!-- Search and Filter Form -->
+<form method="get" action="{% url 'apartment_list' %}" class="mb-4">
+    <div class="row g-2 align-items-end">
+        <!-- Search Query -->
+        <div class="col-md-3">
+            <label for="id_q" class="form-label">Search</label>
+            <input type="text" name="q" id="id_q" class="form-control" value="{{ search_query }}" placeholder="Search...">
+        </div>
+
+        <!-- Price Range -->
+        <div class="col-md-2">
+            <label for="id_min_price" class="form-label">Min Price</label>
+            <input type="number" name="min_price" id="id_min_price" class="form-control" value="{{ min_price }}">
+        </div>
+        <div class="col-md-2">
+            <label for="id_max_price" class="form-label">Max Price</label>
+            <input type="number" name="max_price" id="id_max_price" class="form-control" value="{{ max_price }}">
+        </div>
+
+        <!-- Bedrooms -->
+        <div class="col-md-2">
+            <label for="id_bedrooms" class="form-label">Bedrooms</label>
+            <select name="bedrooms" id="id_bedrooms" class="form-control">
+                <option value="">Any</option>
+                <option value="1" {% if bedrooms == '1' %}selected{% endif %}>1</option>
+                <option value="2" {% if bedrooms == '2' %}selected{% endif %}>2</option>
+                <option value="3" {% if bedrooms == '3' %}selected{% endif %}>3</option>
+                <option value="4" {% if bedrooms == '4' %}selected{% endif %}>4+</option>
+            </select>
+        </div>
+
+        <!-- Post Type -->
+        <div class="col-md-2">
+            <label for="id_post_type" class="form-label">Type</label>
+            <select name="post_type" id="id_post_type" class="form-control">
+                <option value="">Any</option>
+                <option value="APARTMENT" {% if post_type == 'APARTMENT' %}selected{% endif %}>Apartment</option>
+                <option value="ROOM" {% if post_type == 'ROOM' %}selected{% endif %}>Room</option>
+            </select>
+        </div>
+
+        <!-- Square Footage Range -->
+        <div class="col-md-2">
+            <label for="id_min_sqft" class="form-label">Min Sq.Ft.</label>
+            <input type="number" name="min_sqft" id="id_min_sqft" class="form-control" value="{{ min_sqft }}">
+        </div>
+        <div class="col-md-2">
+            <label for="id_max_sqft" class="form-label">Max Sq.Ft.</label>
+            <input type="number" name="max_sqft" id="id_max_sqft" class="form-control" value="{{ max_sqft }}">
+        </div>
+
+        <!-- Filter Button -->
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+
+        <!-- Clear Filters -->
+        <div class="col-md-2">
+            <a href="{% url 'apartment_list' %}" class="btn btn-secondary w-100">Clear Filters</a>
+        </div>
+    </div>
+</form>
+
+{% if apartments %}
+    <div class="row">
+        {% for apartment in apartments %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if apartment.images.first %}
+                        <img src="{{ apartment.images.first.image.url }}" class="card-img-top" alt="{{ apartment.title }}">
+                    {% else %}
+                        <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="No Image Available">
+                    {% endif %}
+                    <!-- Card Body -->
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ apartment.title }}</h5>
+                        <p class="card-text">{{ apartment.description|truncatewords:15 }}</p>
+
+                        <!-- Spacer to push the badge to the bottom -->
+                        <div class="mt-auto">
+                            <!-- Post Type Badge -->
+                            {% if apartment.post_type == 'APARTMENT' %}
+                                <span class="badge bg-primary">{{ apartment.get_post_type_display }}</span>
+                            {% elif apartment.post_type == 'ROOM' %}
+                                <span class="badge bg-success">{{ apartment.get_post_type_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="card-footer text-center">
+                        <a href="{% url 'apartment_detail' apartment.pk %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-center">No apartments available.</p>
+{% endif %}
+{% endblock %}

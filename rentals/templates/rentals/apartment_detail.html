@@ -1,0 +1,731 @@
+<!-- rentals/templates/rentals/apartment_detail.html -->
+
+{% extends 'rentals/base.html' %}
+{% load static %}
+{% block title %}{{ apartment.title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* Apply basic styles to the body and html to ensure full height */
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    /* Create a container to hold the map and center it */
+    .map-container {
+        display: flex;
+        justify-content: center; /* Horizontally center */
+        align-items: center;     /* Vertically center */
+        height: 100vh;           /* Full viewport height */
+    }
+
+    /* Set the map container to a fixed size */
+    #map {
+        height: 500px;  /* Height of the map */
+        width: 100%;     /* Adjust width as needed */
+    }
+
+    table {
+            width: 100%;              /* Makes the table fill the available width */
+            border-collapse: collapse; /* Ensures borders collapse */
+        }
+
+        td {
+            padding: 10px;             /* Padding inside cells */
+            text-align: center;        /* Optional, centers the text inside each cell */
+        }
+
+        /* Define the specific widths for each column */
+        td:nth-child(1) {
+            width: 25%;  /* Column 1 takes 25% of the row */
+        }
+
+        td:nth-child(2) {
+            width: 50%;  /* Column 2 takes 50% of the row */
+        }
+
+        td:nth-child(3) {
+            width: 25%;  /* Column 3 takes 25% of the row */
+        }
+
+    /* Star Rating Styles */
+    .star {
+        font-size: 24px;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .star.filled {
+        color: #ffd700;
+    }
+
+    #rating-stars {
+        display: inline-block;
+    }
+
+    .star {
+        font-size: 24px;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+        display: inline-block;
+        padding: 0 2px;
+    }
+
+    .star.filled {
+        color: #ffd700;
+    }
+
+    .star.hover {
+        color: #ffd700;
+    }
+
+    /* Clear button styling */
+    #clear-rating {
+        padding: 2px 8px;
+        font-size: 0.875rem;
+    }
+
+    .explore-area {
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+
+    .explore-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .explore-tabs .tab {
+        padding: 10px 15px;
+        color: #333;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .explore-tabs .tab.active,
+    .explore-tabs .tab:hover {
+        background-color: #0066cc;
+        color: white;
+    }
+
+    .transit-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .transit-line {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    /* NYC Subway line colors */
+    .transit-line.F {
+        background-color: #FF6319; /* Orange */
+    }
+    .transit-line.G {
+        background-color: #6CBE45; /* Light Green */
+    }
+    .transit-line.R {
+        background-color: #FCCC0A; /* Yellow */
+        color: black; /* Better contrast for yellow background */
+    }
+    .transit-line.A, .transit-line.C, .transit-line.E {
+        background-color: #2850AD; /* Blue */
+    }
+    .transit-line.B, .transit-line.D, .transit-line.F, .transit-line.M {
+        background-color: #FF6319; /* Orange */
+    }
+    .transit-line.N, .transit-line.Q, .transit-line.R, .transit-line.W {
+        background-color: #FCCC0A; /* Yellow */
+        color: black;
+    }
+    .transit-line.L {
+        background-color: #A7A9AC; /* Gray */
+    }
+    .transit-line.G {
+        background-color: #6CBE45; /* Light Green */
+    }
+    .transit-line.J, .transit-line.Z {
+        background-color: #996633; /* Brown */
+    }
+    .transit-line[class*="7"] {
+        background-color: #B933AD; /* Purple */
+    }
+    .transit-line[class*="1"], .transit-line[class*="2"], .transit-line[class*="3"] {
+        background-color: #EE352E; /* Red */
+    }
+    .transit-line[class*="4"], .transit-line[class*="5"], .transit-line[class*="6"] {
+        background-color: #00933C; /* Green */
+    }
+
+    .transit-info {
+        flex-grow: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .transit-name {
+        font-weight: 500;
+    }
+
+    .transit-distance {
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .place-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .tab-button {
+        /* Your existing button styles */
+        transition: background-color 0.3s;
+    }
+
+    .tab-button:hover,
+    .tab-button.active {
+        background-color: #3490dc;
+        color: white;
+    }
+
+    .place-modal {
+        display: none;
+    }
+
+    .nav-pills .nav-link {
+        color: #333;
+        margin-bottom: 0.5rem;
+        text-align: left;
+        border-radius: 4px;
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .location-list {
+        margin-top: 1rem;
+    }
+
+    .location-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .location-name {
+        font-weight: 500;
+    }
+
+    .location-distance {
+        color: #666;
+    }
+
+    @media (max-width: 768px) {
+        .row {
+            flex-direction: column;
+        }
+        
+        #map {
+            height: 400px;
+        }
+    }
+</style>
+<div class="card mb-4">
+    <div id="apartmentCarousel" class="carousel slide" data-bs-ride="carousel">
+        {% if images %}
+            <div class="carousel-inner">
+                {% for image in images %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="Image of {{ apartment.title }}">
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#apartmentCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#apartmentCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        {% else %}
+            <img src="{% static 'images/no-image.jpg' %}" class="card-img-top" alt="No images available.">
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <h2 class="card-title">{{ apartment.title }}</h2>
+        <p class="text-muted mb-3">
+            Posted by: <a href="{% url 'public_profile' username=apartment.user.username %}">
+                {% if apartment.user.first_name and apartment.user.last_name %}
+                    {{ apartment.user.first_name }} {{ apartment.user.last_name }}
+                {% else %}
+                    {{ apartment.user.username }}
+                {% endif %}
+            </a>
+        </p>
+        <p class="card-text">{{ apartment.description }}</p>
+        
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Type:</strong> {{ apartment.get_post_type_display }}</li>
+            <li class="list-group-item"><strong>Price:</strong> ${{ apartment.price }}</li>
+            <li class="list-group-item"><strong>Address:</strong> {{ apartment.address }}</li>
+            <li class="list-group-item"><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</li>
+            <li class="list-group-item"><strong>Square Feet:</strong> {{ apartment.square_feet }}</li>
+            <li class="list-group-item"><strong>Amenities:</strong>
+                {% if apartment.amenities.all %}
+                    <ul>
+                        {% for amenity in apartment.amenities.all %}
+                            <li>{{ amenity.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    None
+                {% endif %}
+            </li>
+            <li class="list-group-item"><strong>Average Rating:</strong> <span id="average-rating">
+                {% if apartment.average_rating > 0 %}
+                    {{ apartment.average_rating|floatformat:2 }}
+                {% else %}
+                    No ratings yet
+                {% endif %}
+            </span></li>
+        </ul>
+        <div class="mt-3">
+            <div id="rating-stars" class="mt-2" style="text-align: left;">
+                <h6 style="display: flex; align-items: center;">                    
+                    {% if user_rating %}
+                        <span id="user-rating-text" style="margin-right: auto;">You rated {{ user_rating.value }} for this post</span>
+                        <button id="clear-rating" class="btn btn-sm btn-outline-danger ms-2">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    {% else %}
+                        <span id="user-rating-text">Rate this post: </span>
+                    {% endif %}
+                </h6>
+                {% for i in "12345" %}
+                    <span class="star {% if user_rating and user_rating.value >= forloop.counter %}filled{% endif %}" 
+                          data-value="{{ forloop.counter }}">★</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="mt-3">
+            {% if user.is_authenticated %}
+            <button class="btn {% if is_favorited %}btn-primary{% else %}btn-outline-primary{% endif %} favorite-btn" 
+                    data-post-id="{{ apartment.pk }}" 
+                    data-csrf="{{ csrf_token }}">
+                <i class="fas fa-heart"></i> 
+                <span class="favorite-text">
+                    {% if is_favorited %}
+                        Remove from Favorites
+                    {% else %}
+                        Add to Favorites
+                    {% endif %}
+                </span>
+            </button>
+        {% endif %}
+            <!-- Only show edit/delete buttons to the owner -->
+            {% if user == apartment.user %}
+                <a href="{% url 'update_apartment_post' pk=apartment.pk %}" class="btn btn-secondary">Edit Listing</a>
+                <a href="{% url 'delete_apartment_post' pk=apartment.pk %}" class="btn btn-danger">Delete Listing</a>
+            {% endif %}
+        </div>
+        <hr>
+        <div class="comments-section p-3 mb-4" style="border: 1px solid #ddd; background-color: #f9f9f9; border-radius: 5px;">
+            <h3>Comments</h3>
+
+                         <!-- Display Existing Comments -->
+                         {% if comments %}
+                         <!-- Display Top-Level Comments Only -->
+                         {% for comment in comments %}
+                             {% if not comment.parent %}  <!-- Only display comments with no parent -->
+                                 {% include "rentals/comment.html" with comment=comment %}
+                             {% endif %}
+                         {% endfor %}
+                     {% else %}
+                         <p>No comments yet. Be the first to comment!</p>
+                     {% endif %}
+                 
+
+                          <!-- Add New Comment Form -->
+                          <h4>Add a Comment</h4>
+                          {% if request.user.is_authenticated %}
+                              <form method="POST" action="{% url 'create_apartment_comment' apartment.pk %}">
+                                  {% csrf_token %}
+                                  <textarea name="content" class="form-control" rows="2" maxlength="2000" 
+                                            placeholder="Write your comment..." 
+                                            style="resize: vertical; min-height: 50px; max-height: 100px; overflow-y: auto;"></textarea>
+                                  <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+                              </form>
+                          {% else %}
+                              <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+                          {% endif %}
+        </div> 
+    </div>
+    <div class="card-footer text-center">
+        <a href="{% url 'apartment_list' %}" class="btn btn-secondary">Back to Listings</a>
+    </div>
+    
+    <div class="row">
+        
+        <!-- Explore Area Column -->
+        <div class="col-md-4">
+            <div class="explore-area">
+                <h2>Explore {{ apartment.neighborhood|default:"the Area" }}</h2>
+                
+                <div class="explore-tabs">
+                    <a href="#transit" class="tab tab-button" data-modal="transit-modal">Subway Stations</a>
+                    <a href="#schools" class="tab tab-button" data-modal="schools-modal">Schools</a>
+                    <a href="#parks" class="tab tab-button" data-modal="parks-modal">Parks</a>
+                    <a href="#museums" class="tab tab-button" data-modal="museums-modal">Museums</a>
+                </div>
+
+                <div class="nearby-places">
+                    <!-- Transit Modal -->
+                    <div id="transit-modal" class="place-modal">
+                        {% for transit in nearby_transit %}
+                        <div class="transit-item">
+                            <div class="transit-lines">
+                                {% for line in transit.lines %}
+                                    <div class="transit-line {{ line }}">{{ line }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="transit-info">
+                                <span class="transit-name">{{ transit.name }}</span>
+                                <span class="transit-distance">{{ transit.distance }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p>No subway stations found nearby</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Schools Modal -->
+                    <div id="schools-modal" class="place-modal">
+                        {% for school in nearby_schools %}
+                        <div class="place-item">
+                            <span class="location">{{ school.name }}</span>
+                            <span class="distance">{{ school.distance }}</span>
+                        </div>
+                        {% empty %}
+                        <p>No schools found nearby</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Parks Modal -->
+                    <div id="parks-modal" class="place-modal">
+                        {% for park in nearby_parks %}
+                        <div class="place-item">
+                            <span class="location">{{ park.name }}</span>
+                            <span class="distance">{{ park.distance }}</span>
+                        </div>
+                        {% empty %}
+                        <p>No parks found nearby</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Museums Modal -->
+                    <div id="museums-modal" class="place-modal">
+                        {% for museum in nearby_museums %}
+                        <div class="place-item">
+                            <span class="location">{{ museum.name }}</span>
+                            <span class="distance">{{ museum.distance }}</span>
+                        </div>
+                        {% empty %}
+                        <p>No museums found nearby</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!-- Map Column -->
+         <div class="col-md-8">
+            <div id="map" style="height: 400px; width: 100%; margin: 20px 0;"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Add toast container to the body
+    document.body.insertAdjacentHTML('beforeend', '<div class="toast-container"></div>');
+
+    function showToast(message) {
+        const container = document.querySelector('.toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        // Show toast
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Remove toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    $(document).ready(function() {
+        $('.favorite-btn').click(function() {
+            const button = $(this);
+            const postId = button.data('post-id');
+            const csrfToken = button.data('csrf');
+
+            $.ajax({
+                url: "{% url 'toggle_favorite' pk=apartment.pk %}",
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Toggle button appearance
+                        if (response.is_favorited) {
+                            button.removeClass('btn-outline-primary').addClass('btn-primary');
+                            button.find('.favorite-text').text('Remove from Favorites');
+                            showToast('Post added to favorites');
+                        } else {
+                            button.removeClass('btn-primary').addClass('btn-outline-primary');
+                            button.find('.favorite-text').text('Add to Favorites');
+                            showToast('Post removed from favorites');
+                        }
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    console.log('Error:', errmsg);
+                }
+            });
+        });
+
+        const stars = $('.star');
+        const postId = "{{ apartment.id }}";
+
+        // Define the clear rating function
+        function handleClearRating() {
+            $.ajax({
+                url: "{% url 'clear_rating' post_id=apartment.id %}",
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Show toast message
+                        showToast('You removed your rating for this post.');
+
+                        // Update average rating display
+                        if (response.average_rating) {
+                            $('#average-rating').text(response.average_rating.toFixed(2));
+                        } else {
+                            $('#average-rating').text('No ratings yet');
+                        }
+                        $('#user-rating-text').text("Rate this post:");
+
+                        // Remove user rating text and clear button
+                        $('#clear-rating').remove();
+
+                        // Clear stars
+                        stars.removeClass('filled original-filled hover');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while clearing your rating. Please try again.');
+                }
+            });
+        }
+
+        // Attach clear rating handler
+        $('#clear-rating').on('click', handleClearRating);
+
+        // Star click handler
+        stars.on('click', function() {
+            const rating = $(this).data('value');
+            
+            $.ajax({
+                url: "{% url 'rate_post' post_id=apartment.id %}",
+                type: 'POST',
+                data: {
+                    'rating': rating,
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Show toast message
+                        showToast(`You successfully rated this post - ${response.user_rating} stars`);
+
+                        // Update average rating display
+                        $('#average-rating').text(response.average_rating.toFixed(2));
+                        $('#rating-text-empty').text("");
+
+                        // Update or create user rating text and clear button
+                        if ($('#user-rating-text').length) {
+                            $('#user-rating-text').text(`You rated ${response.user_rating} for this post`);
+                            if (!$('#clear-rating').length) {
+                                const clearButton = '<button id="clear-rating" class="btn btn-sm btn-outline-danger ms-2"><i class="fas fa-times"></i> Clear</button>';
+                                $('#user-rating-text').after(clearButton);
+                                $('#clear-rating').on('click', handleClearRating);
+                            }
+                        } else {
+                            const clearButton = '<button id="clear-rating" class="btn btn-sm btn-outline-danger ms-2"><i class="fas fa-times"></i> Clear</button>';
+                            $('#rating-stars h6').append(`<span id="user-rating-text">You rated ${response.user_rating} for this post</span>${clearButton}`);
+                            $('#clear-rating').on('click', handleClearRating);
+                        }
+
+                        // Update star display
+                        stars.removeClass('filled original-filled');
+                        stars.each(function() {
+                            if (parseInt($(this).data('value')) <= response.user_rating) {
+                                $(this).addClass('filled original-filled');
+                            }
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting your rating. Please try again.');
+                }
+            });
+        });
+
+        // Hover handlers
+        stars.hover(
+            function() {
+                stars.removeClass('hover');
+                
+                const currentValue = parseInt($(this).data('value'));
+                stars.each(function() {
+                    const starValue = parseInt($(this).data('value'));
+                    if (starValue <= currentValue) {
+                        console.log(starValue, currentValue)
+                        $(this).addClass('hover');
+                    }
+                    $(this).removeClass('filled');
+                });
+            },
+            function() {
+                stars.removeClass('hover');
+                stars.each(function() {
+                    if ($(this).hasClass('original-filled')) {
+                        $(this).addClass('filled');
+                    }
+                });
+            }
+        );
+
+        // Store original filled state
+        stars.each(function() {
+            if ($(this).hasClass('filled')) {
+                $(this).addClass('original-filled');
+            }
+        });
+    });
+</script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places">
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all tab buttons
+    const tabButtons = document.querySelectorAll('.tab-button');  // Update selector to match your buttons
+    const modals = document.querySelectorAll('.place-modal');     // Update selector to match your modals
+
+    // Function to update URL without page reload
+    function updateURL(tab) {
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tab);
+        window.history.pushState({}, '', url);
+    }
+
+    // Function to show selected modal and update button states
+    function showModal(modalId) {
+        // Hide all modals
+        modals.forEach(modal => modal.style.display = 'none');
+        
+        // Remove active class from all buttons
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Show selected modal
+        document.getElementById(modalId).style.display = 'block';
+        
+        // Add active class to clicked button
+        document.querySelector(`[data-modal="${modalId}"]`).classList.add('active');
+    }
+
+    // Add click handlers to all tab buttons
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const modalId = this.getAttribute('data-modal');
+            showModal(modalId);
+            updateURL(modalId);
+        });
+    });
+
+    // Check URL for initial tab
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeTab = urlParams.get('tab') || 'transit-modal'; // Default to transit
+    showModal(activeTab);
+});
+</script>
+<script>
+function initMap() {
+    // Get coordinates from the apartment object
+    let mapLat = Number('{{ apartment.latitude|default:0 }}');
+    let mapLng = Number('{{ apartment.longitude|default:0 }}');
+    
+    // Create map centered on the apartment location
+    const map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: { lat: mapLat, lng: mapLng }
+    });
+
+    // Add marker for the apartment
+    const marker = new google.maps.Marker({
+        position: { lat: mapLat, lng: mapLng },
+        map: map,
+        title: String('{{ apartment.title|escapejs }}')
+    });
+}
+</script>
+
+<!-- Load Google Maps API with callback to initMap -->
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap">
+</script>
+{% endblock %}

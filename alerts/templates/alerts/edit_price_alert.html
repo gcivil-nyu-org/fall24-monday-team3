@@ -1,0 +1,11 @@
+{% extends 'users/base.html' %}
+
+{% block content %}
+<h1>Edit Price Alert</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Update Alert</button>
+</form>
+{% endblock %}

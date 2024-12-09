@@ -1,0 +1,16 @@
+{% extends 'mysite/dm/templates/dm/base_generic.html' %}
+
+<html>
+<head>
+    <title>Send Message</title>
+</head>
+<body>
+    <h1>Send Message to {{ recipient.username }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Send</button>
+    </form>
+    <a href="{% url 'inbox' %}">Back to inbox</a>
+</body>
+</html>
