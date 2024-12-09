@@ -183,7 +183,7 @@ def apartment_list(request):
     }
     print("!!!!!!!!!!!!!!!!!")
     print(apartments)
-    
+
     return render(request, "rentals/apartment_list.html", context)
 
 

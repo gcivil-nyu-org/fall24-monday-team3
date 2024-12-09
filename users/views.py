@@ -174,7 +174,7 @@ def send_user_email(request, username):
         subject = f"RentSense: Message from {name}"
         message = request.POST.get("message")
 
-        print(f"\nCreating notification:")
+        print("\nCreating notification:")
         print(f"Sender: {request.user.username} (ID: {request.user.id})")
         print(f"Recipient: {recipient.username} (ID: {recipient.id})")
 
@@ -187,8 +187,8 @@ def send_user_email(request, username):
 
         # Verify the notification
         saved_notification = Notification.objects.get(id=notification.id)
-        print(f"\nVerified notification in database:")
-        print(f"ID: {saved_notification.id}")
+        print("\nVerified notification in database:")
+        print(f"Notification ID: {saved_notification.id}")
         print(
             f"Recipient: {saved_notification.recipient.username} (ID: {saved_notification.recipient.id})"
         )
