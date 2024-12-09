@@ -23,7 +23,7 @@ class ApartmentPostOwnershipTest(TestCase):
             post_type="APARTMENT",
             description="Test Description",
             price=1000.00,
-            address="123 Test St",
+            address="320 50th Street",
             bedrooms=2,
             square_feet=1000,
         )
@@ -47,7 +47,7 @@ class ApartmentPostOwnershipTest(TestCase):
             "post_type": "APARTMENT",
             "description": "Updated Description",
             "price": 1200.00,
-            "address": "123 Test St",
+            "address": "320 50th Street",
             "bedrooms": 2,
             "square_feet": 1000,
         }
