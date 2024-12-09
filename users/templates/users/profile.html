@@ -372,6 +372,10 @@ function saveChanges() {
     const bio = document.getElementById('editBio').value;
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+    // Check if email has changed
+    const currentEmail = "{{ user.email }}";
+    const emailChanged = email !== currentEmail;
+
     fetch('/users/edit_profile/', {
         method: 'POST',
         headers: {
@@ -382,7 +386,8 @@ function saveChanges() {
             first_name: firstName,
             last_name: lastName,
             email: email,
-            bio: bio
+            bio: bio,
+            email_changed: emailChanged
         })
     })
     .then(response => {
@@ -393,7 +398,13 @@ function saveChanges() {
     })
     .then(data => {
         if (data.success) {
-            location.reload();
+            if (data.email_verification_required) {
+                // Show verification pending message
+                alert('Please check your email to verify your new email address. Until verified, your current email will remain active.');
+                toggleEditMode(); // Return to view mode
+            } else {
+                location.reload();
+            }
         } else {
             alert('Error updating profile: ' + (data.error || 'Unknown error'));
         }

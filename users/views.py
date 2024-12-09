@@ -19,6 +19,9 @@ from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
 from alerts.models import Notification
+from .models import EmailVerificationToken, PendingEmailChange
+
+User = get_user_model()
 
 
 @never_cache
@@ -26,9 +29,36 @@ def signup(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect("home")
+            user = form.save(commit=False)
+            user.is_active = False  # User won't be able to login until email is verified
+            user.save()
+            
+            # Create verification token
+            token = EmailVerificationToken.objects.create(user=user)
+            
+            # Build verification URL
+            verify_url = request.build_absolute_uri(
+                reverse('verify_email', args=[str(token.token)])
+            )
+            
+            # Send verification email
+            send_mail(
+                'Verify your RentSense account',
+                f'Click the following link to verify your email: {verify_url}',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+                html_message=f"""
+                    <h2>Welcome to RentSense!</h2>
+                    <p>Please click the button below to verify your email address:</p>
+                    <a href="{verify_url}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a>
+                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p>{verify_url}</p>
+                """
+            )
+            
+            # Redirect to verification pending page with email address
+            return render(request, 'users/verification_pending.html', {'email': user.email})
     else:
         form = SignUpForm()
     return render(request, "users/signup.html", {"form": form})
@@ -94,19 +124,69 @@ def profile_view(request):
 
 @login_required
 @require_http_methods(["POST"])
-@never_cache
 def edit_profile(request):
     try:
         data = json.loads(request.body)
         user = request.user
-        user.first_name = data.get("first_name")
-        user.last_name = data.get("last_name")
-        user.email = data.get("email")
-        user.bio = data.get("bio")
-        user.save()
-        return JsonResponse({"success": True})
+        email_changed = data.get('email_changed', False)
+        new_email = data.get('email')
+
+        if email_changed:
+            # Check if email is already taken
+            if User.objects.filter(email=new_email).exclude(id=user.id).exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'This email is already in use.'
+                })
+
+            # Create pending email change
+            pending_change = PendingEmailChange.objects.create(
+                user=user,
+                new_email=new_email
+            )
+
+            # Send verification email
+            verify_url = request.build_absolute_uri(
+                reverse('verify_email_change', args=[str(pending_change.token)])
+            )
+            
+            send_mail(
+                'Verify your new email address',
+                f'Click the following link to verify your new email address: {verify_url}',
+                settings.DEFAULT_FROM_EMAIL,
+                [new_email],
+                fail_silently=False,
+                html_message=f"""
+                    <h2>Verify Your New Email Address</h2>
+                    <p>Please click the button below to verify your new email address:</p>
+                    <a href="{verify_url}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a>
+                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p>{verify_url}</p>
+                """
+            )
+
+            # Update other fields except email
+            user.first_name = data.get('first_name', user.first_name)
+            user.last_name = data.get('last_name', user.last_name)
+            user.bio = data.get('bio', user.bio)
+            user.save()
+
+            return JsonResponse({
+                'success': True,
+                'email_verification_required': True
+            })
+        else:
+            # Update all fields including email since it hasn't changed
+            user.first_name = data.get('first_name', user.first_name)
+            user.last_name = data.get('last_name', user.last_name)
+            user.email = data.get('email', user.email)
+            user.bio = data.get('bio', user.bio)
+            user.save()
+
+            return JsonResponse({'success': True})
+
     except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)})
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 @login_required
@@ -265,3 +345,33 @@ def send_user_email(request, username):
     except Exception as e:
         print(f"Error sending email: {str(e)}")
         return JsonResponse({"success": False, "error": str(e)})
+
+
+def verify_email(request, token):
+    verification = get_object_or_404(EmailVerificationToken, token=token, is_verified=False)
+    
+    user = verification.user
+    user.is_active = True
+    user.save()
+    
+    verification.is_verified = True
+    verification.save()
+    
+    messages.success(request, 'Your email has been verified! You can now log in.', extra_tags='verification')
+    return redirect('login')
+
+
+@login_required
+def verify_email_change(request, token):
+    pending_change = get_object_or_404(PendingEmailChange, token=token)
+    
+    # Update user's email
+    user = pending_change.user
+    user.email = pending_change.new_email
+    user.save()
+    
+    # Delete the pending change
+    pending_change.delete()
+    
+    messages.success(request, 'Your email has been successfully updated!', extra_tags='email_change')
+    return redirect('profile')

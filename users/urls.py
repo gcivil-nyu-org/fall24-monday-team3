@@ -13,4 +13,6 @@ urlpatterns = [
     path("profile/<str:username>/", views.public_profile, name="public_profile"),
     path("edit_profile/", views.edit_profile, name="edit_profile"),
     path("send-email/<str:username>/", views.send_user_email, name="send_user_email"),
+    path('verify-email/<uuid:token>/', views.verify_email, name='verify_email'),
+    path('verify-email-change/<uuid:token>/', views.verify_email_change, name='verify_email_change'),
 ]
