@@ -33,9 +33,11 @@ def conversation(request, username):
     ).order_by("sent_at")
 
     print(messages)
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        messages_html = render_to_string('partials/messages.html', {'messages': messages, 'user': request.user})
-        return JsonResponse({'messages_html': messages_html})
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        messages_html = render_to_string(
+            "partials/messages.html", {"messages": messages, "user": request.user}
+        )
+        return JsonResponse({"messages_html": messages_html})
 
     return render(
         request,
@@ -46,9 +48,9 @@ def conversation(request, username):
 
 @login_required
 def send_message(request):
-    if request.method == 'POST':
-        message_text = request.POST.get('message_text')
-        receiver_id = request.POST.get('receiver')
+    if request.method == "POST":
+        message_text = request.POST.get("message_text")
+        receiver_id = request.POST.get("receiver")
         print(receiver_id)
         receiver = get_object_or_404(User, id=receiver_id)
 
@@ -59,10 +61,12 @@ def send_message(request):
             sent_at=now(),
         )
         print(message.__dict__)
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({
-                'message_text': message.message_text,
-                'sent_at': message.sent_at.strftime('%Y-%m-%d %H:%M:%S')
-            })
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "message_text": message.message_text,
+                    "sent_at": message.sent_at.strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            )
 
         return redirect("conversation", username=receiver.username)

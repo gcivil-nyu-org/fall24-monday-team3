@@ -143,7 +143,7 @@ AWS_S3_REGION_NAME = "us-west-2"
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 STATIC_URL = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/static/"  # Base URL for serving static files
 # STATICFILES_DIRS = ["https://elasticbeanstalk-us-west-2-682033502272.s3.us-west-2.amazonaws.com/static/"]  # Where static files are located
 STATIC_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/static/"
