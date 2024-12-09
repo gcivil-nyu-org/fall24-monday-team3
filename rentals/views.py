@@ -135,6 +135,9 @@ def apartment_list(request):
     # Start with all apartments
     apartments = ApartmentPost.objects.all()
     query = request.GET.get("q", "").strip()
+    print("#########$$$$$$$$$$$")
+    print(len(query))
+    print("####################")
     min_price = request.GET.get("min_price")
     max_price = request.GET.get("max_price")
     bedrooms = request.GET.get("bedrooms")
@@ -178,7 +181,9 @@ def apartment_list(request):
         "min_sqft": min_sqft,
         "max_sqft": max_sqft,
     }
-
+    print("!!!!!!!!!!!!!!!!!")
+    print(apartments)
+    
     return render(request, "rentals/apartment_list.html", context)
 
 
