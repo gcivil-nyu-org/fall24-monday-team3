@@ -8,11 +8,11 @@ script:
 #- black --check .
 - flake8 --max-line-length=500 .
 - coverage run manage.py test
-# before_script:
+before_script:
 # - find rentals/migrations/ -type f ! -name '__init__.py' -exec rm -f {} +
 # - rm -rf rentals/migrations/__pycache__
-# - python manage.py makemigrations
-# - python manage.py migrate --run-syncdb
+- python manage.py makemigrations
+- python manage.py migrate --run-syncdb
 after_script:
 - coveralls
 - echo "Build finished"
