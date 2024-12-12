@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from .models import EmailVerificationToken, PendingEmailChange
 from django.core import mail
 import uuid
+import json
 
 
 class UserSignUpTest(TestCase):
@@ -171,7 +172,7 @@ class ProfileTest(TestCase):
     def test_edit_profile_duplicate_email(self):
         # Create another user with a different email
         other_user = self.User.objects.create_user(
-            username="other", email="other@example.com", password="testpass123!"
+            username="otheruser", email="other@example.com", password="testpass123!"
         )
 
         data = {
@@ -182,11 +183,18 @@ class ProfileTest(TestCase):
             "email_changed": True,
         }
         response = self.client.post(
-            reverse("edit_profile"), data=data, content_type="application/json"
+            reverse("edit_profile"),
+            data=json.dumps(data),
+            content_type="application/json",
         )
+        self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertFalse(response_data["success"])
         self.assertEqual(response_data["error"], "This email is already in use.")
+
+        # Verify the user's email hasn't changed
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, "test@example.com")
 
     def test_edit_profile_invalid_json(self):
         response = self.client.post(
@@ -308,3 +316,121 @@ class PublicProfileTest(TestCase):
             response,
             f"{reverse('login')}?next={reverse('public_profile', kwargs={'username': 'testuser'})}",
         )
+
+
+class UserModelTest(TestCase):
+    def setUp(self):
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+            password="testpass123!",
+            first_name="Test",
+            last_name="User",
+            bio="Test bio",
+        )
+
+    def test_user_str_method(self):
+        self.assertEqual(str(self.user), "testuser")
+
+    def test_user_full_name(self):
+        self.assertEqual(self.user.get_full_name(), "Test User")
+
+    def test_user_short_name(self):
+        self.assertEqual(self.user.get_short_name(), "Test")
+
+
+class EmailVerificationTokenTest(TestCase):
+    def setUp(self):
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass123!"
+        )
+        self.token = EmailVerificationToken.objects.create(user=self.user)
+
+    def test_token_str_method(self):
+        self.assertEqual(str(self.token), f"Token for {self.user.email}")
+
+    def test_token_creation(self):
+        self.assertIsNotNone(self.token.token)
+        self.assertFalse(self.token.is_verified)
+        self.assertIsNotNone(self.token.created_at)
+
+
+class PendingEmailChangeTest(TestCase):
+    def setUp(self):
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass123!"
+        )
+        self.pending_change = PendingEmailChange.objects.create(
+            user=self.user, new_email="new@example.com"
+        )
+
+    def test_pending_change_str_method(self):
+        expected = (
+            f"Email change for {self.user.username} to {self.pending_change.new_email}"
+        )
+        self.assertEqual(str(self.pending_change), expected)
+
+    def test_token_generation(self):
+        self.assertIsNotNone(self.pending_change.token)
+        self.assertIsInstance(self.pending_change.token, uuid.UUID)
+
+
+class UserViewsTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+            password="testpass123!",
+            is_active=True,
+        )
+        self.client.login(username="testuser", password="testpass123!")
+
+    def test_home_view_authenticated(self):
+        self.client.login(username="testuser", password="testpass123!")
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/home.html")
+
+    def test_home_view_unauthenticated(self):
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/home.html")
+
+    def test_send_user_email(self):
+        data = {"subject": "Test Subject", "message": "Test Message"}
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "testuser"}),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertTrue(response_data["success"])
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Test Subject")
+
+    def test_send_user_email_invalid_user(self):
+        data = {"subject": "Test Subject", "message": "Test Message"}
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "nonexistent"}),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 404)
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
+
+    def test_send_user_email_invalid_json(self):
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "testuser"}),
+            data="invalid json",
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
