@@ -143,6 +143,7 @@ class ApartmentPostOwnershipTest(TestCase):
         self.client.login(username="owner", password="testpass123")
         print(detail_url)
         response = self.client.get(detail_url)
+        print(response)
         self.assertEqual(response.status_code, 200)  # Check status code first
         self.assertContains(response, "Edit Listing")
         self.assertContains(response, "Delete Listing")
