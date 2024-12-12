@@ -29,10 +29,14 @@ def signup(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
+            # Check if email already exists
+            email = form.cleaned_data.get("email")
+            if User.objects.filter(email=email).exists():
+                form.add_error("email", "This email address is already in use.")
+                return render(request, "users/signup.html", {"form": form})
+
             user = form.save(commit=False)
-            user.is_active = (
-                False  # User won't be able to login until email is verified
-            )
+            user.is_active = False
             user.save()
 
             # Create verification token
@@ -59,7 +63,6 @@ def signup(request):
                 """,
             )
 
-            # Redirect to verification pending page with email address
             return render(
                 request, "users/verification_pending.html", {"email": user.email}
             )
@@ -377,4 +380,4 @@ def verify_email_change(request, token):
     messages.success(
         request, "Your email has been successfully updated!", extra_tags="email_change"
     )
-    return redirect("profile")
+    return redirect("profile")  # This now matches the URL name

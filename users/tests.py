@@ -38,6 +38,48 @@ class UserSignUpTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("Verify your RentSense account", mail.outbox[0].subject)
 
+    def test_invalid_signup_missing_fields(self):
+        data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            # Missing required fields
+        }
+        response = self.client.post(self.signup_url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.User.objects.filter(username="testuser").exists())
+
+    def test_invalid_signup_password_mismatch(self):
+        data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password1": "testpass123!",
+            "password2": "differentpass123!",
+            "first_name": "Test",
+            "last_name": "User",
+        }
+        response = self.client.post(self.signup_url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.User.objects.filter(username="testuser").exists())
+
+    def test_duplicate_email_signup(self):
+        # Create a user first
+        self.User.objects.create_user(
+            username="existing", email="test@example.com", password="testpass123!"
+        )
+
+        # Try to create another user with same email
+        data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password1": "testpass123!",
+            "password2": "testpass123!",
+            "first_name": "Test",
+            "last_name": "User",
+        }
+        response = self.client.post(self.signup_url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.User.objects.filter(username="testuser").exists())
+
 
 class UserLoginTest(TestCase):
     def setUp(self):
@@ -126,6 +168,36 @@ class ProfileTest(TestCase):
         pending_change = PendingEmailChange.objects.get(user=self.user)
         self.assertEqual(pending_change.new_email, "newemail@example.com")
 
+    def test_edit_profile_duplicate_email(self):
+        # Create another user with a different email
+        other_user = self.User.objects.create_user(
+            username="other", email="other@example.com", password="testpass123!"
+        )
+
+        data = {
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "other@example.com",  # Try to use other user's email
+            "bio": "Test bio",
+            "email_changed": True,
+        }
+        response = self.client.post(
+            reverse("edit_profile"), data=data, content_type="application/json"
+        )
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
+        self.assertEqual(response_data["error"], "This email is already in use.")
+
+    def test_edit_profile_invalid_json(self):
+        response = self.client.post(
+            reverse("edit_profile"),
+            data="invalid json",
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
+
 
 class EmailVerificationTest(TestCase):
     def setUp(self):
@@ -158,3 +230,81 @@ class EmailVerificationTest(TestCase):
             reverse("verify_email", kwargs={"token": uuid.uuid4()})
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_verify_already_verified_token(self):
+        # First verification
+        self.client.get(
+            reverse("verify_email", kwargs={"token": self.verification_token.token})
+        )
+
+        # Try to verify again
+        response = self.client.get(
+            reverse("verify_email", kwargs={"token": self.verification_token.token})
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_verify_email_change(self):
+        # Create a user and pending email change
+        user = self.User.objects.create_user(
+            username="testuser2", email="old@example.com", password="testpass123!"
+        )
+        pending_change = PendingEmailChange.objects.create(
+            user=user, new_email="new@example.com"
+        )
+
+        # Login the user first
+        self.client.login(username="testuser2", password="testpass123!")
+
+        # Verify the email change
+        response = self.client.get(
+            reverse("verify_email_change", kwargs={"token": pending_change.token})
+        )
+        self.assertRedirects(response, reverse("profile"))
+
+        # Check that email was updated
+        user.refresh_from_db()
+        self.assertEqual(user.email, "new@example.com")
+
+        # Check that pending change was deleted
+        self.assertFalse(
+            PendingEmailChange.objects.filter(token=pending_change.token).exists()
+        )
+
+
+class PublicProfileTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.User = get_user_model()
+        self.user = self.User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+            password="testpass123!",
+            first_name="Test",
+            last_name="User",
+            bio="Test bio",
+        )
+
+    def test_public_profile_view(self):
+        self.client.login(username="testuser", password="testpass123!")
+        response = self.client.get(
+            reverse("public_profile", kwargs={"username": "testuser"})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/public_profile.html")
+        self.assertEqual(response.context["profile_user"], self.user)
+
+    def test_nonexistent_profile_view(self):
+        self.client.login(username="testuser", password="testpass123!")
+        response = self.client.get(
+            reverse("public_profile", kwargs={"username": "nonexistent"})
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_unauthenticated_profile_access(self):
+        response = self.client.get(
+            reverse("public_profile", kwargs={"username": "testuser"})
+        )
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('public_profile', kwargs={'username': 'testuser'})}",
+        )
