@@ -170,10 +170,6 @@ class ProfileTest(TestCase):
         self.assertEqual(pending_change.new_email, "newemail@example.com")
 
     def test_edit_profile_duplicate_email(self):
-        # Create another user with a different email
-        other_user = self.User.objects.create_user(
-            username="otheruser", email="other@example.com", password="testpass123!"
-        )
 
         data = {
             "first_name": "Test",

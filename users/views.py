@@ -18,7 +18,6 @@ from discussions.models import Discussion
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
-from alerts.models import Notification
 from .models import EmailVerificationToken, PendingEmailChange
 
 User = get_user_model()
