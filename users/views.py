@@ -18,8 +18,9 @@ from discussions.models import Discussion
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
-from alerts.models import Notification
 from .models import EmailVerificationToken, PendingEmailChange
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -29,10 +30,14 @@ def signup(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
+            # Check if email already exists
+            email = form.cleaned_data.get("email")
+            if User.objects.filter(email=email).exists():
+                form.add_error("email", "This email address is already in use.")
+                return render(request, "users/signup.html", {"form": form})
+
             user = form.save(commit=False)
-            user.is_active = (
-                False  # User won't be able to login until email is verified
-            )
+            user.is_active = False
             user.save()
 
             # Create verification token
@@ -59,7 +64,6 @@ def signup(request):
                 """,
             )
 
-            # Redirect to verification pending page with email address
             return render(
                 request, "users/verification_pending.html", {"email": user.email}
             )
@@ -79,12 +83,8 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f"Welcome back, {username}!")
                 return redirect("home")
-            else:
-                messages.error(request, "Invalid username or password")
-        else:
-            messages.error(request, "Invalid username or password")
+        form.add_error(None, "Invalid username or password")
     else:
         form = AuthenticationForm()
 
@@ -129,63 +129,71 @@ def profile_view(request):
 @login_required
 @require_http_methods(["POST"])
 def edit_profile(request):
-    try:
-        data = json.loads(request.body)
-        user = request.user
-        email_changed = data.get("email_changed", False)
-        new_email = data.get("email")
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user = request.user
+            email_changed = data.get("email_changed", False)
+            new_email = data.get("email")
 
-        if email_changed:
-            # Check if email is already taken
-            if User.objects.filter(email=new_email).exclude(id=user.id).exists():
-                return JsonResponse(
-                    {"success": False, "error": "This email is already in use."}
+            # Validate email format if it's being changed
+            if email_changed and new_email:
+                try:
+                    validate_email(new_email)
+                except ValidationError:
+                    return JsonResponse(
+                        {"success": False, "error": "Invalid email format"}
+                    )
+
+                # Check for duplicate email
+                if User.objects.filter(email=new_email).exclude(id=user.id).exists():
+                    return JsonResponse(
+                        {"success": False, "error": "This email is already in use."}
+                    )
+
+            # Update non-email fields
+            user.first_name = data.get("first_name", user.first_name)
+            user.last_name = data.get("last_name", user.last_name)
+            user.bio = data.get("bio", user.bio)
+
+            # Handle email changes
+            if email_changed and new_email and new_email != user.email:
+                # Create pending email change
+                PendingEmailChange.objects.filter(user=user).delete()
+                pending_change = PendingEmailChange.objects.create(
+                    user=user, new_email=new_email
                 )
 
-            # Create pending email change
-            pending_change = PendingEmailChange.objects.create(
-                user=user, new_email=new_email
-            )
+                # Send verification email
+                verification_url = request.build_absolute_uri(
+                    reverse(
+                        "verify_email_change", kwargs={"token": pending_change.token}
+                    )
+                )
+                send_mail(
+                    "Verify your new email address",
+                    f"Please click the following link to verify your new email address: {verification_url}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [new_email],
+                    fail_silently=False,
+                )
 
-            # Send verification email
-            verify_url = request.build_absolute_uri(
-                reverse("verify_email_change", args=[str(pending_change.token)])
-            )
+                user.save()
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "email_verification_required": True,
+                        "message": "A verification email has been sent. The email change will be applied once verified.",
+                    }
+                )
+            else:
+                user.save()
+                return JsonResponse({"success": True})
 
-            send_mail(
-                "Verify your new email address",
-                f"Click the following link to verify your new email address: {verify_url}",
-                settings.DEFAULT_FROM_EMAIL,
-                [new_email],
-                fail_silently=False,
-                html_message=f"""
-                    <h2>Verify Your New Email Address</h2>
-                    <p>Please click the button below to verify your new email address:</p>
-                    <a href="{verify_url}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a>
-                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
-                    <p>{verify_url}</p>
-                """,
-            )
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Invalid JSON data"})
 
-            # Update other fields except email
-            user.first_name = data.get("first_name", user.first_name)
-            user.last_name = data.get("last_name", user.last_name)
-            user.bio = data.get("bio", user.bio)
-            user.save()
-
-            return JsonResponse({"success": True, "email_verification_required": True})
-        else:
-            # Update all fields including email since it hasn't changed
-            user.first_name = data.get("first_name", user.first_name)
-            user.last_name = data.get("last_name", user.last_name)
-            user.email = data.get("email", user.email)
-            user.bio = data.get("bio", user.bio)
-            user.save()
-
-            return JsonResponse({"success": True})
-
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)})
+    return render(request, "users/edit_profile.html")
 
 
 @login_required
@@ -241,109 +249,53 @@ def discussion_create(request):
 
 
 @login_required
-@require_POST
+@require_http_methods(["POST"])
 def send_user_email(request, username):
+    if not request.content_type == "application/json":
+        return JsonResponse(
+            {"success": False, "error": "Content-Type must be application/json"},
+            status=400,
+        )
+
     try:
-        recipient = get_object_or_404(get_user_model(), username=username)
-        name = (
-            f"{request.user.first_name} {request.user.last_name}"
-            if request.user.first_name and request.user.last_name
-            else request.user.username
-        )
-        subject = f"RentSense: Message from {name}"
-        message = request.POST.get("message")
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
 
-        print("\nCreating notification:")
-        print(f"Sender: {request.user.username} (ID: {request.user.id})")
-        print(f"Recipient: {recipient.username} (ID: {recipient.id})")
-
-        # Create notification ONLY for the recipient
-        notification = Notification.objects.create(
-            recipient=recipient,  # The person receiving the message
-            sender=request.user,  # The person sending the message
-            message=f"New message from {name}: {message[:100]}{'...' if len(message) > 100 else ''}",
+    try:
+        recipient = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "User not found"},
+            status=404,
+            content_type="application/json",
         )
 
-        # Verify the notification
-        saved_notification = Notification.objects.get(id=notification.id)
-        print("\nVerified notification in database:")
-        print(f"ID: {saved_notification.id}")
-        print(
-            f"Recipient: {saved_notification.recipient.username} (ID: {saved_notification.recipient.id})"
-        )
-        print(
-            f"Sender: {saved_notification.sender.username} (ID: {saved_notification.sender.id})"
+    subject = data.get("subject")
+    message = data.get("message")
+
+    if not subject or not message:
+        return JsonResponse(
+            {"success": False, "error": "Missing subject or message"},
+            status=400,
+            content_type="application/json",
         )
 
-        # HTML email template
-        html_message = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                body {{
-                    font-family: Arial, sans-serif;
-                    line-height: 1.6;
-                    color: #333333;
-                }}
-                .container {{
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 20px;
-                }}
-                .header {{
-                    background-color: #4A90E2;
-                    color: white;
-                    padding: 20px;
-                    text-align: center;
-                    border-radius: 5px 5px 0 0;
-                }}
-                .content {{
-                    background-color: #ffffff;
-                    padding: 20px;
-                    border: 1px solid #dddddd;
-                    border-radius: 0 0 5px 5px;
-                }}
-                .footer {{
-                    text-align: center;
-                    margin-top: 20px;
-                    color: #666666;
-                    font-size: 12px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h2>New Message from RentSense</h2>
-                </div>
-                <div class="content">
-                    <p>Hello {recipient.first_name or recipient.username},</p>
-                    <p>You have received a message from <strong>{name}</strong>:</p>
-                    <p style="background-color: #f8f9fa; padding: 15px; border-radius: 5px;">{message}</p>
-                    <p>You can reply to this message by visiting their profile on RentSense.</p>
-                </div>
-                <div class="footer">
-                    <p>This is an automated message from RentSense. Please do not reply to this email.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-
-        # Send email
+    try:
         send_mail(
-            subject=subject,
-            message=f"Hi {recipient.username},\n\nYou have received a message from {name}:\n\n{message}\n\nVisit RentSense to reply.",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[recipient.email],
-            html_message=html_message,
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [recipient.email],
+            fail_silently=False,
         )
-
-        return JsonResponse({"success": True})
+        return JsonResponse({"success": True}, content_type="application/json")
     except Exception as e:
-        print(f"Error sending email: {str(e)}")
-        return JsonResponse({"success": False, "error": str(e)})
+        return JsonResponse(
+            {"success": False, "error": str(e)},
+            status=500,
+            content_type="application/json",
+        )
 
 
 def verify_email(request, token):
@@ -381,4 +333,4 @@ def verify_email_change(request, token):
     messages.success(
         request, "Your email has been successfully updated!", extra_tags="email_change"
     )
-    return redirect("profile")
+    return redirect("profile")  # This now matches the URL name
