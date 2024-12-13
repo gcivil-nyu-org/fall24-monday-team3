@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "chatbot",
     "storages",
     "alerts",
+    "dm",
 ]
 
 MIDDLEWARE = [
@@ -144,10 +145,10 @@ AWS_S3_REGION_NAME = "us-west-2"
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_URL = "/static/"  # Base URL for serving static files
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]  # Where static files are located
-
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+STATIC_URL = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/static/"  # Base URL for serving static files
+# STATICFILES_DIRS = ["https://elasticbeanstalk-us-west-2-682033502272.s3.us-west-2.amazonaws.com/static/"]  # Where static files are located
+STATIC_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/static/"
 # Media files (user-uploaded content like profile pics)
 MEDIA_URL = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/media/"
 MEDIA_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeanstalk-us-west-2-682033502272?region=us-west-2&bucketType=general&prefix=django-tutorial-test-before-deploy2/media/"
@@ -158,8 +159,9 @@ MEDIA_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeansta
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# Authentication settings
+# Authentication settings edited
 AUTH_USER_MODEL = "users.User"  # Custom user model (if you're using one)
+LOGIN_URL = "login"  # Change from '/accounts/login/' to 'login'
 LOGIN_REDIRECT_URL = "home"  # Redirect to home after login
 LOGOUT_REDIRECT_URL = "home"  # Redirect to home after logout
 

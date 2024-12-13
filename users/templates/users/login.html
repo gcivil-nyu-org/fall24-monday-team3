@@ -168,15 +168,13 @@
         <h2>Welcome Back</h2>
 
         {% if messages %}
-            <div class="messages">
-            {% if messages %}
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
+            {% for message in messages %}
+                {% if message.extra_tags == 'verification' %}
+                    <div class="alert alert-success" style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border: 1px solid #c3e6cb; margin-bottom: 20px;">
                         {{ message }}
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-            </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endif %}
         
         <form method="post">

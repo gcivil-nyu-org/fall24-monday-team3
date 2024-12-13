@@ -372,6 +372,10 @@ function saveChanges() {
     const bio = document.getElementById('editBio').value;
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
+    // Check if email has changed
+    const currentEmail = "{{ user.email }}";
+    const emailChanged = email !== currentEmail;
+
     fetch('/users/edit_profile/', {
         method: 'POST',
         headers: {
@@ -382,7 +386,8 @@ function saveChanges() {
             first_name: firstName,
             last_name: lastName,
             email: email,
-            bio: bio
+            bio: bio,
+            email_changed: emailChanged
         })
     })
     .then(response => {
@@ -393,7 +398,19 @@ function saveChanges() {
     })
     .then(data => {
         if (data.success) {
-            location.reload();
+            if (data.email_verification_required) {
+                // Show verification banner using Bootstrap's Toast
+                const banner = document.getElementById('emailVerificationBanner');
+                const message = document.getElementById('emailVerificationMessage');
+                message.textContent = data.message;
+                const toast = new bootstrap.Toast(banner, {
+                    delay: 6000 // 6 seconds
+                });
+                toast.show();
+                toggleEditMode(); // Return to view mode
+            } else {
+                location.reload();
+            }
         } else {
             alert('Error updating profile: ' + (data.error || 'Unknown error'));
         }
@@ -403,10 +420,110 @@ function saveChanges() {
         alert('Error updating profile. Please try again.');
     });
 }
-</script>
-{% endblock %} 
 
-{% block extra_js %}
+// Initialize toasts when the document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl, {
+            delay: 6000 // 6 seconds
+        });
+    });
+});
+</script>
+
+<style>
+    .btn-primary {
+        background: #3498db;
+        border-color: #3498db;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        border-color: #2980b9;
+    }
+
+    .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .modal-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+</style>
+
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+    <div id="emailVerificationBanner" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="emailVerificationMessage">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .toast-container {
+        z-index: 1050;
+    }
+
+    .toast {
+        opacity: 0;
+        transition: opacity 0.15s linear;
+        background-color: rgba(52, 58, 64, 0.95); /* Translucent gray */
+    }
+
+    .toast.show {
+        opacity: 1;
+    }
+
+    .toast-body {
+        color: white;
+        text-align: center;
+        width: 100%;
+        padding: 0.75rem 1.25rem;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    .toast.show {
+        animation: slideDown 0.3s ease-out;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize toast
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl, {
+            delay: 6000 // 6 seconds
+        });
+    });
+
+    // Add click handler for close button
+    document.querySelector('.btn-close').addEventListener('click', function() {
+        var toast = bootstrap.Toast.getInstance(document.getElementById('emailVerificationBanner'));
+        if (toast) {
+            toast.hide();
+        }
+    });
+});
+</script>
+
 <script>
 // Add toast container to the body immediately
 document.body.insertAdjacentHTML('beforeend', '<div class="toast-container"></div>');
@@ -475,30 +592,3 @@ $(document).ready(function() {
 });
 </script>
 {% endblock %} 
-
-<style>
-    .btn-primary {
-        background: #3498db;
-        border-color: #3498db;
-    }
-
-    .btn-primary:hover {
-        background: #2980b9;
-        border-color: #2980b9;
-    }
-
-    .modal-header {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .modal-footer {
-        background-color: #f8f9fa;
-        border-top: 1px solid #dee2e6;
-    }
-
-    .form-control:focus {
-        border-color: #80bdff;
-        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-    }
-</style> 

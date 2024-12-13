@@ -18,6 +18,11 @@ from discussions.models import Discussion
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
+from .models import EmailVerificationToken, PendingEmailChange
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+
+User = get_user_model()
 
 
 @never_cache
@@ -25,9 +30,43 @@ def signup(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect("home")
+            # Check if email already exists
+            email = form.cleaned_data.get("email")
+            if User.objects.filter(email=email).exists():
+                form.add_error("email", "This email address is already in use.")
+                return render(request, "users/signup.html", {"form": form})
+
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+
+            # Create verification token
+            token = EmailVerificationToken.objects.create(user=user)
+
+            # Build verification URL
+            verify_url = request.build_absolute_uri(
+                reverse("verify_email", args=[str(token.token)])
+            )
+
+            # Send verification email
+            send_mail(
+                "Verify your RentSense account",
+                f"Click the following link to verify your email: {verify_url}",
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+                html_message=f"""
+                    <h2>Welcome to RentSense!</h2>
+                    <p>Please click the button below to verify your email address:</p>
+                    <a href="{verify_url}" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px;">Verify Email</a>
+                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p>{verify_url}</p>
+                """,
+            )
+
+            return render(
+                request, "users/verification_pending.html", {"email": user.email}
+            )
     else:
         form = SignUpForm()
     return render(request, "users/signup.html", {"form": form})
@@ -44,12 +83,8 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f"Welcome back, {username}!")
                 return redirect("home")
-            else:
-                messages.error(request, "Invalid username or password")
-        else:
-            messages.error(request, "Invalid username or password")
+        form.add_error(None, "Invalid username or password")
     else:
         form = AuthenticationForm()
 
@@ -93,19 +128,72 @@ def profile_view(request):
 
 @login_required
 @require_http_methods(["POST"])
-@never_cache
 def edit_profile(request):
-    try:
-        data = json.loads(request.body)
-        user = request.user
-        user.first_name = data.get("first_name")
-        user.last_name = data.get("last_name")
-        user.email = data.get("email")
-        user.bio = data.get("bio")
-        user.save()
-        return JsonResponse({"success": True})
-    except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)})
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user = request.user
+            email_changed = data.get("email_changed", False)
+            new_email = data.get("email")
+
+            # Validate email format if it's being changed
+            if email_changed and new_email:
+                try:
+                    validate_email(new_email)
+                except ValidationError:
+                    return JsonResponse(
+                        {"success": False, "error": "Invalid email format"}
+                    )
+
+                # Check for duplicate email
+                if User.objects.filter(email=new_email).exclude(id=user.id).exists():
+                    return JsonResponse(
+                        {"success": False, "error": "This email is already in use."}
+                    )
+
+            # Update non-email fields
+            user.first_name = data.get("first_name", user.first_name)
+            user.last_name = data.get("last_name", user.last_name)
+            user.bio = data.get("bio", user.bio)
+
+            # Handle email changes
+            if email_changed and new_email and new_email != user.email:
+                # Create pending email change
+                PendingEmailChange.objects.filter(user=user).delete()
+                pending_change = PendingEmailChange.objects.create(
+                    user=user, new_email=new_email
+                )
+
+                # Send verification email
+                verification_url = request.build_absolute_uri(
+                    reverse(
+                        "verify_email_change", kwargs={"token": pending_change.token}
+                    )
+                )
+                send_mail(
+                    "Verify your new email address",
+                    f"Please click the following link to verify your new email address: {verification_url}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [new_email],
+                    fail_silently=False,
+                )
+
+                user.save()
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "email_verification_required": True,
+                        "message": "A verification email has been sent. The email change will be applied once verified.",
+                    }
+                )
+            else:
+                user.save()
+                return JsonResponse({"success": True})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Invalid JSON data"})
+
+    return render(request, "users/edit_profile.html")
 
 
 @login_required
@@ -161,35 +249,88 @@ def discussion_create(request):
 
 
 @login_required
-@require_POST
+@require_http_methods(["POST"])
 def send_user_email(request, username):
-    try:
-        recipient = get_object_or_404(get_user_model(), username=username)
-        name = (
-            f"{request.user.first_name} {request.user.last_name}"
-            if request.user.first_name and request.user.last_name
-            else request.user.username
+    if not request.content_type == "application/json":
+        return JsonResponse(
+            {"success": False, "error": "Content-Type must be application/json"},
+            status=400,
         )
-        subject = f"RentSense: Message from {name}"
-        message = request.POST.get("message")
 
-        # Create the email message
-        full_message = f"""
-        You received a message from {name}:
-        {message}
-        ---
-        This message was sent via RentSense.
-        """
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
 
-        # Send the email
+    try:
+        recipient = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "User not found"},
+            status=404,
+            content_type="application/json",
+        )
+
+    subject = data.get("subject")
+    message = data.get("message")
+
+    if not subject or not message:
+        return JsonResponse(
+            {"success": False, "error": "Missing subject or message"},
+            status=400,
+            content_type="application/json",
+        )
+
+    try:
         send_mail(
             subject,
-            full_message,
+            message,
             settings.DEFAULT_FROM_EMAIL,
             [recipient.email],
             fail_silently=False,
         )
-
-        return JsonResponse({"success": True})
+        return JsonResponse({"success": True}, content_type="application/json")
     except Exception as e:
-        return JsonResponse({"success": False, "error": str(e)})
+        return JsonResponse(
+            {"success": False, "error": str(e)},
+            status=500,
+            content_type="application/json",
+        )
+
+
+def verify_email(request, token):
+    verification = get_object_or_404(
+        EmailVerificationToken, token=token, is_verified=False
+    )
+
+    user = verification.user
+    user.is_active = True
+    user.save()
+
+    verification.is_verified = True
+    verification.save()
+
+    messages.success(
+        request,
+        "Your email has been verified! You can now log in.",
+        extra_tags="verification",
+    )
+    return redirect("login")
+
+
+@login_required
+def verify_email_change(request, token):
+    pending_change = get_object_or_404(PendingEmailChange, token=token)
+
+    # Update user's email
+    user = pending_change.user
+    user.email = pending_change.new_email
+    user.save()
+
+    # Delete the pending change
+    pending_change.delete()
+
+    messages.success(
+        request, "Your email has been successfully updated!", extra_tags="email_change"
+    )
+    return redirect("profile")  # This now matches the URL name
