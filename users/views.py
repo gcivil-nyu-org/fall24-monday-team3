@@ -134,19 +134,20 @@ def edit_profile(request):
             email_changed = data.get("email_changed", False)
             new_email = data.get("email")
 
-            # Check for duplicate email
+            # Check for duplicate email before making any changes
             if email_changed and new_email:
                 if User.objects.filter(email=new_email).exclude(id=user.id).exists():
                     return JsonResponse(
                         {"success": False, "error": "This email is already in use."}
                     )
 
-            # Update user fields
+            # Update non-email fields
             user.first_name = data.get("first_name", user.first_name)
             user.last_name = data.get("last_name", user.last_name)
             user.bio = data.get("bio", user.bio)
 
-            if email_changed and new_email:
+            # Handle email changes
+            if email_changed and new_email and new_email != user.email:
                 # Create pending email change
                 PendingEmailChange.objects.filter(user=user).delete()
                 pending_change = PendingEmailChange.objects.create(
@@ -166,6 +167,8 @@ def edit_profile(request):
                     [new_email],
                     fail_silently=False,
                 )
+
+                user.save()
                 return JsonResponse(
                     {
                         "success": True,
@@ -174,10 +177,9 @@ def edit_profile(request):
                     }
                 )
             else:
-                user.email = data.get("email", user.email)
-
-            user.save()
-            return JsonResponse({"success": True})
+                # No email change or email is the same
+                user.save()
+                return JsonResponse({"success": True})
 
         except json.JSONDecodeError:
             return JsonResponse({"success": False, "error": "Invalid JSON data"})

@@ -170,7 +170,17 @@ class ProfileTest(TestCase):
         self.assertEqual(pending_change.new_email, "newemail@example.com")
 
     def test_edit_profile_duplicate_email(self):
+        # Create another user with the email we'll try to use
+        other_user = self.User.objects.create_user(
+            username="otheruser",
+            email="other@example.com",
+            password="testpass123!",
+            first_name="Other",
+            last_name="User",
+            bio="Other user's bio",
+        )
 
+        # First test duplicate email
         data = {
             "first_name": "Test",
             "last_name": "User",
@@ -191,6 +201,33 @@ class ProfileTest(TestCase):
         # Verify the user's email hasn't changed
         self.user.refresh_from_db()
         self.assertEqual(self.user.email, "test@example.com")
+
+        # Now test viewing other user's profile
+        response = self.client.get(
+            reverse("public_profile", kwargs={"username": "otheruser"})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/public_profile.html")
+        self.assertEqual(response.context["profile_user"], other_user)
+
+        # Test sending a message to other user
+        message_data = {
+            "subject": "Test Message",
+            "message": "Hello, this is a test message!",
+        }
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "otheruser"}),
+            data=json.dumps(message_data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertTrue(response_data["success"])
+
+        # Verify email was sent
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Test Message")
+        self.assertEqual(mail.outbox[0].to[0], other_user.email)
 
     def test_edit_profile_invalid_json(self):
         response = self.client.post(
