@@ -467,3 +467,115 @@ class UserViewsTest(TestCase):
         self.assertEqual(response.status_code, 400)
         response_data = response.json()
         self.assertFalse(response_data["success"])
+
+    def test_send_user_email_missing_fields(self):
+        # Test missing subject
+        data = {"message": "Test Message"}
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "testuser"}),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
+        self.assertEqual(response_data["error"], "Missing subject or message")
+
+        # Test missing message
+        data = {"subject": "Test Subject"}
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "testuser"}),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
+        self.assertEqual(response_data["error"], "Missing subject or message")
+
+    def test_send_user_email_wrong_content_type(self):
+        data = {"subject": "Test Subject", "message": "Test Message"}
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "testuser"}),
+            data=data,  # Not JSON
+            content_type="application/x-www-form-urlencoded",
+        )
+        self.assertEqual(response.status_code, 400)
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
+        self.assertEqual(
+            response_data["error"], "Content-Type must be application/json"
+        )
+
+    def test_send_user_email_unauthenticated(self):
+        self.client.logout()
+        data = {"subject": "Test Subject", "message": "Test Message"}
+        response = self.client.post(
+            reverse("send_user_email", kwargs={"username": "testuser"}),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertRedirects(
+            response,
+            f"{reverse('login')}?next={reverse('send_user_email', kwargs={'username': 'testuser'})}",
+        )
+
+    def test_edit_profile_with_empty_fields(self):
+        data = {
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+            "bio": "",
+            "email_changed": False,
+        }
+        response = self.client.post(
+            reverse("edit_profile"),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertTrue(response_data["success"])
+
+        # Verify fields weren't changed to empty strings
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, "")
+        self.assertEqual(self.user.last_name, "")
+        self.assertEqual(
+            self.user.email, "test@example.com"
+        )  # Email shouldn't be empty
+
+    def test_edit_profile_unauthenticated(self):
+        self.client.logout()
+        data = {
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "test@example.com",
+            "bio": "Test bio",
+        }
+        response = self.client.post(
+            reverse("edit_profile"),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertRedirects(
+            response, f"{reverse('login')}?next={reverse('edit_profile')}"
+        )
+
+    def test_edit_profile_invalid_email(self):
+        data = {
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "invalid-email",
+            "bio": "Test bio",
+            "email_changed": True,
+        }
+        response = self.client.post(
+            reverse("edit_profile"),
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertFalse(response_data["success"])
+        self.assertEqual(response_data["error"], "Invalid email format")

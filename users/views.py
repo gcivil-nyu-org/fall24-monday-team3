@@ -19,6 +19,8 @@ from django.urls import reverse
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import EmailVerificationToken, PendingEmailChange
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -134,12 +136,22 @@ def edit_profile(request):
             email_changed = data.get("email_changed", False)
             new_email = data.get("email")
 
-            # Check for duplicate email before making any changes
+            # Validate email format if it's being changed
             if email_changed and new_email:
+                try:
+                    validate_email(new_email)
+                except ValidationError:
+                    return JsonResponse({
+                        "success": False,
+                        "error": "Invalid email format"
+                    })
+
+                # Check for duplicate email
                 if User.objects.filter(email=new_email).exclude(id=user.id).exists():
-                    return JsonResponse(
-                        {"success": False, "error": "This email is already in use."}
-                    )
+                    return JsonResponse({
+                        "success": False,
+                        "error": "This email is already in use."
+                    })
 
             # Update non-email fields
             user.first_name = data.get("first_name", user.first_name)
@@ -151,14 +163,13 @@ def edit_profile(request):
                 # Create pending email change
                 PendingEmailChange.objects.filter(user=user).delete()
                 pending_change = PendingEmailChange.objects.create(
-                    user=user, new_email=new_email
+                    user=user,
+                    new_email=new_email
                 )
-
+                
                 # Send verification email
                 verification_url = request.build_absolute_uri(
-                    reverse(
-                        "verify_email_change", kwargs={"token": pending_change.token}
-                    )
+                    reverse("verify_email_change", kwargs={"token": pending_change.token})
                 )
                 send_mail(
                     "Verify your new email address",
@@ -167,23 +178,23 @@ def edit_profile(request):
                     [new_email],
                     fail_silently=False,
                 )
-
+                
                 user.save()
-                return JsonResponse(
-                    {
-                        "success": True,
-                        "email_verification_required": True,
-                        "message": "A verification email has been sent. The email change will be applied once verified.",
-                    }
-                )
+                return JsonResponse({
+                    "success": True,
+                    "email_verification_required": True,
+                    "message": "A verification email has been sent. The email change will be applied once verified."
+                })
             else:
-                # No email change or email is the same
                 user.save()
                 return JsonResponse({"success": True})
 
         except json.JSONDecodeError:
-            return JsonResponse({"success": False, "error": "Invalid JSON data"})
-
+            return JsonResponse({
+                "success": False,
+                "error": "Invalid JSON data"
+            })
+    
     return render(request, "users/edit_profile.html")
 
 
