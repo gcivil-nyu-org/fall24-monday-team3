@@ -15,7 +15,9 @@ import re
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
-load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env")
+load_dotenv(
+    "/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite/rentals/map.env"
+)
 # Get API key with a default value to help with debugging
 MAPS_API_KEY = os.getenv("MAP_API")
 if not MAPS_API_KEY:

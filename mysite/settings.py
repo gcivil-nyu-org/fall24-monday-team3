@@ -8,7 +8,6 @@ print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
 print("Database Port:", os.getenv("DATABASE_PORT"))
-print("Loaded MAP_API:", os.getenv("MAP_API"))
 
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -48,7 +47,6 @@ INSTALLED_APPS = [
     "chatbot",
     "storages",
     "alerts",
-    "dm",
 ]
 
 MIDDLEWARE = [
@@ -100,6 +98,9 @@ DATABASES = {
         "OPTIONS": {
             "options": "-c timezone=utc",
         },
+        "TEST": {
+            "NAME": "test_ebdb-new-pooja",
+        }
     }
 }
 
