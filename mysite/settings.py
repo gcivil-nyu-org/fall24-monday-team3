@@ -157,7 +157,7 @@ MEDIA_ROOT = "https://us-west-2.console.aws.amazon.com/s3/buckets/elasticbeansta
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# Authentication settings
+# Authentication settings edited
 AUTH_USER_MODEL = "users.User"  # Custom user model (if you're using one)
 LOGIN_URL = "login"  # Change from '/accounts/login/' to 'login'
 LOGIN_REDIRECT_URL = "home"  # Redirect to home after login
