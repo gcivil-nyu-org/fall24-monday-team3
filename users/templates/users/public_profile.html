@@ -23,7 +23,6 @@
                         <strong>Last Name:</strong> {{ profile_user.last_name }}<br>
                         {% endif %}
                         <strong>Email:</strong> {{ profile_user.email }}<br>
-                        <strong><a href="{% url 'dm:conversation' profile_user.username %}">Let's talk</a></strong> <br>
                         {% if profile_user.bio %}
                         
                         <strong>Bio:</strong>
