@@ -60,7 +60,7 @@ def edit_price_alert(request, alert_id):
             if location_changed or max_price_increased:
                 # Fetch existing apartment posts within the new range
                 matching_posts = ApartmentPost.objects.filter(
-                    post_type=alert.property_type,
+                    post_type=alert.post_type,
                     price__lte=alert.max_price,  # Within the new max price
                     price__gt=previous_max_price,  # Exclude those already within the old range
                 )

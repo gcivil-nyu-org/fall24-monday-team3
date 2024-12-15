@@ -10,7 +10,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Property Type</th>
+            <th>Posting Type</th>
             <th>Max Price</th>
             <th>Actions</th>
         </tr>
@@ -18,7 +18,7 @@
     <tbody>
         {% for alert in alerts %}
         <tr>
-            <td>{{ alert.property_type }}</td>
+            <td>{{ alert.post_type }}</td>
             <td>${{ alert.max_price }}</td>
             <td>
                 <a href="{% url 'edit_price_alert' alert.id %}" class="btn btn-sm btn-warning">Edit</a>
