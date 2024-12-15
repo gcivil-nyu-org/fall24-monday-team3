@@ -3,6 +3,7 @@ from alerts.models import PriceAlert
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 
+
 class PriceAlertModelTest(TestCase):
     def setUp(self):
         # Create a test user
