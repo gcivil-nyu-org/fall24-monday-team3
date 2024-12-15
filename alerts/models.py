@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class PriceAlert(models.Model):
@@ -15,6 +15,10 @@ class PriceAlert(models.Model):
     location = models.CharField(
         max_length=255, blank=True, null=True
     )  # New field for location
+
+    def clean(self):
+        if self.max_price < 0:
+            raise ValidationError("Max price cannot be negative.")
 
     def __str__(self):
         return f"{self.user.username}'s Alert - {self.property_type.title()} - Max Price: {self.max_price}"
