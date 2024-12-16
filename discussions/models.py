@@ -32,7 +32,7 @@ class Discussion(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("discussion_detail", kwargs={"pk": self.pk})
+        return reverse("discussions:discussion_detail", kwargs={"pk": self.pk})
 
 
 class Reply(models.Model):

@@ -80,4 +80,5 @@ venv.bak/
 
 db.sqlite3
 
-venv-rentsense
+venv-rentsensedatabase.env
+database.env
