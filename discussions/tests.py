@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from .models import Topic, Discussion, Reply, Vote
-from django.db.models import Count
 
 User = get_user_model()
 

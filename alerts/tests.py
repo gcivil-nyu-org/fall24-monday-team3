@@ -3,7 +3,6 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from .models import PriceAlert, Notification
-from decimal import Decimal
 
 User = get_user_model()
 
@@ -129,7 +128,7 @@ class AlertsTestCase(TestCase):
         from rentals.models import ApartmentPost
 
         # Create a price alert
-        alert = PriceAlert.objects.create(
+        PriceAlert.objects.create(
             user=self.user,
             max_price=1000.00,
             property_type="APARTMENT",
