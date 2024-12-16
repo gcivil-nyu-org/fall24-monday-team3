@@ -44,7 +44,11 @@ def check_price_drops_or_location_changes(sender, instance, created, **kwargs):
         is_favorite = Favorite.objects.filter(user=alert.user, post=instance).exists()
 
         try:
-            send_alert_email(alert.user, instance, is_favorite)
+            send_alert_email(
+                user=alert.user,
+                post=instance,
+                is_favorite=is_favorite,
+            )
             print(f"Email sent to {alert.user.email} for ApartmentPost {instance.id}")
         except Exception as e:
             print(f"Error sending email to {alert.user.email}: {str(e)}")
