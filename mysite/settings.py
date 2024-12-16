@@ -103,8 +103,8 @@ DATABASES = {
         "OPTIONS": {
             "options": "-c timezone=utc",
         },
-        "TEST" : {
-            'NAME' : 'test_final'
+        "TEST": {
+            'NAME': 'test_final'
         }
     }
 }

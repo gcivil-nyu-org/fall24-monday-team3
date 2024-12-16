@@ -1,19 +1,18 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.exceptions import ValidationError
+# from django.core.files.uploadedfile import SimpleUploadedFile
+# from django.core.exceptions import ValidationError
 from .models import RoommatePost, Comment, Favorite, Amenity
 from .forms import RoommatePostForm, CommentForm
-from decimal import Decimal
+# from decimal import Decimal
+
 
 class RoommatePostModelTest(TestCase):
     def setUp(self):
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
-            username="testuser", 
-            password="testpass123",
-            email="test@test.com"
+            username="testuser", password="testpass123", email="test@test.com"
         )
         self.amenity = Amenity.objects.create(name="WiFi")
         self.roommate_post = RoommatePost.objects.create(
@@ -66,12 +65,12 @@ class RoommatePostModelTest(TestCase):
         self.assertTrue(reply.is_reply)
         self.assertFalse(parent_comment.is_reply)
 
+
 class RoommateFormTests(TestCase):
     def setUp(self):
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
-            username="testuser", 
-            password="testpass123"
+            username="testuser", password="testpass123"
         )
 
     def test_valid_roommate_form(self):
@@ -106,14 +105,13 @@ class RoommateFormTests(TestCase):
         form = CommentForm(data={'content': 'Test comment'})
         self.assertTrue(form.is_valid())
 
+
 class RoommateViewsTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
-            username="testuser", 
-            password="testpass123",
-            email="test@test.com"
+            username="testuser", password="testpass123", email="test@test.com"
         )
         self.roommate_post = RoommatePost.objects.create(
             user=self.user,
@@ -161,9 +159,8 @@ class RoommateViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_unauthorized_update(self):
-        other_user = self.User.objects.create_user(
-            username="other", 
-            password="testpass123"
+        self.User.objects.create_user(
+            username="other", password="testpass123"
         )
         self.client.login(username="other", password="testpass123")
         response = self.client.get(
@@ -171,14 +168,13 @@ class RoommateViewsTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
 
+
 class CommentTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
-            username="testuser", 
-            password="testpass123"
-        )
+            username="testuser", password="testpass123")
         self.roommate_post = RoommatePost.objects.create(
             user=self.user,
             name="Test Roommate",

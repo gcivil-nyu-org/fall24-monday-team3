@@ -262,15 +262,11 @@ class ApartmentSearchTests(TestCase):
     def setUp(self):
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
-            username="testuser", 
-            password="testpass123", 
-            email="test@test.com"
-        )
-        
+            username="testuser", password="testpass123", email="test@test.com")
         # Add login step
         self.client = Client()
         self.client.login(username="testuser", password="testpass123")
-        
+
         # Create multiple test apartments
         self.apartment1 = ApartmentPost.objects.create(
             user=self.user,
@@ -282,7 +278,7 @@ class ApartmentSearchTests(TestCase):
             square_feet=1000,
             post_type="APARTMENT"
         )
-        
+
         self.apartment2 = ApartmentPost.objects.create(
             user=self.user,
             title="Budget Room",
@@ -316,7 +312,7 @@ class CommentTests(TestCase):
         self.other_user = self.User.objects.create_user(
             username="otheruser", password="testpass123"
         )
-        
+
         self.apartment = ApartmentPost.objects.create(
             user=self.user,
             title="Test Apartment",
@@ -346,7 +342,7 @@ class CommentTests(TestCase):
             user=self.user,
             content="Parent comment"
         )
-        
+
         # Create reply
         response = self.client.post(
             reverse('create_apartment_comment', kwargs={'pk': self.apartment.pk}),
@@ -403,7 +399,7 @@ class FavoriteTests(TestCase):
 
     def test_toggle_favorite(self):
         self.client.login(username="testuser", password="testpass123")
-        
+
         # Add to favorites with AJAX headers
         response = self.client.post(
             reverse('toggle_favorite', kwargs={'pk': self.apartment.pk}),
@@ -411,7 +407,7 @@ class FavoriteTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Favorite.objects.filter(user=self.user, post=self.apartment).exists())
-        
+
         # Remove from favorites
         response = self.client.post(
             reverse('toggle_favorite', kwargs={'pk': self.apartment.pk}),

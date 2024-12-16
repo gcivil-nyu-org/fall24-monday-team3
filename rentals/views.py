@@ -413,14 +413,12 @@ def create_apartment_post(request):
 def search_apartments(request):
     query = request.GET.get('q', '')
     apartments = ApartmentPost.objects.all()
-    
+
     if query:
         apartments = apartments.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(address__icontains=query)
+            Q(title__icontains=query) | Q(description__icontains=query) | Q(address__icontains=query)
         )
-    
+
     return render(request, 'rentals/apartment_list.html', {
         'apartments': apartments,
         'search_query': query
@@ -466,18 +464,18 @@ def toggle_favorite(request, pk):
             user=request.user,
             post=apartment
         )
-        
+
         if not created:
             favorite.delete()
             is_favorite = False
         else:
             is_favorite = True
-            
+
         return JsonResponse({
             'success': True,
             'is_favorite': is_favorite
         })
-    
+
     return JsonResponse({'success': False}, status=400)
 
 

@@ -251,14 +251,25 @@ def discussion_create(request):
 @login_required
 @require_http_methods(["POST"])
 def send_user_email(request, username):
-    if not request.content_type == "application/json":
+    print(request.content_type)
+    if not request.content_type == "application/json" and not request.content_type == 'multipart/form-data':
         return JsonResponse(
             {"success": False, "error": "Content-Type must be application/json"},
             status=400,
         )
 
     try:
-        data = json.loads(request.body)
+        data = ""
+        if request.content_type == 'multipart/form-data':
+
+            form_data = request.POST.dict()
+
+            # Convert the parsed data to JSON
+            json_data = json.dumps(form_data)
+            data = json.loads(json_data)
+        elif request.content_type == "application/json":
+            data = json.loads(request.body)
+        print(data)
     except json.JSONDecodeError:
         return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
 

@@ -1,5 +1,5 @@
-import openai
-import os
+# import openai
+# import os
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -81,7 +81,7 @@ class ChatbotTests(TestCase):
             }),
             content_type="application/json"
         )
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"response": "Test response"})
 
@@ -115,7 +115,7 @@ class ChatbotTests(TestCase):
     def test_chatbot_query_api_error(self, mock_post):
         """Test API error handling"""
         mock_post.side_effect = requests.exceptions.RequestException("API Error")
-        
+
         response = self.client.post(
             reverse("chatbot_query"),
             data=json.dumps({
@@ -131,7 +131,7 @@ class ChatbotTests(TestCase):
     def test_chatbot_query_general_error(self, mock_post):
         """Test general error handling"""
         mock_post.side_effect = Exception("General Error")
-        
+
         response = self.client.post(
             reverse("chatbot_query"),
             data=json.dumps({
@@ -148,5 +148,3 @@ class ChatbotTests(TestCase):
         self.client.logout()
         response = self.client.get(reverse("chat_interface"))
         self.assertRedirects(response, '/users/login/?next=/chatbot/')
-
-

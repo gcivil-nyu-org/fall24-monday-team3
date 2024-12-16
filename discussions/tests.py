@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from .models import Topic, Discussion, Reply, Vote
-from django.db.models import Count
+# from django.db.models import Count
 
 User = get_user_model()
 
@@ -119,7 +119,7 @@ class DiscussionViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "discussions/discussion_detail.html")
         self.assertContains(response, "Test Discussion")
-        
+
         # Test view count increment
         self.discussion.refresh_from_db()
         self.assertEqual(self.discussion.views, 1)
@@ -174,7 +174,7 @@ class VoteViewTest(TestCase):
 
     def test_vote_discussion(self):
         self.client.login(username="testuser", password="12345")
-        
+
         # Test upvote
         response = self.client.post(
             reverse("discussions:vote_discussion", args=[self.discussion.pk]),

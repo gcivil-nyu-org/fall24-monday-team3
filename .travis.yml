@@ -26,10 +26,10 @@ deploy:
   secret_access_key: $AWS_KEY
   region: us-west-2
   app: rentsense-final-test-before-deploy
-  env: test-before-deploy-env
+  env: deployment-env
   bucket_name: elasticbeanstalk-us-west-2-682033502272
   on:
     repo: gcivil-nyu-org/fall24-monday-team3
-    branch: test-before-deploy
+    branch: production
   
 

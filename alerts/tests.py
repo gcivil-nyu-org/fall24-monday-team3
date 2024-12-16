@@ -3,9 +3,10 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from .models import PriceAlert, Notification
-from decimal import Decimal
+# from decimal import Decimal
 
 User = get_user_model()
+
 
 class AlertsTestCase(TestCase):
     def setUp(self):
@@ -142,15 +143,15 @@ class AlertsTestCase(TestCase):
     def test_signals_price_drop(self):
         """Test signal when price drops below alert threshold"""
         from rentals.models import ApartmentPost
-        
+
         # Create a price alert
-        alert = PriceAlert.objects.create(
+        PriceAlert.objects.create(
             user=self.user,
             max_price=1000.00,
             property_type="APARTMENT",
             location="Test Location"
         )
-        
+
         # Create an apartment post that matches the alert criteria
         post = ApartmentPost.objects.create(
             user=self.user,
@@ -161,20 +162,20 @@ class AlertsTestCase(TestCase):
             address="Test Location",
             square_feet=1000
         )
-        
+
         # Check if notification was created
         notification = Notification.objects.filter(
             recipient=self.user,
             message__contains=str(post.price)
         ).first()
-        
+
         self.assertIsNotNone(notification)
 
     def test_utils_send_alert_email(self):
         """Test alert email sending utility"""
         from rentals.models import ApartmentPost
         from alerts.utils import send_alert_email
-        
+
         # Create an apartment post
         post = ApartmentPost.objects.create(
             user=self.user,
@@ -185,16 +186,16 @@ class AlertsTestCase(TestCase):
             address="Test Location",
             square_feet=1000
         )
-        
+
         # Test sending alert email
         send_alert_email(self.user, post, is_favorite=False)
-        
+
         # Check if notification was created
         notification = Notification.objects.filter(
             recipient=self.user,
             message__contains="Test Location"
         ).first()
-        
+
         self.assertIsNotNone(notification)
 
     def test_edit_price_alert_view(self):
@@ -205,18 +206,13 @@ class AlertsTestCase(TestCase):
             property_type="APARTMENT",
             location="Old Location"
         )
-        
         data = {
             'max_price': '1500.00',
             'property_type': 'APARTMENT',
             'location': 'New Location'
         }
-        
         response = self.client.post(
-            reverse('edit_price_alert', args=[alert.id]), 
-            data
-        )
-        
+            reverse('edit_price_alert', args=[alert.id]), data)
         self.assertEqual(response.status_code, 302)
         alert.refresh_from_db()
         self.assertEqual(alert.location, 'New Location')
@@ -230,8 +226,6 @@ class AlertsTestCase(TestCase):
             property_type="APARTMENT",
             location="Test Location"
         )
-        
         response = self.client.post(reverse('delete_price_alert', args=[alert.id]))
-        
         self.assertEqual(response.status_code, 302)
         self.assertFalse(PriceAlert.objects.filter(id=alert.id).exists())
