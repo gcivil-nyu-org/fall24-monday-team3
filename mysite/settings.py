@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-load_dotenv("/Users/navro/Desktop/fall24/fall24-monday-team3/database.env")
+load_dotenv("/Users/sreeharshnamani/Downloads/Assignments_NYU/Software/fresh_rentsense/mysite2/mysite/database.env")
 print("Database Name:", os.getenv("DATABASE_NAME"))
 print("Database User:", os.getenv("DATABASE_USER"))
 print("Database Host:", os.getenv("DATABASE_HOST"))
@@ -103,6 +103,9 @@ DATABASES = {
         "OPTIONS": {
             "options": "-c timezone=utc",
         },
+        "TEST" : {
+            'NAME' : 'test_final'
+        }
     }
 }
 
