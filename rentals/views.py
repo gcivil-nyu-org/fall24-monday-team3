@@ -409,17 +409,22 @@ def create_apartment_post(request):
     return render(request, "rentals/create_apartment_post.html", context)
 
 
-@login_required(login_url="/users/login/")
+@login_required
 def search_apartments(request):
-    query = request.GET.get("q")
+    query = request.GET.get('q', '')
+    apartments = ApartmentPost.objects.all()
+    
     if query:
-        results = ApartmentPost.objects.filter(title__icontains=query)
-    else:
-        results = ApartmentPost.objects.all()
-
-    return render(
-        request, "rentals/search_results.html", {"results": results, "query": query}
-    )
+        apartments = apartments.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(address__icontains=query)
+        )
+    
+    return render(request, 'rentals/apartment_list.html', {
+        'apartments': apartments,
+        'search_query': query
+    })
 
 
 @login_required(login_url="/users/login/")
@@ -453,29 +458,27 @@ def delete_apartment_comment(request, comment_id):
     return redirect("apartment_detail", pk=comment.post.pk)
 
 
-@login_required(login_url="/users/login/")
+@login_required
 def toggle_favorite(request, pk):
-    if (
-        request.method == "POST"
-        and request.headers.get("X-Requested-With") == "XMLHttpRequest"
-    ):
-        post = get_object_or_404(ApartmentPost, pk=pk)
-        favorite, created = Favorite.objects.get_or_create(user=request.user, post=post)
-
-        if not created:
-            # If it wasn't created, then it existed, so we should delete it
-            favorite.delete()
-            is_favorited = False
-            message = "Removed from favorites"
-        else:
-            is_favorited = True
-            message = "Added to favorites"
-
-        return JsonResponse(
-            {"success": True, "is_favorited": is_favorited, "message": message}
+    if request.method == 'POST' and request.accepts('application/json'):
+        apartment = get_object_or_404(ApartmentPost, pk=pk)
+        favorite, created = Favorite.objects.get_or_create(
+            user=request.user,
+            post=apartment
         )
-
-    return JsonResponse({"success": False}, status=400)
+        
+        if not created:
+            favorite.delete()
+            is_favorite = False
+        else:
+            is_favorite = True
+            
+        return JsonResponse({
+            'success': True,
+            'is_favorite': is_favorite
+        })
+    
+    return JsonResponse({'success': False}, status=400)
 
 
 @login_required
