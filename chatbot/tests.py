@@ -27,7 +27,7 @@ class ChatbotTests(TestCase):
         """Test chat interface with query parameters"""
         response = self.client.get(
             reverse("chat_interface"),
-            {'query': 'test query', 'neighborhood': 'Manhattan'}
+            {"query": "test query", "neighborhood": "Manhattan"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(ChatMessage.objects.filter(user=self.user).exists())
@@ -36,37 +36,26 @@ class ChatbotTests(TestCase):
         """Test string representation of ChatMessage"""
         # Test bot message
         bot_message = ChatMessage.objects.create(
-            user=self.user,
-            message="Bot message",
-            is_bot=True
+            user=self.user, message="Bot message", is_bot=True
         )
         self.assertEqual(str(bot_message), "Bot: Bot message")
 
         # Test user message
         user_message = ChatMessage.objects.create(
-            user=self.user,
-            message="User message",
-            is_bot=False
+            user=self.user, message="User message", is_bot=False
         )
         self.assertEqual(str(user_message), f"{self.user.username}: User message")
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_chatbot_query_success(self, mock_post):
         """Test successful chatbot query"""
+
         class MockResponse:
             def __init__(self):
                 self.status_code = 200
 
             def json(self):
-                return {
-                    "choices": [
-                        {
-                            "message": {
-                                "content": "Test response"
-                            }
-                        }
-                    ]
-                }
+                return {"choices": [{"message": {"content": "Test response"}}]}
 
             def raise_for_status(self):
                 pass
@@ -75,13 +64,10 @@ class ChatbotTests(TestCase):
 
         response = self.client.post(
             reverse("chatbot_query"),
-            data=json.dumps({
-                "query": "test query",
-                "neighborhood": "Manhattan"
-            }),
-            content_type="application/json"
+            data=json.dumps({"query": "test query", "neighborhood": "Manhattan"}),
+            content_type="application/json",
         )
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"response": "Test response"})
 
@@ -90,7 +76,7 @@ class ChatbotTests(TestCase):
         response = self.client.post(
             reverse("chatbot_query"),
             data="invalid json",
-            content_type="application/json"
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"error": "Invalid JSON"})
@@ -100,7 +86,7 @@ class ChatbotTests(TestCase):
         response = self.client.post(
             reverse("chatbot_query"),
             data=json.dumps({"query": "", "neighborhood": ""}),
-            content_type="application/json"
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"error": "Invalid input"})
@@ -111,34 +97,28 @@ class ChatbotTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"error": "Invalid request"})
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_chatbot_query_api_error(self, mock_post):
         """Test API error handling"""
         mock_post.side_effect = requests.exceptions.RequestException("API Error")
-        
+
         response = self.client.post(
             reverse("chatbot_query"),
-            data=json.dumps({
-                "query": "test query",
-                "neighborhood": "Manhattan"
-            }),
-            content_type="application/json"
+            data=json.dumps({"query": "test query", "neighborhood": "Manhattan"}),
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"error": "API Error"})
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_chatbot_query_general_error(self, mock_post):
         """Test general error handling"""
         mock_post.side_effect = Exception("General Error")
-        
+
         response = self.client.post(
             reverse("chatbot_query"),
-            data=json.dumps({
-                "query": "test query",
-                "neighborhood": "Manhattan"
-            }),
-            content_type="application/json"
+            data=json.dumps({"query": "test query", "neighborhood": "Manhattan"}),
+            content_type="application/json",
         )
         self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"error": "General Error"})
@@ -147,6 +127,4 @@ class ChatbotTests(TestCase):
         """Test access without authentication"""
         self.client.logout()
         response = self.client.get(reverse("chat_interface"))
-        self.assertRedirects(response, '/users/login/?next=/chatbot/')
-
-
+        self.assertRedirects(response, "/users/login/?next=/chatbot/")

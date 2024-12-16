@@ -10,9 +10,7 @@ User = get_user_model()
 class TopicModelTest(TestCase):
     def setUp(self):
         self.topic = Topic.objects.create(
-            name="Test Topic",
-            slug="test-topic",
-            description="Test description"
+            name="Test Topic", slug="test-topic", description="Test description"
         )
 
     def test_topic_creation(self):
@@ -42,7 +40,9 @@ class DiscussionModelTest(TestCase):
         self.assertEqual(str(self.discussion), "Test Discussion")
 
     def test_discussion_absolute_url(self):
-        expected_url = reverse("discussions:discussion_detail", kwargs={"pk": self.discussion.pk})
+        expected_url = reverse(
+            "discussions:discussion_detail", kwargs={"pk": self.discussion.pk}
+        )
         self.assertEqual(self.discussion.get_absolute_url(), expected_url)
 
 
@@ -54,12 +54,10 @@ class ReplyModelTest(TestCase):
             title="Test Discussion",
             content="Content",
             topic=self.topic,
-            author=self.user
+            author=self.user,
         )
         self.reply = Reply.objects.create(
-            discussion=self.discussion,
-            author=self.user,
-            content="Test reply"
+            discussion=self.discussion, author=self.user, content="Test reply"
         )
 
     def test_reply_creation(self):
@@ -78,12 +76,10 @@ class VoteModelTest(TestCase):
             title="Test Discussion",
             content="Content",
             topic=self.topic,
-            author=self.user
+            author=self.user,
         )
         self.vote = Vote.objects.create(
-            user=self.user,
-            discussion=self.discussion,
-            value=Vote.UPVOTE
+            user=self.user, discussion=self.discussion, value=Vote.UPVOTE
         )
 
     def test_vote_creation(self):
@@ -103,7 +99,7 @@ class DiscussionViewsTest(TestCase):
             title="Test Discussion",
             content="Content",
             topic=self.topic,
-            author=self.user
+            author=self.user,
         )
 
     def test_discussion_list_view(self):
@@ -119,7 +115,7 @@ class DiscussionViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "discussions/discussion_detail.html")
         self.assertContains(response, "Test Discussion")
-        
+
         # Test view count increment
         self.discussion.refresh_from_db()
         self.assertEqual(self.discussion.views, 1)
@@ -131,8 +127,8 @@ class DiscussionViewsTest(TestCase):
             {
                 "title": "New Discussion",
                 "content": "New content",
-                "topic": self.topic.id
-            }
+                "topic": self.topic.id,
+            },
         )
         self.assertEqual(response.status_code, 302)  # Redirect after creation
         self.assertTrue(Discussion.objects.filter(title="New Discussion").exists())
@@ -144,8 +140,8 @@ class DiscussionViewsTest(TestCase):
             {
                 "title": "Updated Discussion",
                 "content": "Updated content",
-                "topic": self.topic.id
-            }
+                "topic": self.topic.id,
+            },
         )
         self.assertEqual(response.status_code, 302)
         self.discussion.refresh_from_db()
@@ -169,16 +165,16 @@ class VoteViewTest(TestCase):
             title="Test Discussion",
             content="Content",
             topic=self.topic,
-            author=self.user
+            author=self.user,
         )
 
     def test_vote_discussion(self):
         self.client.login(username="testuser", password="12345")
-        
+
         # Test upvote
         response = self.client.post(
             reverse("discussions:vote_discussion", args=[self.discussion.pk]),
-            {"vote_type": "upvote"}
+            {"vote_type": "upvote"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["vote_count"], 1)
@@ -186,7 +182,7 @@ class VoteViewTest(TestCase):
         # Test downvote
         response = self.client.post(
             reverse("discussions:vote_discussion", args=[self.discussion.pk]),
-            {"vote_type": "downvote"}
+            {"vote_type": "downvote"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["vote_count"], 1)
@@ -194,6 +190,6 @@ class VoteViewTest(TestCase):
         # Test invalid vote type
         response = self.client.post(
             reverse("discussions:vote_discussion", args=[self.discussion.pk]),
-            {"vote_type": "invalid"}
+            {"vote_type": "invalid"},
         )
         self.assertEqual(response.status_code, 400)

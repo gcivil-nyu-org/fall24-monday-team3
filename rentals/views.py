@@ -411,20 +411,21 @@ def create_apartment_post(request):
 
 @login_required
 def search_apartments(request):
-    query = request.GET.get('q', '')
+    query = request.GET.get("q", "")
     apartments = ApartmentPost.objects.all()
-    
+
     if query:
         apartments = apartments.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query) |
-            Q(address__icontains=query)
+            Q(title__icontains=query)
+            | Q(description__icontains=query)
+            | Q(address__icontains=query)
         )
-    
-    return render(request, 'rentals/apartment_list.html', {
-        'apartments': apartments,
-        'search_query': query
-    })
+
+    return render(
+        request,
+        "rentals/apartment_list.html",
+        {"apartments": apartments, "search_query": query},
+    )
 
 
 @login_required(login_url="/users/login/")
@@ -460,25 +461,21 @@ def delete_apartment_comment(request, comment_id):
 
 @login_required
 def toggle_favorite(request, pk):
-    if request.method == 'POST' and request.accepts('application/json'):
+    if request.method == "POST" and request.accepts("application/json"):
         apartment = get_object_or_404(ApartmentPost, pk=pk)
         favorite, created = Favorite.objects.get_or_create(
-            user=request.user,
-            post=apartment
+            user=request.user, post=apartment
         )
-        
+
         if not created:
             favorite.delete()
             is_favorite = False
         else:
             is_favorite = True
-            
-        return JsonResponse({
-            'success': True,
-            'is_favorite': is_favorite
-        })
-    
-    return JsonResponse({'success': False}, status=400)
+
+        return JsonResponse({"success": True, "is_favorite": is_favorite})
+
+    return JsonResponse({"success": False}, status=400)
 
 
 @login_required

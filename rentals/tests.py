@@ -262,15 +262,13 @@ class ApartmentSearchTests(TestCase):
     def setUp(self):
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
-            username="testuser", 
-            password="testpass123", 
-            email="test@test.com"
+            username="testuser", password="testpass123", email="test@test.com"
         )
-        
+
         # Add login step
         self.client = Client()
         self.client.login(username="testuser", password="testpass123")
-        
+
         # Create multiple test apartments
         self.apartment1 = ApartmentPost.objects.create(
             user=self.user,
@@ -280,9 +278,9 @@ class ApartmentSearchTests(TestCase):
             address="123 Luxury St",
             bedrooms=2,
             square_feet=1000,
-            post_type="APARTMENT"
+            post_type="APARTMENT",
         )
-        
+
         self.apartment2 = ApartmentPost.objects.create(
             user=self.user,
             title="Budget Room",
@@ -291,17 +289,17 @@ class ApartmentSearchTests(TestCase):
             address="456 Budget St",
             bedrooms=1,
             square_feet=500,
-            post_type="ROOM"
+            post_type="ROOM",
         )
 
     def test_search_by_title(self):
-        response = self.client.get(reverse('search_apartments'), {'q': 'Luxury'})
+        response = self.client.get(reverse("search_apartments"), {"q": "Luxury"})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Luxury Apartment")
         self.assertNotContains(response, "Budget Room")
 
     def test_search_empty_query(self):
-        response = self.client.get(reverse('search_apartments'), {'q': ''})
+        response = self.client.get(reverse("search_apartments"), {"q": ""})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Luxury Apartment")
         self.assertContains(response, "Budget Room")
@@ -316,7 +314,7 @@ class CommentTests(TestCase):
         self.other_user = self.User.objects.create_user(
             username="otheruser", password="testpass123"
         )
-        
+
         self.apartment = ApartmentPost.objects.create(
             user=self.user,
             title="Test Apartment",
@@ -325,47 +323,45 @@ class CommentTests(TestCase):
             address="123 Test St",
             bedrooms=2,
             square_feet=1000,
-            post_type="APARTMENT"
+            post_type="APARTMENT",
         )
 
     def test_create_comment(self):
         self.client.login(username="testuser", password="testpass123")
         response = self.client.post(
-            reverse('create_apartment_comment', kwargs={'pk': self.apartment.pk}),
-            {'content': 'Test comment'}
+            reverse("create_apartment_comment", kwargs={"pk": self.apartment.pk}),
+            {"content": "Test comment"},
         )
-        self.assertEqual(response.status_code, 302)  # Should redirect after successful comment
+        self.assertEqual(
+            response.status_code, 302
+        )  # Should redirect after successful comment
         self.assertEqual(Comment.objects.count(), 1)
-        self.assertEqual(Comment.objects.first().content, 'Test comment')
+        self.assertEqual(Comment.objects.first().content, "Test comment")
 
     def test_create_reply(self):
         self.client.login(username="testuser", password="testpass123")
         # Create parent comment
         parent_comment = Comment.objects.create(
-            post=self.apartment,
-            user=self.user,
-            content="Parent comment"
+            post=self.apartment, user=self.user, content="Parent comment"
         )
-        
+
         # Create reply
         response = self.client.post(
-            reverse('create_apartment_comment', kwargs={'pk': self.apartment.pk}),
-            {'content': 'Reply comment', 'parent_id': parent_comment.id}
+            reverse("create_apartment_comment", kwargs={"pk": self.apartment.pk}),
+            {"content": "Reply comment", "parent_id": parent_comment.id},
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Comment.objects.count(), 2)
-        reply = Comment.objects.latest('created_at')
+        reply = Comment.objects.latest("created_at")
         self.assertEqual(reply.parent, parent_comment)
 
     def test_delete_comment(self):
         self.client.login(username="testuser", password="testpass123")
         comment = Comment.objects.create(
-            post=self.apartment,
-            user=self.user,
-            content="Test comment"
+            post=self.apartment, user=self.user, content="Test comment"
         )
         response = self.client.post(
-            reverse('delete_apartment_comment', kwargs={'comment_id': comment.id})
+            reverse("delete_apartment_comment", kwargs={"comment_id": comment.id})
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Comment.objects.count(), 0)
@@ -373,12 +369,10 @@ class CommentTests(TestCase):
     def test_non_owner_cannot_delete_comment(self):
         self.client.login(username="otheruser", password="testpass123")
         comment = Comment.objects.create(
-            post=self.apartment,
-            user=self.user,
-            content="Test comment"
+            post=self.apartment, user=self.user, content="Test comment"
         )
         response = self.client.post(
-            reverse('delete_apartment_comment', kwargs={'comment_id': comment.id})
+            reverse("delete_apartment_comment", kwargs={"comment_id": comment.id})
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Comment.objects.count(), 1)  # Comment should still exist
@@ -398,31 +392,35 @@ class FavoriteTests(TestCase):
             address="123 Test St",
             bedrooms=2,
             square_feet=1000,
-            post_type="APARTMENT"
+            post_type="APARTMENT",
         )
 
     def test_toggle_favorite(self):
         self.client.login(username="testuser", password="testpass123")
-        
+
         # Add to favorites with AJAX headers
         response = self.client.post(
-            reverse('toggle_favorite', kwargs={'pk': self.apartment.pk}),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("toggle_favorite", kwargs={"pk": self.apartment.pk}),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(Favorite.objects.filter(user=self.user, post=self.apartment).exists())
-        
+        self.assertTrue(
+            Favorite.objects.filter(user=self.user, post=self.apartment).exists()
+        )
+
         # Remove from favorites
         response = self.client.post(
-            reverse('toggle_favorite', kwargs={'pk': self.apartment.pk}),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("toggle_favorite", kwargs={"pk": self.apartment.pk}),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(Favorite.objects.filter(user=self.user, post=self.apartment).exists())
+        self.assertFalse(
+            Favorite.objects.filter(user=self.user, post=self.apartment).exists()
+        )
 
     def test_unauthenticated_user_cannot_favorite(self):
         response = self.client.post(
-            reverse('toggle_favorite', kwargs={'pk': self.apartment.pk})
+            reverse("toggle_favorite", kwargs={"pk": self.apartment.pk})
         )
         self.assertEqual(response.status_code, 302)  # Should redirect to login
         self.assertEqual(Favorite.objects.count(), 0)

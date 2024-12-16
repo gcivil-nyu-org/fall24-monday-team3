@@ -228,12 +228,19 @@
 document.getElementById('emailForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    const messageContent = document.getElementById('messageContent').value;
+    const data = {
+        subject: "Message from RentSense User",  // Add a default subject
+        message: messageContent
+    };
+
     fetch(this.action, {
         method: 'POST',
-        body: new FormData(this),
         headers: {
+            'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        }
+        },
+        body: JSON.stringify(data)
     })
     .then(response => response.json())
     .then(data => {
