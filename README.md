@@ -1,4 +1,13 @@
-# fall24-monday-team3
+# Badges for testing and deployment branches.
+Deployment branch test coverage [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/fall24-monday-team3/badge.svg?branch=test-before-deploy)](https://coveralls.io/github/gcivil-nyu-org/fall24-monday-team3?branch=test-before-deploy)
+
+Deployment branch Travis build status [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3.svg?token=KJ9Rp2huhLqhYhPz7oyk&branch=test-before-deploy)](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3)
+
+Testing branch test coverage [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/fall24-monday-team3/badge.svg?branch=test-before-deploy)](https://coveralls.io/github/gcivil-nyu-org/fall24-monday-team3?branch=test-before-deploy)
+
+Testing branch Travis build status [![Build Status](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3.svg?token=KJ9Rp2huhLqhYhPz7oyk&branch=test-before-deploy)](https://app.travis-ci.com/gcivil-nyu-org/fall24-monday-team3)
+
+
 
 <H1> High Level Context Diagram <H1>
 <img width="506" alt="Screenshot 2024-09-30 at 11 32 22 AM" src="https://github.com/user-attachments/assets/e8d9f9e7-ad0b-48ce-804e-28b1d39c0274">
