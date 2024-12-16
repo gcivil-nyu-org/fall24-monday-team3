@@ -105,7 +105,7 @@ DATABASES = {
         },
         "TEST": {
             "NAME": "test_ebdb-new-pooja",
-        }
+        },
     }
 }
 
