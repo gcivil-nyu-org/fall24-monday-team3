@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 from django.core.exceptions import ValidationError
 
+
 # Create your models here.
 class PriceAlert(models.Model):
     PROPERTY_TYPE_CHOICES = [
